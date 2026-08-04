@@ -590,28 +590,45 @@ section {
   border-top: 1px solid var(--hair);
 }
 
-.cta-band .bg-img {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0.16;
-  filter: saturate(0.6) contrast(1.1);
-}
-
 .cta-band .grad-edge {
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    900px circle at 80% 20%,
-    rgba(123, 108, 255, 0.14),
+    900px circle at 80% 15%,
+    rgba(123, 108, 255, 0.2),
     transparent 60%
   ),
   radial-gradient(
-    700px circle at 15% 85%,
-    rgba(255, 77, 46, 0.14),
+    750px circle at 12% 90%,
+    rgba(255, 77, 46, 0.18),
     transparent 55%
   );
+}
+
+/* oversized rings echoing the logo mark */
+.cta-band .grad-edge::before,
+.cta-band .grad-edge::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.cta-band .grad-edge::before {
+  width: 560px;
+  height: 560px;
+  right: -140px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.cta-band .grad-edge::after {
+  width: 300px;
+  height: 300px;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-color: rgba(255, 77, 46, 0.14);
 }
 
 /* ---------- footer ---------- */

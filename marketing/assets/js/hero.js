@@ -32,7 +32,26 @@
     return [x / poly.length, y / poly.length];
   }
 
+  function buildMapOutlines(slots) {
+    // "map your spaces" step: neutral calibration outlines, no states
+    var mapSvg = document.getElementById("hiw-map-svg");
+    if (!mapSvg) return;
+    slots.forEach(function (slot) {
+      var el = document.createElementNS(NS, "polygon");
+      el.setAttribute(
+        "points",
+        slot.polygon.map(function (p) { return p[0] + "," + p[1]; }).join(" ")
+      );
+      el.setAttribute("stroke", "rgba(247, 246, 242, 0.8)");
+      el.setAttribute("fill", "rgba(247, 246, 242, 0.07)");
+      el.setAttribute("stroke-width", "2");
+      el.setAttribute("vector-effect", "non-scaling-stroke");
+      mapSvg.appendChild(el);
+    });
+  }
+
   function build(slots) {
+    buildMapOutlines(slots);
     // sort by centroid x so polygons ignite as the sweep passes
     var sorted = slots.slice().sort(function (a, b) {
       return centroid(a.polygon)[0] - centroid(b.polygon)[0];
