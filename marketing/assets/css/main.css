@@ -1020,6 +1020,14 @@ body.cursor-on .cursor-ring {
   }
 }
 
+/* ---------- nav login button ---------- */
+
+@media (max-width: 640px) {
+  .nav-login {
+    display: none;
+  }
+}
+
 /* ---------- reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
