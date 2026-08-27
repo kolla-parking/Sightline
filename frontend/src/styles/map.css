@@ -1,0 +1,102 @@
+/* MapLibre chrome adjustments for the dark control room */
+
+.maplibregl-map {
+  font: inherit;
+}
+
+.maplibregl-ctrl-attrib {
+  background: oklch(0.13 0.008 255 / 0.8) !important;
+  color: var(--ink-faint);
+  font-size: 9px;
+  border-radius: 4px 0 0 0;
+}
+
+.maplibregl-ctrl-attrib a {
+  color: var(--ink-muted);
+}
+
+.maplibregl-ctrl-group {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-2) !important;
+  box-shadow: none !important;
+}
+
+.maplibregl-ctrl-group button {
+  width: 26px !important;
+  height: 26px !important;
+  background: transparent !important;
+}
+
+.maplibregl-ctrl-group button + button {
+  border-top: 1px solid var(--line) !important;
+}
+
+.maplibregl-ctrl-icon {
+  filter: invert(0.8);
+}
+
+/* site marker (portfolio view) */
+.site-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+}
+
+.site-marker .ring {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-data);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  background: oklch(0.15 0.008 255 / 0.88);
+  border: 2.5px solid var(--ok);
+  transition: transform var(--t-fast) var(--ease-out);
+}
+
+.site-marker:hover .ring {
+  transform: scale(1.1);
+}
+
+.site-marker.warn .ring { border-color: var(--warn); }
+.site-marker.danger .ring { border-color: var(--danger); }
+
+.site-marker .tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-mid);
+  background: oklch(0.13 0.008 255 / 0.85);
+  padding: 1px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* camera marker (site view) */
+.cam-marker {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: oklch(0.15 0.008 255 / 0.9);
+  border: 1.5px solid var(--ok);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+.cam-marker.offline { border-color: var(--danger); }
+.cam-marker::after {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: currentColor;
+  color: var(--ok);
+}
+.cam-marker.offline::after { color: var(--danger); }

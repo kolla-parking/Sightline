@@ -6,4 +6,8 @@ export default defineConfig({
   server: {
     port: 5173,
   },
+  optimizeDeps: {
+    // pre-bundling maplibre-gl breaks its internal worker bootstrap in dev
+    exclude: ["maplibre-gl"],
+  },
 });

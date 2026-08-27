@@ -1,0 +1,76 @@
+/* Sightline operator dashboard — design tokens (dark-first, OKLCH) */
+
+:root {
+  /* ---- surfaces ---- */
+  --bg: oklch(0.155 0.008 255);          /* app ground */
+  --bg-sunken: oklch(0.13 0.008 255);    /* sidebar / rails — the cooler second layer */
+  --surface: oklch(0.185 0.009 255);     /* panels */
+  --surface-2: oklch(0.215 0.01 255);    /* raised: rows hover, inputs */
+  --surface-3: oklch(0.25 0.011 255);    /* active / pressed */
+  --overlay: oklch(0.17 0.009 255 / 0.92);
+
+  /* ---- ink ---- */
+  --ink: oklch(0.94 0.004 255);
+  --ink-mid: oklch(0.76 0.008 255);
+  --ink-muted: oklch(0.62 0.01 255);
+  --ink-faint: oklch(0.46 0.01 255);
+
+  /* ---- hairlines ---- */
+  --line: oklch(1 0 0 / 0.08);
+  --line-strong: oklch(1 0 0 / 0.14);
+
+  /* ---- brand accent (Sightline red-orange) ---- */
+  --accent: oklch(0.66 0.2 32);
+  --accent-hover: oklch(0.7 0.2 32);
+  --accent-ink: oklch(0.985 0.005 32);
+  --accent-dim: oklch(0.66 0.2 32 / 0.14);
+  --accent-line: oklch(0.66 0.2 32 / 0.45);
+
+  /* ---- semantic states ---- */
+  --ok: oklch(0.78 0.17 158);
+  --ok-dim: oklch(0.78 0.17 158 / 0.13);
+  --warn: oklch(0.82 0.14 85);
+  --warn-dim: oklch(0.82 0.14 85 / 0.13);
+  --danger: oklch(0.64 0.21 27);
+  --danger-dim: oklch(0.64 0.21 27 / 0.15);
+  --info: oklch(0.72 0.11 240);
+  --info-dim: oklch(0.72 0.11 240 / 0.13);
+
+  /* ---- occupancy vocabulary (fixed across the app) ---- */
+  --space-free: oklch(0.72 0.16 158);
+  --space-occupied: oklch(0.52 0.12 27);
+  --space-violation: oklch(0.66 0.22 27);
+  --space-special: oklch(0.68 0.11 240);   /* EV / ADA / reserved */
+  --space-unknown: oklch(0.42 0.008 255);
+
+  /* ---- type ---- */
+  --font-ui: "Inter", "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, monospace;
+  --fs-0: 0.6875rem;   /* 11 — dense meta, table headers */
+  --fs-1: 0.75rem;     /* 12 — secondary, labels */
+  --fs-2: 0.8125rem;   /* 13 — body default */
+  --fs-3: 0.9375rem;   /* 15 — emphasized, panel titles */
+  --fs-4: 1.0625rem;   /* 17 — page titles */
+  --fs-5: 1.25rem;     /* 20 — key numbers */
+  --fs-6: 1.5rem;      /* 24 — hero numbers */
+
+  /* ---- spacing / shape ---- */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
+  --r-1: 4px; --r-2: 6px; --r-3: 8px; --r-4: 10px;
+
+  /* ---- z scale ---- */
+  --z-dropdown: 30;
+  --z-sticky: 40;
+  --z-drawer: 50;
+  --z-modal-backdrop: 60;
+  --z-modal: 70;
+  --z-toast: 80;
+  --z-tooltip: 90;
+
+  /* ---- motion ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --t-fast: 120ms;
+  --t-med: 190ms;
+
+  color-scheme: dark;
+}
