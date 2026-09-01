@@ -6,7 +6,14 @@
 
 import { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
+// maplibre resolves its worker via `new URL(..., import.meta.url)`, which
+// Rollup can't rewrite — in production builds the worker file was never
+// emitted and the map silently rendered no tiles. ?worker&url makes Vite
+// bundle the worker (and its shared-chunk import) into a real asset.
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
+
+maplibregl.setWorkerUrl(maplibreWorkerUrl);
 import "../../styles/map.css";
 import { SITES, siteById, CITY_CENTER } from "../../sim/sites.js";
 import { cameraHealth, sessionPhase } from "../../sim/engine.js";
