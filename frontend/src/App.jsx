@@ -113,23 +113,23 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/legacy" element={<LegacyDashboard />} />
+        <Route path="/console/legacy" element={<LegacyDashboard />} />
         <Route
           path="*"
           element={
             <RequireAuth>
               <Shell>
                 <Routes>
-                  <Route path="/" element={<Navigate to="/twin" replace />} />
-                  <Route path="/sites" element={<SitesPage />} />
-                  <Route path="/twin" element={<TwinPage />} />
-                  <Route path="/analytics" element={<AnalyticsPage />} />
-                  <Route path="/events" element={<EventsPage />} />
-                  <Route path="/enforcement" element={<EnforcementPage />} />
-                  <Route path="/reports" element={<ReportsPage />} />
-                  <Route path="/copilot" element={<CopilotPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="*" element={<Navigate to="/twin" replace />} />
+                  <Route path="/" element={<Navigate to="/console/twin" replace />} />
+                  <Route path="/console/sites" element={<SitesPage />} />
+                  <Route path="/console/twin" element={<TwinPage />} />
+                  <Route path="/console/analytics" element={<AnalyticsPage />} />
+                  <Route path="/console/events" element={<EventsPage />} />
+                  <Route path="/console/enforcement" element={<EnforcementPage />} />
+                  <Route path="/console/reports" element={<ReportsPage />} />
+                  <Route path="/console/copilot" element={<CopilotPage />} />
+                  <Route path="/console/settings" element={<SettingsPage />} />
+                  <Route path="*" element={<Navigate to="/console/twin" replace />} />
                 </Routes>
               </Shell>
             </RequireAuth>

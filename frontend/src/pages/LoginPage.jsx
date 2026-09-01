@@ -35,7 +35,7 @@ export default function LoginPage() {
     }
   });
 
-  if (authStatus === "authed") return <Navigate to="/twin" replace />;
+  if (authStatus === "authed") return <Navigate to="/console/twin" replace />;
 
   async function submit(e) {
     e.preventDefault();
@@ -50,7 +50,7 @@ export default function LoginPage() {
         /* storage unavailable */
       }
       setAuth({ token: res.data.token, user: res.data.member || null });
-      navigate("/twin", { replace: true });
+      navigate("/console/twin", { replace: true });
       return;
     }
     setBusy(false);

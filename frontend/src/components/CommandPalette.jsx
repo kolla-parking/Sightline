@@ -8,14 +8,14 @@ import { Kbd } from "./ui.jsx";
 import { useAskCopilot } from "./CopilotPanel.jsx";
 
 const NAV = [
-  { id: "sites", label: "Go to Sites", to: "/sites", key: "G O" },
-  { id: "twin", label: "Go to Live Twin", to: "/twin", key: "G T" },
-  { id: "analytics", label: "Go to Analytics & Forecasts", to: "/analytics", key: "G A" },
-  { id: "events", label: "Go to Events & Alerts", to: "/events", key: "G E" },
-  { id: "enforcement", label: "Go to Enforcement", to: "/enforcement", key: "G N" },
-  { id: "reports", label: "Go to Reports", to: "/reports", key: "G R" },
-  { id: "copilot", label: "Go to Copilot", to: "/copilot", key: "G C" },
-  { id: "settings", label: "Go to Settings", to: "/settings", key: "G S" },
+  { id: "sites", label: "Go to Sites", to: "/console/sites", key: "G O" },
+  { id: "twin", label: "Go to Live Twin", to: "/console/twin", key: "G T" },
+  { id: "analytics", label: "Go to Analytics & Forecasts", to: "/console/analytics", key: "G A" },
+  { id: "events", label: "Go to Events & Alerts", to: "/console/events", key: "G E" },
+  { id: "enforcement", label: "Go to Enforcement", to: "/console/enforcement", key: "G N" },
+  { id: "reports", label: "Go to Reports", to: "/console/reports", key: "G R" },
+  { id: "copilot", label: "Go to Copilot", to: "/console/copilot", key: "G C" },
+  { id: "settings", label: "Go to Settings", to: "/console/settings", key: "G S" },
 ];
 
 export function CommandPalette() {
@@ -49,7 +49,7 @@ export function CommandPalette() {
         label: `Focus site: ${s.name}`,
         run: () => {
           setScope(s.id);
-          navigate("/twin");
+          navigate("/console/twin");
         },
       })),
       {
@@ -58,7 +58,7 @@ export function CommandPalette() {
         label: "Focus: Portfolio (all sites)",
         run: () => {
           setScope("portfolio");
-          navigate("/sites");
+          navigate("/console/sites");
         },
       },
       { id: "live", group: "Actions", label: "Jump to live", key: "L", run: () => jumpLive() },

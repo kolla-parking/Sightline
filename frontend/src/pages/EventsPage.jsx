@@ -495,7 +495,7 @@ export default function EventsPage() {
 
   const handleViewTwin = (e) => {
     setScope(e.siteId);
-    navigate("/twin");
+    navigate("/console/twin");
   };
 
   // Enter on a focused alert opens the related entity: vehicle drawer for a
@@ -508,7 +508,7 @@ export default function EventsPage() {
     } else if (a.spaceId) {
       setScope(a.siteId);
       store.selectSpace(a.spaceId);
-      navigate("/twin");
+      navigate("/console/twin");
     } else if (a.cameraId) {
       // Resolve `real` from the site model — camera_offline alerts fire for
       // the REAL camera too, and hardcoding false would render its drawer in
@@ -517,7 +517,7 @@ export default function EventsPage() {
       openDrawer({ type: "camera", cameraId: a.cameraId, siteId: a.siteId, name: a.cameraName, real });
     } else if (a.siteId) {
       setScope(a.siteId);
-      navigate("/twin");
+      navigate("/console/twin");
     }
   };
   const openEntityRef = useRef(openEntity);

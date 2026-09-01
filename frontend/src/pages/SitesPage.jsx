@@ -167,7 +167,7 @@ export default function SitesPage() {
 
   const openSite = (siteId) => {
     setScope(siteId);
-    navigate("/twin");
+    navigate("/console/twin");
   };
 
   /* ---- the five-KPI band ----

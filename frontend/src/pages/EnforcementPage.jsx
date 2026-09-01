@@ -129,7 +129,7 @@ function CaseDrawer({ caseId, onClose }) {
   const locate = () => {
     onClose();
     setScope(c.siteId);
-    navigate("/twin");
+    navigate("/console/twin");
   };
 
   return (

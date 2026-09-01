@@ -607,7 +607,7 @@ export default function TwinPage() {
             ) : (
               <div style={{ fontSize: "var(--fs-1)", color: "var(--ink-muted)" }}>Nothing predicted.</div>
             )}
-            <button className="btn ghost sm" style={{ marginTop: 8, fontSize: 10 }} onClick={() => navigate("/events")}>
+            <button className="btn ghost sm" style={{ marginTop: 8, fontSize: 10 }} onClick={() => navigate("/console/events")}>
               Open Events & Alerts →
             </button>
           </RailPanel>

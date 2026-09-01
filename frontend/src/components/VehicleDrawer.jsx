@@ -126,7 +126,7 @@ function VehicleDrawerBody({ plate }) {
     st.setScope(s.siteId);
     st.selectSpace(s.spaceId);
     st.selectPlate(null);
-    navigate("/twin");
+    navigate("/console/twin");
   };
 
   return (

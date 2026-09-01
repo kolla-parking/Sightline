@@ -73,7 +73,7 @@ function RefButton({ cell }) {
     if (cell.siteId) {
       st.setScope?.(cell.siteId);
       if (cell.spaceId) st.selectSpace?.(cell.spaceId);
-      navigate("/twin");
+      navigate("/console/twin");
     }
   };
   return (

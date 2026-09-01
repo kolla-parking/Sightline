@@ -82,28 +82,28 @@ const NAV_GROUPS = [
   {
     label: "Operate",
     items: [
-      { to: "/twin", label: "Live", icon: "live" },
-      { to: "/events", label: "Alerts", icon: "alerts", badge: true },
-      { to: "/copilot", label: "Copilot", icon: "copilot" },
+      { to: "/console/twin", label: "Live", icon: "live" },
+      { to: "/console/events", label: "Alerts", icon: "alerts", badge: true },
+      { to: "/console/copilot", label: "Copilot", icon: "copilot" },
     ],
   },
   {
     label: "Portfolio",
     items: [
-      { to: "/sites", label: "Sites", icon: "sites" },
-      { to: "/enforcement", label: "Enforcement", icon: "enforcement" },
+      { to: "/console/sites", label: "Sites", icon: "sites" },
+      { to: "/console/enforcement", label: "Enforcement", icon: "enforcement" },
     ],
   },
   {
     label: "Analyze",
     items: [
-      { to: "/analytics", label: "Analytics", icon: "analytics" },
-      { to: "/reports", label: "Reports", icon: "reports" },
+      { to: "/console/analytics", label: "Analytics", icon: "analytics" },
+      { to: "/console/reports", label: "Reports", icon: "reports" },
     ],
   },
 ];
 
-const G_KEYS = { o: "/sites", t: "/twin", a: "/analytics", e: "/events", n: "/enforcement", r: "/reports", c: "/copilot", s: "/settings" };
+const G_KEYS = { o: "/console/sites", t: "/console/twin", a: "/console/analytics", e: "/console/events", n: "/console/enforcement", r: "/console/reports", c: "/console/copilot", s: "/console/settings" };
 
 function Clock() {
   const now = useStore((s) => s.now);
@@ -242,7 +242,7 @@ export function Shell({ children }) {
         </nav>
 
         <div className="side-foot">
-          <SideLink item={{ to: "/settings", label: "Settings", icon: "settings" }} />
+          <SideLink item={{ to: "/console/settings", label: "Settings", icon: "settings" }} />
           <StatusChip />
         </div>
       </aside>
