@@ -12,10 +12,17 @@ from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnec
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
+import redis.asyncio as aioredis
+
+from backend.config import get_settings
 from backend.core.camera_manager import CameraManager
 from backend.models.schemas import CameraCreate, HomographyRequest, SlotUpdate
 from backend.services.calibration import auto_detect_parking_slots
 from backend.services.database import Database
+from backend.services.auth_sessions import SessionStore
+from backend.services.mailer import Mailer
+from backend.services.migrations import run_migrations
+from backend.services.portal_db import PortalDB
 
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
@@ -26,7 +33,8 @@ PKLOT_SAMPLE_PATH = Path(
     os.getenv("PKLOT_SAMPLE_PATH", PROJECT_ROOT / "sample-data/pklot/slots.json")
 )
 
-database = Database()
+settings = get_settings()
+database = Database(settings.database_url)
 event_loop: asyncio.AbstractEventLoop | None = None
 
 
@@ -110,10 +118,33 @@ camera_manager = CameraManager(
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(app: FastAPI):
     global event_loop
     event_loop = asyncio.get_running_loop()
     await database.connect()
+
+    if database.memory_mode:
+        logger.warning(
+            "memory mode: skipping migrations; portal endpoints will return 503"
+        )
+    else:
+        await run_migrations(database.pool)
+
+    # from_url is lazy — a down Redis must not block camera startup; failures
+    # surface per-command and the portal deps translate them to 503s.
+    redis_client = aioredis.from_url(settings.redis_url, decode_responses=True)
+    portal_db = PortalDB(database)
+    app.state.settings = settings
+    app.state.db = database
+    app.state.redis = redis_client
+    app.state.sessions = SessionStore(redis_client, settings)
+    app.state.portal_db = portal_db
+    app.state.mailer = Mailer(settings, portal_db)
+
+    if not settings.admin_configured:
+        logger.warning("ADMIN_EMAIL/ADMIN_PASSWORD unset; admin portal login disabled")
+    if not settings.smtp_configured:
+        logger.info("SMTP not configured; outbound email will be captured in the outbox")
 
     for camera in await database.list_cameras():
         slots = await database.get_slots(camera["camera_id"])
@@ -132,19 +163,33 @@ async def lifespan(_: FastAPI):
         yield
     finally:
         camera_manager.stop_all()
+        await redis_client.aclose()
         await database.close()
         event_loop = None
 
 
 app = FastAPI(title="Sightline API", version="1.0.0", lifespan=lifespan)
 
+# Bearer-token auth, no cookies — so credentials stay off and an explicit
+# origin allowlist (dashboard + marketing/portal) replaces the old wildcard.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
-    allow_credentials=True,
+    allow_origins=list(settings.cors_origins),
+    # Cloud hosts get random URL suffixes (e.g. *.onrender.com), so exact
+    # origins can't be listed in config ahead of the first deploy.
+    allow_origin_regex=os.getenv("CORS_ORIGIN_REGEX") or None,
+    allow_credentials=False,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["Authorization", "Content-Type"],
 )
+
+from backend.api.routers import admin as admin_router  # noqa: E402
+from backend.api.routers import auth as auth_router  # noqa: E402
+from backend.api.routers import public as public_router  # noqa: E402
+
+app.include_router(auth_router.router)
+app.include_router(admin_router.router)
+app.include_router(public_router.router)
 
 
 def _not_found(camera_id: str) -> HTTPException:

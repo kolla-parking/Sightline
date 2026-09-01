@@ -668,6 +668,32 @@ export function siteRevenueToday(siteId, ts) {
   return rev;
 }
 
+/* ================= session phase (additive) ================= */
+
+// UI threshold: below this sim detection confidence a session renders as
+// "unverified" (dashed outline, warn pill). One number, used everywhere.
+export const LOW_CONFIDENCE = 0.7;
+
+// A session is "turning over" within this window of its start or end.
+export const TURNOVER_MS = 3 * MIN;
+
+// Deterministic phase descriptor for a session at `ts` — derives from the
+// session's own start/end only (no wall clock, no randomness).
+export function sessionPhase(session, ts) {
+  if (!session) return null;
+  const sinceStartMs = ts - session.start;
+  const untilEndMs = session.end - ts;
+  return {
+    active: sinceStartMs >= 0 && untilEndMs > 0,
+    sinceStartMs,
+    untilEndMs,
+    turning:
+      (sinceStartMs >= 0 && sinceStartMs < TURNOVER_MS) ||
+      (untilEndMs > 0 && untilEndMs <= TURNOVER_MS),
+    unverified: session.confidence < LOW_CONFIDENCE,
+  };
+}
+
 /* ================= search ================= */
 
 export function findPlate(query, ts, { hours = 48 } = {}) {

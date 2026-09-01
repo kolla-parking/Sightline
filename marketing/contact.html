@@ -3,216 +3,333 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contact | Sightline</title>
-  <meta name="description" content="Talk to the Sightline team about demos, deployments, partnerships, or press." />
+  <title>Sightline | Contact</title>
+  <meta name="description" content="Talk to the Sightline team about demos, deployments, partnerships, or press. Every message gets a reply within one business day." />
+  <!-- Mode must apply before first paint: stored choice, else OS preference -->
+  <script>(function(){try{var t=localStorage.getItem("sl-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.setAttribute("data-theme","dark")}catch(e){}})();</script>
+  <!-- Social cards. Image paths are root-relative on purpose (no production domain yet): swap og:image/twitter:image to absolute https://<domain>/assets/img/preview.jpg URLs at launch — OG scrapers ignore relative paths. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Sightline" />
+  <meta property="og:title" content="Sightline — Contact" />
+  <meta property="og:description" content="Talk to the Sightline team about demos, deployments, partnerships, or press." />
+  <meta property="og:image" content="assets/img/preview.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sightline — Contact" />
+  <meta name="twitter:description" content="Talk to the Sightline team about demos, deployments, partnerships, or press." />
+  <meta name="twitter:image" content="assets/img/preview.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/main.css?v=2" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2307080c'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23ff4d2e' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%232ee58a'/%3E%3C/svg%3E" />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,500;0,700;1,500&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css?v=6" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FBFCFB'/%3E%3Cg fill='%23151B17' fill-opacity='.35'%3E%3Crect x='5' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1.8'/%3E%3C/g%3E%3Crect x='13' y='13' width='6' height='6' rx='1.8' fill='%2300E676'/%3E%3C/svg%3E" />
+  <!-- Structured data: item URLs are root-relative until the production domain exists — absolutize at launch. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "/index.html" },
+      { "@type": "ListItem", "position": 2, "name": "Contact", "item": "/contact.html" }
+    ]
+  }
+  </script>
   <style>
-    .contact-grid {
+    /* ---------- page: contact ---------- */
+    .hero { padding-bottom: var(--s-5); }
+    .hero .label-mono { margin-bottom: var(--s-3); }
+    .hero h1 { max-width: 12ch; }
+    .hero .lede { margin-top: var(--s-3); }
+
+    /* channel ledger: mono key, plain value */
+    .chans { border-top: 1px solid var(--border); margin-top: var(--s-4); }
+    .chan {
       display: grid;
-      grid-template-columns: 1fr 1.1fr;
-      gap: clamp(40px, 6vw, 90px);
-      align-items: flex-start;
+      grid-template-columns: 148px 1fr;
+      gap: var(--s-3);
+      align-items: baseline;
+      padding: var(--s-3) 0;
+      border-bottom: 1px solid var(--border);
     }
-    .channel {
-      display: block;
-      padding: 26px 28px;
-      border: 1px solid var(--hair);
-      border-radius: var(--radius-lg);
-      background: rgba(255,255,255,0.03);
-      margin-bottom: 14px;
-      transition: transform 0.4s var(--ease-out), border-color 0.4s, background 0.4s;
-    }
-    .channel:hover {
-      transform: translateY(-4px);
-      border-color: rgba(255,255,255,0.25);
-      background: rgba(255,255,255,0.05);
-    }
-    .channel .k {
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
+    .chan .k {
+      font-family: var(--font-mono);
+      font-size: var(--fs-label);
+      font-weight: 500;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--grey-dim);
-      display: block;
-      margin-bottom: 8px;
+      color: var(--text-3);
     }
-    .channel .v {
+    .chan .v {
       font-family: var(--font-display);
-      font-size: 1.25rem;
-      font-weight: 600;
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-1);
     }
-    .channel .d { color: var(--grey); font-size: 0.88rem; margin-top: 6px; }
-    @media (max-width: 900px) {
-      .contact-grid { grid-template-columns: 1fr; }
+    a.chan-link { transition: color 0.2s; }
+    a.chan-link:hover { color: var(--accent-text); }
+    .chan .v.is-mono {
+      font-family: var(--font-mono);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
     }
+    .chan p { margin-top: 4px; color: var(--text-3); font-size: var(--fs-small); max-width: 44ch; }
+    @media (max-width: 640px) {
+      .chan { grid-template-columns: 1fr; gap: 6px; }
+    }
+
+    /* the form card */
+    .form-card .card-body { padding: var(--s-4); }
+    .form-success p { font-size: var(--fs-small); }
+    @media (max-width: 640px) {
+      .form-card .card-body { padding: var(--s-3); }
+    }
+
+    /* newsletter (footer) */
+    .news-mini { display: flex; gap: 8px; margin-top: var(--s-2); }
+    .news-mini input {
+      flex: 1; min-width: 0;
+      padding: 10px 12px;
+      border-radius: var(--r-1);
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      color: var(--text-1);
+      outline: 0;
+      font-size: 0.9rem;
+    }
+    .news-mini input:focus { border-color: var(--accent-text); }
+    [data-theme="dark"] .news-mini input { background: var(--fill); }
   </style>
 </head>
 <body>
 
+  <a class="skip-link" href="#main">Skip to content</a>
+
   <header class="nav">
-    <a class="nav-logo" href="index.html" aria-label="Sightline home">
-      <svg class="mark" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12" stroke="#ff4d2e" stroke-width="2.5"/><circle cx="16" cy="16" r="3.5" fill="#2ee58a"/></svg>
-      Sightline
-    </a>
-    <nav>
-      <ul class="nav-links">
-        <li><a href="features.html">Features</a></li>
-        <li><a href="compare.html">Compare</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-    <div style="display:flex; align-items:center; gap:8px;">
-      <a class="btn btn-primary btn-sm nav-cta" href="demo.html">Request a demo <span class="arr">→</span></a>
-      <a class="btn btn-ghost btn-sm nav-cta nav-login" href="login.html">Log in</a>
-      <button class="nav-burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div class="wrap nav-inner">
+      <a class="nav-logo" href="index.html" aria-label="Sightline home">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <g fill="currentColor" opacity=".32">
+            <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+          </g>
+          <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+        </svg>
+        Sightline
+      </a>
+      <nav aria-label="Primary">
+        <ul class="nav-links">
+          <li><a href="product.html">Product</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="the-lot.html">The Lot</a></li>
+          <li><a href="data-policy.html">Data policy</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-side">
+        <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+          <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+        </button>
+        <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+        <a class="btn btn-accent btn-sm" href="demo.html">Book a demo <span class="arr">→</span></a>
+        <button class="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
     </div>
   </header>
 
-  <div class="mobile-menu">
+  <nav class="sheet" aria-label="Mobile">
     <a href="index.html">Home</a>
-    <a href="features.html">Features</a>
-    <a href="compare.html">Compare</a>
-    <a href="about.html">About</a>
+    <a href="product.html">Product</a>
+    <a href="technology.html">Technology</a>
+    <a href="the-lot.html">The Lot</a>
+    <a href="data-policy.html">Data policy</a>
     <a href="contact.html">Contact</a>
+    <a href="solutions.html">Solutions</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="compare.html">Compare</a>
+    <a href="insights.html">Writing</a>
     <a href="login.html">Log in</a>
-    <a href="demo.html">Request a demo</a>
-  </div>
+    <a href="demo.html">Book a demo</a>
+  </nav>
 
-  <section class="page-hero" style="padding-bottom:40px;">
-    <div class="ghost-num" style="top:-8%; right:-3%;">C</div>
-    <div class="container" style="position:relative; z-index:1;">
-      <span class="eyebrow">Contact</span>
-      <h1 class="display-xl" data-reveal="up">Talk to us.</h1>
-      <p class="lede" data-reveal="up" data-delay="0.15" style="margin-top:26px;">
-        Questions about a demo, a deployment, or how the detection works.
-        Every message gets a reply.
-      </p>
-    </div>
-  </section>
+  <main id="main">
 
-  <section style="padding: 30px 0 clamp(90px, 12vh, 160px); overflow:hidden;">
-    <div class="container contact-grid">
-
-      <div data-reveal="left">
-        <a class="channel" href="demo.html">
-          <span class="k">Fastest path</span>
-          <span class="v">Request a live demo →</span>
-          <p class="d">Thirty minutes on real footage. The best way to meet the product.</p>
-        </a>
-        <a class="channel" href="mailto:hello@sightline.example">
-          <span class="k">Email</span>
-          <span class="v">hello@sightline.example</span>
-          <p class="d">General enquiries, partnerships and press. One-business-day reply.</p>
-        </a>
-        <div class="channel" style="cursor:default;">
-          <span class="k">Support hours</span>
-          <span class="v">Monday to Friday, 9am to 6pm ET</span>
-          <p class="d">We answer support questions during these hours. Active pilots get priority.</p>
-        </div>
-        <div class="channel" style="cursor:default;">
-          <span class="k">Headquarters</span>
-          <span class="v">Charlotte, NC</span>
-          <p class="d">Based in Charlotte, North Carolina.</p>
-        </div>
+    <!-- ============ hero ============ -->
+    <section class="hero hero-pad" aria-labelledby="hero-h">
+      <div class="wrap">
+        <span class="label-mono" data-r>Contact · every message answered</span>
+        <h1 class="t-hero" id="hero-h" data-r style="--d:.06s">Talk to us.</h1>
+        <p class="lede" data-r style="--d:.12s">
+          Questions about a demo, a deployment, or how the detection works.
+          Write plainly and we'll answer the same way — within one business
+          day.
+        </p>
       </div>
+    </section>
 
-      <div data-reveal="right">
-        <div class="form-panel">
-          <span class="eyebrow">Send a message</span>
-          <form data-form novalidate style="margin-top:26px;">
-            <div class="field">
-              <label for="c-name">Full name</label>
-              <input id="c-name" type="text" placeholder="Alex Rivera" required />
-              <span class="err">Please enter your name.</span>
+    <!-- ============ channels + the form ============ -->
+    <section class="section tight" aria-labelledby="ways-h">
+      <div class="wrap grid-2 top">
+
+        <div>
+          <span class="label" data-r>Ways in</span>
+          <h2 class="t-title" id="ways-h" data-r style="--d:.06s">Pick your channel.</h2>
+          <div class="chans">
+            <div class="chan" data-r>
+              <span class="k">Fastest path</span>
+              <div>
+                <a class="v chan-link" href="demo.html">Book a demo <span class="arr">→</span></a>
+                <p>Thirty minutes on real footage. The best way to meet the product.</p>
+              </div>
             </div>
-            <div class="field">
-              <label for="c-email">Email</label>
-              <input id="c-email" type="email" placeholder="alex@company.com" required />
-              <span class="err">Please enter a valid email.</span>
+            <div class="chan" data-r style="--d:.05s">
+              <span class="k">Email</span>
+              <div>
+                <a class="v is-mono chan-link" href="mailto:hello@sightline.example">hello@sightline.example</a>
+                <p>General enquiries, partnerships and press. One-business-day reply.</p>
+              </div>
             </div>
-            <div class="field">
-              <label for="c-topic">Topic</label>
-              <select id="c-topic">
-                <option>Product / demo question</option>
-                <option>Partnership</option>
-                <option>Press</option>
-                <option>Technical question</option>
-                <option>Something else</option>
-              </select>
+            <div class="chan" data-r style="--d:.1s">
+              <span class="k">Support hours</span>
+              <div>
+                <span class="v is-mono">Mon–Fri · 09:00–18:00 ET</span>
+                <p>We answer support questions during these hours. Deployment questions get priority.</p>
+              </div>
             </div>
-            <div class="field">
-              <label for="c-msg">Message</label>
-              <textarea id="c-msg" rows="5" placeholder="What's on your mind?" required></textarea>
-              <span class="err">Please write a short message.</span>
+            <div class="chan" data-r style="--d:.15s">
+              <span class="k">Headquarters</span>
+              <div>
+                <span class="v">Charlotte, NC</span>
+                <p>Based in Charlotte, North Carolina.</p>
+              </div>
             </div>
-            <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">Send message <span class="arr">→</span></button>
-          </form>
-          <div class="form-success" style="flex-direction:column; align-items:flex-start; gap:16px;">
-            <span style="font-size:1.4rem;"><span>✓</span> Message sent.</span>
-            <p style="color:var(--grey);">
-              Thanks for reaching out. We will get back to you within one
-              business day.
-            </p>
           </div>
         </div>
+
+        <div data-r style="--d:.1s">
+          <div class="card form-card">
+            <div class="card-bar">
+              <span class="label-mono">Send a message</span>
+              <span class="label-mono">reply &lt; 1 business day</span>
+            </div>
+            <div class="card-body">
+              <form data-form data-endpoint="/public/contact-requests" novalidate>
+                <div class="field">
+                  <label for="c-name">Full name</label>
+                  <input id="c-name" name="name" type="text" placeholder="Alex Rivera" required />
+                  <span class="err">Please enter your name.</span>
+                </div>
+                <div class="field">
+                  <label for="c-email">Email</label>
+                  <input id="c-email" name="email" type="email" placeholder="alex@company.com" required />
+                  <span class="err">Please enter a valid email.</span>
+                </div>
+                <div class="field">
+                  <label for="c-topic">Topic</label>
+                  <select id="c-topic" name="topic">
+                    <option>Product or demo question</option>
+                    <option>Partnership</option>
+                    <option>Press</option>
+                    <option>Technical question</option>
+                    <option>Something else</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="c-msg">Message</label>
+                  <textarea id="c-msg" name="message" rows="5" placeholder="What's on your mind?" required></textarea>
+                  <span class="err">Please write a short message.</span>
+                </div>
+                <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0" />
+                <button class="btn btn-accent" type="submit" style="width:100%;">Send message <span class="arr">→</span></button>
+              </form>
+              <div class="form-success">
+                <span class="mk">ok</span>
+                <p>
+                  Message sent. Thanks for reaching out — we will get back to
+                  you within one business day.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
+    </section>
 
-    </div>
-  </section>
+  </main>
 
-  <footer>
-    <div class="container">
-      <div class="footer-grid">
+  <!-- ============ dark footer ============ -->
+  <footer class="foot" data-theme="dark">
+    <div class="wrap">
+      <div class="foot-grid">
         <div>
           <a class="nav-logo" href="index.html">
-            <svg class="mark" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12" stroke="#ff4d2e" stroke-width="2.5"/><circle cx="16" cy="16" r="3.5" fill="#2ee58a"/></svg>
+            <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+              <g fill="currentColor" opacity=".32">
+                <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+              </g>
+              <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+            </svg>
             Sightline
           </a>
-          <p class="footer-tag">Live parking occupancy from the cameras you already own, running on your own hardware.</p>
+          <p class="foot-tag">Per-space parking occupancy from the cameras you already own, on your own hardware.</p>
+          <p class="foot-status">status: proving Sightline on one real 100-space lot. more soon.</p>
+          <form data-form novalidate aria-label="Newsletter">
+            <div class="news-mini">
+              <input type="email" placeholder="you@company.com" aria-label="Email address" required />
+              <button class="btn btn-quiet btn-sm" type="submit" style="width:auto;">Subscribe</button>
+            </div>
+          </form>
+          <div class="form-success" style="margin-top:10px;"><span class="mk">ok</span> You're subscribed. Watch your inbox.</div>
         </div>
         <div>
           <h4>Product</h4>
           <ul>
-            <li><a href="features.html">Features</a></li>
+            <li><a href="product.html">Product</a></li>
+            <li><a href="technology.html">Technology</a></li>
+            <li><a href="the-lot.html">The Lot</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
             <li><a href="compare.html">Compare</a></li>
-            <li><a href="demo.html">Request a demo</a></li>
-            <li><a href="index.html#hiw">How it works</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Solutions</h4>
+          <ul>
+            <li><a href="solutions.html#operators">Operators &amp; garages</a></li>
+            <li><a href="solutions.html#campuses">Campuses &amp; venues</a></li>
+            <li><a href="solutions.html#curb">Municipal curb</a></li>
+            <li><a href="demo.html">Book a demo</a></li>
           </ul>
         </div>
         <div>
           <h4>Company</h4>
           <ul>
-            <li><a href="about.html">About us</a></li>
-            <li><a href="about.html#goal">Our goal</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="insights.html">Writing</a></li>
             <li><a href="contact.html">Contact</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Legal</h4>
-          <ul>
-            <li><a href="privacy.html">Privacy policy</a></li>
-            <li><a href="terms.html">Terms of service</a></li>
+            <li><a href="data-policy.html">Data policy</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
           </ul>
         </div>
       </div>
-      <div class="footer-wordmark" aria-hidden="true">Sightline</div>
-      <div class="footer-legal">
-        <span>© 2026 Sightline · Monish Munagala. All rights reserved.</span>
+      <div class="foot-legal">
+        <span>© 2026 Sightline · Monish Munagala · Charlotte, NC</span>
         <div class="links">
+          <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+            <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+          </button>
+          <a href="data-policy.html">Data policy</a>
           <a href="privacy.html">Privacy</a>
           <a href="terms.html">Terms</a>
-          <a href="contact.html">Contact</a>
         </div>
       </div>
     </div>
   </footer>
 
-  <script src="assets/vendor/gsap.min.js"></script>
-  <script src="assets/vendor/ScrollTrigger.min.js"></script>
-  <script src="assets/js/main.js?v=2"></script>
+  <script src="assets/js/env.js"></script>
+  <script src="assets/js/main.js?v=7"></script>
 </body>
 </html>

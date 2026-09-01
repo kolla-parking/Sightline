@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sightline | A live record of every space</title>
+  <meta name="description" content="The Sightline product: per-space live state from the cameras a lot already has, time-weighted history, alerts that carry a verb and a tier, and a console that updates in under a second." />
+  <!-- Mode must apply before first paint: stored choice, else OS preference -->
+  <script>(function(){try{var t=localStorage.getItem("sl-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.setAttribute("data-theme","dark")}catch(e){}})();</script>
+  <!-- Social cards. Image paths are root-relative on purpose (no production domain yet): swap og:image/twitter:image to absolute https://<domain>/assets/img/preview.jpg URLs at launch — OG scrapers ignore relative paths. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Sightline" />
+  <meta property="og:title" content="Sightline — A live record of every space" />
+  <meta property="og:description" content="Per-space live state from the cameras a lot already has, time-weighted history, alerts with a verb and a tier, and a console that updates in under a second." />
+  <meta property="og:image" content="assets/img/overlay.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sightline — A live record of every space" />
+  <meta name="twitter:description" content="Per-space live state from the cameras a lot already has, time-weighted history, alerts with a verb and a tier, and a console that updates in under a second." />
+  <meta name="twitter:image" content="assets/img/overlay.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,500;0,700;1,500&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css?v=6" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FBFCFB'/%3E%3Cg fill='%23151B17' fill-opacity='.35'%3E%3Crect x='5' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1.8'/%3E%3C/g%3E%3Crect x='13' y='13' width='6' height='6' rx='1.8' fill='%2300E676'/%3E%3C/svg%3E" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Sightline",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Camera-based parking occupancy: per-space detection from existing RTSP cameras, time-weighted history, tiered alerts, and a live operator console — all on the operator's own hardware."
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "index.html" },
+          { "@type": "ListItem", "position": 2, "name": "Product" }
+        ]
+      }
+    ]
+  }
+  </script>
+  <style>
+    /* ---------- page: product ---------- */
+    .hero { padding-bottom: var(--s-6); }
+    .hero .label-mono { margin-bottom: var(--s-3); }
+    .hero h1 { max-width: 15ch; }
+    .hero-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s-4);
+      margin-top: var(--s-4);
+    }
+    .hero-row .lede { max-width: 50ch; }
+    .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    /* claim + artifact pairs */
+    .cap .label { margin-bottom: var(--s-2); }
+    .cap h2 { margin-bottom: var(--s-2); }
+    .cap .lede { font-size: var(--fs-body); }
+
+    .shot { overflow: hidden; }
+    .shot .card-bar .label-mono { color: var(--text-3); margin: 0; }
+    .shot img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+    .shot .card-body p { font-size: var(--fs-small); color: var(--text-3); }
+
+    /* fact rows under a claim */
+    .facts { margin-top: var(--s-3); border-top: 1px solid var(--border); }
+    .facts > div {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--s-1) var(--s-3);
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: var(--fs-small);
+    }
+    .facts span { color: var(--text-3); }
+    .facts b {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      font-weight: 400;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-1);
+      text-align: right;
+    }
+
+    /* alert tiers: chip + meaning, hairline rows */
+    .tiers { border-top: 1px solid var(--border); }
+    .tier-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: var(--s-2) var(--s-3);
+      align-items: start;
+      padding: var(--s-2) 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .tier-row h3 { font-size: 1.0625rem; margin-bottom: 4px; }
+    .tier-row p { font-size: var(--fs-small); color: var(--text-3); }
+    @media (max-width: 560px) {
+      .tier-row { grid-template-columns: 1fr; }
+    }
+    .anatomy-note {
+      margin-top: var(--s-2);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      color: var(--text-3);
+    }
+
+    /* works-with-your-cameras bullets */
+    .fit-list { list-style: none; display: grid; gap: var(--s-2); margin-top: var(--s-3); }
+    .fit-list li { display: flex; gap: 12px; align-items: flex-start; font-size: var(--fs-small); color: var(--text-2); }
+    .fit-list .mk { font-family: var(--font-mono); color: var(--accent-text); flex-shrink: 0; }
+
+    /* footer newsletter (shared page pattern) */
+    .news-mini { display: flex; gap: 8px; margin-top: var(--s-2); }
+    .news-mini input {
+      flex: 1; min-width: 0;
+      padding: 10px 12px;
+      border-radius: var(--r-1);
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      color: var(--text-1);
+      outline: 0;
+      font-size: 0.9rem;
+    }
+    .news-mini input:focus { border-color: var(--accent-text); }
+    [data-theme="dark"] .news-mini input { background: var(--fill); }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="nav-logo" href="index.html" aria-label="Sightline home">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <g fill="currentColor" opacity=".32">
+            <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+          </g>
+          <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+        </svg>
+        Sightline
+      </a>
+      <nav aria-label="Primary">
+        <ul class="nav-links">
+          <li><a href="product.html">Product</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="the-lot.html">The Lot</a></li>
+          <li><a href="data-policy.html">Data policy</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-side">
+        <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+          <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+        </button>
+        <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+        <a class="btn btn-accent btn-sm" href="demo.html">Book a demo <span class="arr">→</span></a>
+        <button class="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sheet" aria-label="Mobile">
+    <a href="index.html">Home</a>
+    <a href="product.html">Product</a>
+    <a href="technology.html">Technology</a>
+    <a href="the-lot.html">The Lot</a>
+    <a href="data-policy.html">Data policy</a>
+    <a href="contact.html">Contact</a>
+    <a href="solutions.html">Solutions</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="compare.html">Compare</a>
+    <a href="insights.html">Writing</a>
+    <a href="login.html">Log in</a>
+    <a href="demo.html">Book a demo</a>
+  </nav>
+
+  <main id="main">
+
+    <!-- ============ 1. hero (light) ============ -->
+    <section class="hero hero-pad" aria-labelledby="hero-h">
+      <div class="wrap">
+        <span class="label-mono" data-r>Product · engine + console</span>
+        <h1 class="t-hero" id="hero-h" data-r style="--d:.06s">A live record of every space.</h1>
+        <div class="hero-row">
+          <p class="lede" data-r style="--d:.12s">
+            Sightline is one instrument with two halves. A detection engine
+            turns the camera stream a lot already has into verified
+            per-space occupancy. An operator console turns that occupancy
+            into a working day. Everything on this page is shown on Lot A,
+            the real 100-space lot we prove it on.
+          </p>
+          <div class="hero-ctas" data-r style="--d:.18s">
+            <a class="btn btn-accent" href="the-lot.html">See the live lot <span class="arr">→</span></a>
+            <a class="btn btn-line" href="demo.html">Book a demo</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 2. instrument truth ============ -->
+    <section class="section tight" aria-label="Key numbers">
+      <div class="wrap">
+        <div class="stat-strip" data-r>
+          <div class="stat-cell"><div class="v">100</div><div class="k">Spaces read by one camera</div></div>
+          <div class="stat-cell"><div class="v">5<span class="u"> fps</span></div><div class="k">Frames analyzed</div></div>
+          <div class="stat-cell"><div class="v">&lt;1<span class="u"> s</span></div><div class="k">Change to console</div></div>
+          <div class="stat-cell"><div class="v">0</div><div class="k">New sensors installed</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3. per-space live state ============ -->
+    <section class="section" aria-labelledby="live-h">
+      <div class="wrap grid-2 top">
+        <div class="cap">
+          <span class="label" data-r>Live state</span>
+          <h2 class="t-title" id="live-h" data-r style="--d:.06s">Every stall, resolved by name.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            Sightline doesn't estimate a lot-level count — it decides each
+            space. Oriented detection boxes rotate with every vehicle, so
+            angled stalls and tight rows resolve to the space a car
+            actually sits in, not the one next to it. And a space changes
+            state only after several frames agree, so passing traffic and
+            moving shadows never flip a reading.
+          </p>
+          <div class="facts" data-r style="--d:.18s">
+            <div><span>This pass on Lot A</span><b>68 taken · 32 open</b></div>
+            <div><span>Detection model</span><b>yolov8-obb</b></div>
+            <div><span>Match</span><b>one polygon per stall</b></div>
+            <div><span>State</span><b>a decision, not a flicker</b></div>
+          </div>
+        </div>
+        <figure class="card shot" data-r style="--d:.1s">
+          <div class="card-bar"><span class="label-mono">Lot A · per-space state</span><span class="label-mono">68 taken · 32 open</span></div>
+          <img src="assets/img/overlay.jpg" alt="Lot A with every parking space outlined and classified — taken spaces in red, open spaces in green" loading="lazy" />
+          <figcaption class="card-body"><p>Sightline's actual output for this frame — every space matched to its own polygon on the pavement.</p></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ============ 4. history & analytics ============ -->
+    <section class="section on-tint" aria-labelledby="hist-h">
+      <div class="wrap grid-2 top">
+        <figure class="card shot" data-r style="--d:.1s">
+          <div class="card-bar"><span class="label-mono">Operator console</span><span class="label-mono">live · &lt;1 s</span></div>
+          <img src="assets/img/dashboard.jpg" alt="The Sightline operator console showing live counts, per-space state, and occupancy history for Lot A" loading="lazy" />
+          <figcaption class="card-body"><p>The console on Lot A — live counts, the per-space map, and history in one view.</p></figcaption>
+        </figure>
+        <div class="cap">
+          <span class="label" data-r>History</span>
+          <h2 class="t-title" id="hist-h" data-r style="--d:.06s">Hours measured, not detections counted.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            Every confirmed change lands in the event history with its
+            timestamp, and analytics are computed from time occupied — a
+            space that stays filled for three hours counts for three
+            hours, however many detections fired along the way. The hourly
+            curves that come out are steady enough to price and staff
+            against, and they feed the reports you hand to an owner or a
+            city.
+          </p>
+          <div class="facts" data-r style="--d:.18s">
+            <div><span>Method</span><b>time-weighted intervals</b></div>
+            <div><span>Record</span><b>timestamped event history</b></div>
+            <div><span>Views</span><b>hourly curves · peak hours</b></div>
+            <div><span>Feeds</span><b>reports · enforcement views</b></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 5. alerts ============ -->
+    <section class="section" aria-labelledby="alert-h">
+      <div class="wrap grid-2 top">
+        <div class="cap">
+          <span class="label" data-r>Alerts</span>
+          <h2 class="t-title" id="alert-h" data-r style="--d:.06s">An alert is a sentence, not a firehose.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            Raw detections never page anyone. Every alert Sightline raises
+            carries a verb — what happened — and a tier — how much it
+            matters — and repeats of the same condition collapse into one.
+            The full stream of confirmed changes stays where it belongs:
+            in the activity log, timestamped, ready for an audit.
+          </p>
+          <p class="anatomy-note" data-r style="--d:.18s">verb + tier + dedupe · the firehose stays in the log</p>
+        </div>
+        <div class="card" data-r style="--d:.1s">
+          <div class="card-bar"><span class="label-mono">Alert tiers</span><span class="label-mono">one meaning each</span></div>
+          <div class="card-body">
+            <div class="tiers">
+              <div class="tier-row">
+                <span class="chip info">notice</span>
+                <div><h3>For the record</h3><p>Something worth knowing, nothing to do — it lands in the console, not in anyone's pocket.</p></div>
+              </div>
+              <div class="tier-row">
+                <span class="chip warn">attention</span>
+                <div><h3>Worth an eye</h3><p>A condition that deserves a look on the next pass — surfaced once, not repeated every frame.</p></div>
+              </div>
+              <div class="tier-row">
+                <span class="chip danger">action</span>
+                <div><h3>Needs a person</h3><p>The small set of conditions an operator actually acts on — deduplicated, so one problem is one alert.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 6. works with your cameras ============ -->
+    <section class="section on-tint" aria-labelledby="fit-h">
+      <div class="wrap grid-2 top">
+        <figure class="card shot" data-r style="--d:.1s">
+          <div class="card-bar"><span class="label-mono">The raw frame</span><span class="label-mono">Lot A · 1 camera</span></div>
+          <img src="assets/img/preview.jpg" alt="The unprocessed camera frame from the single fixed camera watching Lot A" loading="lazy" />
+          <figcaption class="card-body"><p>The single fixed camera that reads all 100 spaces of Lot A — the kind already bolted to buildings everywhere.</p></figcaption>
+        </figure>
+        <div class="cap">
+          <span class="label" data-r>Fit</span>
+          <h2 class="t-title" id="fit-h" data-r style="--d:.06s">Works with the cameras you have.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            No poles to plant, no pucks to glue to the pavement. Sightline
+            reads the RTSP stream nearly every IP camera already speaks —
+            and several cameras can report into one console, so the whole
+            property reads as a single live picture.
+          </p>
+          <ul class="fit-list">
+            <li data-r style="--d:.16s"><span class="mk">01</span><span><strong>Any RTSP camera.</strong> No agent on the camera, no firmware to touch. When a stream drops, Sightline backs off and reconnects on its own.</span></li>
+            <li data-r style="--d:.2s"><span class="mk">02</span><span><strong>Your hardware, your building.</strong> Every frame is processed on machines you control. What leaves is state — taken or open — not video. <a href="technology.html">See the pipeline</a>.</span></li>
+            <li data-r style="--d:.24s"><span class="mk">03</span><span><strong>Occupancy, not surveillance.</strong> No plate reading, no person identification — the <a href="data-policy.html">data policy</a> says exactly what is and isn't collected.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 7. CTA ============ -->
+    <section class="section" aria-labelledby="cta-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>Next step</span>
+          <h2 class="t-title" id="cta-h" data-r style="--d:.06s">See it read a real lot first.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            Lot A is live proof — a genuine detection pass you can watch.
+            Then bring a camera feed and thirty minutes, and we'll show
+            you the same thing on your own footage.
+          </p>
+        </div>
+        <div class="hero-ctas" data-r style="--d:.18s">
+          <a class="btn btn-accent" href="the-lot.html">See the live lot <span class="arr">→</span></a>
+          <a class="btn btn-line" href="demo.html">Book a demo</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ dark footer ============ -->
+  <footer class="foot" data-theme="dark">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="nav-logo" href="index.html">
+            <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+              <g fill="currentColor" opacity=".32">
+                <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+              </g>
+              <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+            </svg>
+            Sightline
+          </a>
+          <p class="foot-tag">Per-space parking occupancy from the cameras you already own, on your own hardware.</p>
+          <p class="foot-status">status: proving Sightline on one real 100-space lot. more soon.</p>
+          <form data-form novalidate aria-label="Newsletter">
+            <div class="news-mini">
+              <input type="email" placeholder="you@company.com" aria-label="Email address" required />
+              <button class="btn btn-quiet btn-sm" type="submit" style="width:auto;">Subscribe</button>
+            </div>
+          </form>
+          <div class="form-success" style="margin-top:10px;"><span class="mk">ok</span> You're subscribed. Watch your inbox.</div>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="product.html">Product</a></li>
+            <li><a href="technology.html">Technology</a></li>
+            <li><a href="the-lot.html">The Lot</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="compare.html">Compare</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Solutions</h4>
+          <ul>
+            <li><a href="solutions.html#operators">Operators &amp; garages</a></li>
+            <li><a href="solutions.html#campuses">Campuses &amp; venues</a></li>
+            <li><a href="solutions.html#curb">Municipal curb</a></li>
+            <li><a href="demo.html">Book a demo</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About</a></li>
+            <li><a href="insights.html">Writing</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="data-policy.html">Data policy</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-legal">
+        <span>© 2026 Sightline · Monish Munagala · Charlotte, NC</span>
+        <div class="links">
+          <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+            <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+          </button>
+          <a href="data-policy.html">Data policy</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/env.js"></script>
+  <script src="assets/js/main.js?v=7"></script>
+</body>
+</html>

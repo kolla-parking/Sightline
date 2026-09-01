@@ -2,7 +2,7 @@
 // KPI strip (5s bucket) → dense sites table (30s bucket, click-through to
 // the twin) → occupancy comparison + next-8h forecast peaks (minute bucket).
 
-import { Fragment, useMemo } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { KIND_LABEL } from "../sim/sites.js";
 import {
@@ -16,7 +16,7 @@ import {
   MIN,
 } from "../sim/engine.js";
 import { useStore, useTwinTime, scopedSites } from "../store/useStore.js";
-import { Pill, Dot, Stat, EmptyState } from "../components/ui.jsx";
+import { Pill, Dot, EmptyState } from "../components/ui.jsx";
 import { Sparkline, Bars } from "../components/charts.jsx";
 import { fmtPct, fmtPct1, fmtClock, fmtDuration, fmtMoney, fmtNum } from "../lib/format.js";
 
@@ -25,10 +25,6 @@ const TABLE_BUCKET = 30_000;
 
 // Occupancy numeral color mirrors the congestion vocabulary.
 const occInk = (pct) => (pct >= 95 ? "var(--danger)" : pct >= 90 ? "var(--warn)" : "var(--ink)");
-
-function HairlineDivider() {
-  return <div aria-hidden="true" style={{ width: 1, alignSelf: "stretch", background: "var(--line)", flexShrink: 0 }} />;
-}
 
 export default function SitesPage() {
   const navigate = useNavigate();
@@ -54,6 +50,9 @@ export default function SitesPage() {
     let occupied = 0;
     let violations = 0;
     let revenue = 0;
+    let revenueYesterday = 0; // same time yesterday — real engine signal
+    let camsOnline = 0;
+    let camsTotal = 0;
     for (const site of sites) {
       const override = site.real && mode === "live" ? realOccupancy : null;
       const snap = siteSnapshot(site.id, t, override);
@@ -61,6 +60,19 @@ export default function SitesPage() {
       occupied += snap.occupied;
       violations += snap.violations;
       revenue += siteRevenueToday(site.id, t);
+      revenueYesterday += siteRevenueToday(site.id, t - 24 * HOUR);
+      for (const cam of site.cameras) {
+        camsTotal += 1;
+        if (cam.real) {
+          const online =
+            mode === "live"
+              ? backendUp && (!realSummary?.status || realSummary.status === "connected")
+              : true;
+          if (online) camsOnline += 1;
+        } else if (cameraHealth(site.id, cam.id, t).online) {
+          camsOnline += 1;
+        }
+      }
     }
     const alerts = activeAlerts(
       t,
@@ -75,10 +87,13 @@ export default function SitesPage() {
       occupancy: total ? (occupied / total) * 100 : 0,
       violations,
       revenue,
+      revenueYesterday,
+      camsOnline,
+      camsTotal,
       alerts: alerts.length,
       critical,
     };
-  }, [kpiBucket, sites, mode, realOccupancy, realSummary, ackAlerts]);
+  }, [kpiBucket, sites, mode, realOccupancy, realSummary, ackAlerts, backendUp]);
 
   /* ---- per-site table rows — 30s bucket ---- */
   const rows = useMemo(() => {
@@ -124,6 +139,17 @@ export default function SitesPage() {
     return out;
   }, [minuteBucket, sites]);
 
+  /* ---- portfolio occupancy trace (24h, averaged across scope) ---- */
+  const portfolioTrend = useMemo(() => {
+    const per = sites.map((s) => sparks[s.id]?.h24 || []);
+    if (!per.length || !per[0].length) return { series: [], deltaPp: null };
+    const series = per[0].map((p, i) => ({
+      ts: p.ts,
+      v: per.reduce((sum, arr) => sum + (arr[i]?.v ?? 0), 0) / per.length,
+    }));
+    return { series, deltaPp: series[series.length - 1].v - series[0].v };
+  }, [sites, sparks]);
+
   /* ---- next-8h forecast peaks — minute bucket ---- */
   const peaks = useMemo(() => {
     const t = minuteBucket * MIN;
@@ -144,27 +170,77 @@ export default function SitesPage() {
     navigate("/twin");
   };
 
-  const kpiItems = [
-    { label: "Total spaces", value: fmtNum(kpi.total), sub: `${sites.length} site${sites.length === 1 ? "" : "s"}` },
-    { label: "Occupancy", value: fmtPct1(kpi.occupancy), sub: "weighted" },
-    { label: "Available", value: fmtNum(kpi.available), tone: "ok" },
+  /* ---- the five-KPI band ----
+     occupancy + revenue carry a real delta/sparkline from the engine;
+     alerts, violations, and camera health are live snapshots (the engine
+     exposes no cheap history for them — nearest real signal shown). */
+  const revDelta =
+    kpi.revenueYesterday > 0
+      ? ((kpi.revenue - kpi.revenueYesterday) / kpi.revenueYesterday) * 100
+      : null;
+
+  const kpiCells = [
+    {
+      label: "Occupancy",
+      value: fmtPct1(kpi.occupancy),
+      sub: (
+        <>
+          {portfolioTrend.deltaPp != null && (
+            <span>
+              {portfolioTrend.deltaPp >= 0 ? "▲" : "▼"}
+              {Math.abs(portfolioTrend.deltaPp).toFixed(1)}pp · 24h
+            </span>
+          )}
+          <Sparkline data={portfolioTrend.series} w={72} h={18} tone="var(--accent-text)" />
+        </>
+      ),
+    },
+    {
+      label: "Revenue today",
+      value: fmtMoney(kpi.revenue),
+      sub:
+        revDelta != null ? (
+          <span className={revDelta >= 0 ? "up" : "down"}>
+            {revDelta >= 0 ? "▲" : "▼"}
+            {Math.abs(revDelta).toFixed(0)}% vs yesterday
+          </span>
+        ) : (
+          <span>vs yesterday —</span>
+        ),
+    },
     {
       label: "Active alerts",
       value: fmtNum(kpi.alerts),
-      sub: kpi.critical > 0 ? `${kpi.critical} critical` : undefined,
-      tone: kpi.critical > 0 ? "danger" : kpi.alerts > 0 ? "warn" : undefined,
+      tone: kpi.critical > 0 ? "var(--danger)" : kpi.alerts > 0 ? "var(--warn)" : undefined,
+      sub: <span>{kpi.critical > 0 ? `${kpi.critical} critical` : "none critical"}</span>,
     },
-    { label: "Violations", value: fmtNum(kpi.violations), tone: kpi.violations > 0 ? "danger" : undefined },
-    { label: "Est. revenue today", value: fmtMoney(kpi.revenue), sub: "portfolio" },
+    {
+      label: "Open violations",
+      value: fmtNum(kpi.violations),
+      tone: kpi.violations > 0 ? "var(--danger)" : undefined,
+      sub: <span>{sites.length} site{sites.length === 1 ? "" : "s"} in scope</span>,
+    },
+    {
+      label: "Camera health",
+      value: `${kpi.camsOnline}/${kpi.camsTotal}`,
+      tone: kpi.camsTotal > 0 && kpi.camsOnline < kpi.camsTotal ? "var(--danger)" : undefined,
+      sub: (
+        <span>
+          {kpi.camsOnline === kpi.camsTotal
+            ? "all online"
+            : `${kpi.camsTotal - kpi.camsOnline} offline`}
+        </span>
+      ),
+    },
   ];
 
   return (
     <div style={{ padding: 16, display: "grid", gap: 12, alignContent: "start" }}>
       {/* ---- page header ---- */}
       <div className="row">
-        <h1 style={{ fontSize: "var(--fs-4)" }}>Sites</h1>
+        <h1 className="page-title">Sites</h1>
         <span className="muted" style={{ fontSize: "var(--fs-1)" }}>
-          portfolio overview
+          {sites.length} site{sites.length === 1 ? "" : "s"} · {fmtNum(kpi.total)} spaces
         </span>
         <div className="spacer" />
         {mode === "replay" && <Pill tone="warn">Replay</Pill>}
@@ -173,18 +249,17 @@ export default function SitesPage() {
         </span>
       </div>
 
-      {/* ---- KPI strip — 5s bucket ---- */}
-      <div className="panel">
-        <div className="row scroll" style={{ gap: 0, padding: "12px 16px" }}>
-          {kpiItems.map((it, i) => (
-            <Fragment key={it.label}>
-              {i > 0 && <HairlineDivider />}
-              <div style={{ flex: "1 1 0", minWidth: 110, padding: i > 0 ? "0 0 0 16px" : 0, marginRight: 16 }}>
-                <Stat label={it.label} value={it.value} sub={it.sub} tone={it.tone} />
-              </div>
-            </Fragment>
-          ))}
-        </div>
+      {/* ---- KPI band — five instruments, 5s bucket ---- */}
+      <div className="kpi-band">
+        {kpiCells.map((c) => (
+          <div className="kpi-cell" key={c.label}>
+            <div className="kpi-label">{c.label}</div>
+            <div className="kpi-value" style={c.tone ? { color: c.tone } : undefined}>
+              {c.value}
+            </div>
+            <div className="kpi-sub">{c.sub}</div>
+          </div>
+        ))}
       </div>
 
       {/* ---- sites table — 30s bucket ---- */}
@@ -312,7 +387,7 @@ export default function SitesPage() {
                   .map((r) => ({
                     label: r.site.name,
                     v: r.occupancy,
-                    tone: r.occupancy === busiest ? "var(--accent)" : "var(--ink-faint)",
+                    tone: r.occupancy === busiest ? "var(--accent-text)" : "var(--border-3)",
                   }))}
                 max={100}
                 unit="%"

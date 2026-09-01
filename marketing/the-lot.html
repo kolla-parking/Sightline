@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sightline | Lot A — one real lot, measured completely</title>
+  <meta name="description" content="Lot A is Sightline's proving ground: a real 100-space lot read by one camera. Watch a genuine detection pass replay — real frame, real polygons, real counts — and see exactly how a pass works." />
+  <!-- Mode must apply before first paint: stored choice, else OS preference -->
+  <script>(function(){try{var t=localStorage.getItem("sl-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.setAttribute("data-theme","dark")}catch(e){}})();</script>
+  <!-- Social cards. Image paths are root-relative on purpose (no production domain yet): swap og:image/twitter:image to absolute https://<domain>/assets/img/preview.jpg URLs at launch — OG scrapers ignore relative paths. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Sightline" />
+  <meta property="og:title" content="Sightline — Lot A, one real lot measured completely" />
+  <meta property="og:description" content="A real 100-space lot read by one camera. Watch a genuine detection pass replay — real frame, real polygons, real counts." />
+  <meta property="og:image" content="assets/img/preview.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sightline — Lot A, one real lot measured completely" />
+  <meta name="twitter:description" content="A real 100-space lot read by one camera. Watch a genuine detection pass replay — real frame, real polygons, real counts." />
+  <meta name="twitter:image" content="assets/img/preview.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,500;0,700;1,500&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css?v=6" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FBFCFB'/%3E%3Cg fill='%23151B17' fill-opacity='.35'%3E%3Crect x='5' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1.8'/%3E%3C/g%3E%3Crect x='13' y='13' width='6' height='6' rx='1.8' fill='%2300E676'/%3E%3C/svg%3E" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "index.html" },
+      { "@type": "ListItem", "position": 2, "name": "The Lot" }
+    ]
+  }
+  </script>
+  <style>
+    /* ---------- page: the lot ---------- */
+    .hero { padding-bottom: var(--s-6); }
+    .hero .label-mono { margin-bottom: var(--s-3); }
+    .hero h1 { max-width: 14ch; }
+    .hero-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s-4);
+      margin-top: var(--s-4);
+    }
+    .hero-row .lede { max-width: 50ch; }
+    .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    /* lot facts ledger */
+    .lot-facts { border-top: 1px solid var(--border); }
+    .lot-facts > div {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--s-1) var(--s-3);
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: var(--fs-small);
+    }
+    .lot-facts span { color: var(--text-3); }
+    .lot-facts b {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      font-weight: 400;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-1);
+      text-align: right;
+    }
+
+    /* pass steps ledger: trailing mono spec */
+    .pass-ledger .l-row { grid-template-columns: 64px 1fr 1.9fr auto; }
+    .pass-ledger .spec {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      color: var(--text-3);
+      white-space: nowrap;
+      justify-self: end;
+    }
+    @media (max-width: 1000px) {
+      .pass-ledger .l-row { grid-template-columns: 44px 1fr; }
+      .pass-ledger .l-row p { grid-column: 2; }
+      .pass-ledger .spec { grid-column: 2; justify-self: start; }
+    }
+
+    /* stills */
+    .shot { overflow: hidden; }
+    .shot .card-bar .label-mono { color: var(--text-3); margin: 0; }
+    .shot img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+    .shot .card-body p { font-size: var(--fs-small); color: var(--text-3); }
+
+    /* honesty list */
+    .honest-list { list-style: none; display: grid; gap: var(--s-2); margin-top: var(--s-3); }
+    .honest-list li { display: flex; gap: 12px; align-items: flex-start; font-size: var(--fs-small); color: var(--text-2); }
+    .honest-list .mk { font-family: var(--font-mono); color: var(--accent-text); flex-shrink: 0; }
+
+    /* footer newsletter (shared page pattern) */
+    .news-mini { display: flex; gap: 8px; margin-top: var(--s-2); }
+    .news-mini input {
+      flex: 1; min-width: 0;
+      padding: 10px 12px;
+      border-radius: var(--r-1);
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      color: var(--text-1);
+      outline: 0;
+      font-size: 0.9rem;
+    }
+    .news-mini input:focus { border-color: var(--accent-text); }
+    [data-theme="dark"] .news-mini input { background: var(--fill); }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="nav-logo" href="index.html" aria-label="Sightline home">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <g fill="currentColor" opacity=".32">
+            <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+          </g>
+          <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+        </svg>
+        Sightline
+      </a>
+      <nav aria-label="Primary">
+        <ul class="nav-links">
+          <li><a href="product.html">Product</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="the-lot.html">The Lot</a></li>
+          <li><a href="data-policy.html">Data policy</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-side">
+        <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+          <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+        </button>
+        <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+        <a class="btn btn-accent btn-sm" href="demo.html">Book a demo <span class="arr">→</span></a>
+        <button class="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sheet" aria-label="Mobile">
+    <a href="index.html">Home</a>
+    <a href="product.html">Product</a>
+    <a href="technology.html">Technology</a>
+    <a href="the-lot.html">The Lot</a>
+    <a href="data-policy.html">Data policy</a>
+    <a href="contact.html">Contact</a>
+    <a href="solutions.html">Solutions</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="compare.html">Compare</a>
+    <a href="insights.html">Writing</a>
+    <a href="login.html">Log in</a>
+    <a href="demo.html">Book a demo</a>
+  </nav>
+
+  <main id="main">
+
+    <!-- ============ 1. hero: the lot as a character ============ -->
+    <section class="hero hero-pad" aria-labelledby="hero-h">
+      <div class="wrap">
+        <span class="label-mono" data-r>The Lot · Lot A</span>
+        <h1 class="t-hero" id="hero-h" data-r style="--d:.06s">One real lot, measured completely.</h1>
+        <div class="hero-row">
+          <p class="lede" data-r style="--d:.12s">
+            This is Lot A: a genuine 100-space surface lot, read edge to
+            edge by one fixed camera. It's not a rendering and not a
+            composite — it's the lot Sightline is proved on, and every
+            number on this site comes from it. Below, a real detection
+            pass replays in front of you.
+          </p>
+          <div class="hero-ctas" data-r style="--d:.18s">
+            <a class="btn btn-accent" href="#evidence">See the live lot <span class="arr">↓</span></a>
+            <a class="btn btn-line" href="demo.html">Book a demo</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 2. the evidence moment (the one dark section) ============ -->
+    <section class="evidence" data-theme="dark" id="evidence" aria-label="Live replay of the real lot">
+      <div class="wrap" data-r>
+        <figure class="monitor" aria-label="A real detection pass replayed on Lot A">
+          <div class="monitor-bar">
+            <span class="live">Replay</span>
+            <span>Lot A · 100 spaces · 1 camera</span>
+            <span>yolov8-obb · 5 fps</span>
+          </div>
+          <div class="monitor-stage">
+            <img src="assets/img/preview.jpg" alt="Aerial camera view of Lot A, a 100-space parking lot analyzed by Sightline" />
+            <svg id="replay-svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+            <div id="replay-scan" class="monitor-scan"></div>
+          </div>
+          <div class="monitor-rail">
+            <div class="cell"><div class="v taken" id="count-taken">0</div><div class="k">Taken</div></div>
+            <div class="cell"><div class="v open" id="count-open">0</div><div class="k">Open</div></div>
+            <div class="cell"><div class="v"><span id="count-pct">0</span><span class="dim">%</span></div><div class="k">Occupancy</div></div>
+            <div class="cell"><div class="v">&lt;1<span class="dim">s</span></div><div class="k">To console</div></div>
+          </div>
+        </figure>
+        <figcaption class="frame-caption">A genuine pass on Lot A — real frame, real polygons, real counts. Red is taken, green is open. Reload to run it again.</figcaption>
+      </div>
+    </section>
+
+    <!-- ============ 3. lot facts ============ -->
+    <section class="section" aria-labelledby="facts-h">
+      <div class="wrap grid-2 top">
+        <div>
+          <span class="label" data-r>The facts</span>
+          <h2 class="t-title" id="facts-h" data-r style="--d:.06s">Lot A, on the record.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            Lot A comes from the PKLot research corpus — a real surface
+            lot, photographed by the kind of fixed camera already bolted
+            to buildings everywhere. Sightline reads all 100 of its spaces
+            from that single view, at five frames a second, and lands
+            every confirmed change on the console in under a second.
+          </p>
+        </div>
+        <div class="lot-facts" data-r style="--d:.1s">
+          <div><span>Spaces</span><b>100</b></div>
+          <div><span>Cameras</span><b>1</b></div>
+          <div><span>Analysis rate</span><b>5 fps</b></div>
+          <div><span>This pass</span><b>68 taken · 32 open</b></div>
+          <div><span>Change to console</span><b>&lt;1 s</b></div>
+          <div><span>Detection model</span><b>yolov8-obb</b></div>
+          <div><span>Source</span><b>pklot corpus · fixed camera</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 4. what a pass looks like ============ -->
+    <section class="section on-tint" aria-labelledby="pass-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>Anatomy of a pass</span>
+          <h2 class="t-title" id="pass-h" data-r style="--d:.06s">What you just watched, step by step.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            The sweep above isn't an animation of an idea — it replays what
+            the pipeline actually did with this frame. Five things
+            happened, in order.
+          </p>
+        </div>
+        <div class="ledger pass-ledger">
+          <div class="l-row" data-r>
+            <span class="ix">/01</span>
+            <h3>The frame arrives</h3>
+            <p>The camera's RTSP stream is decoded at five frames a second — parking happens at parking speed, and five looks a second misses nothing that matters.</p>
+            <span class="spec">rtsp · 5 fps</span>
+          </div>
+          <div class="l-row" data-r style="--d:.05s">
+            <span class="ix">/02</span>
+            <h3>Every vehicle is found</h3>
+            <p>A YOLOv8 oriented-bounding-box model detects each car with a box that rotates to match it, so angled vehicles resolve cleanly in a crowded frame.</p>
+            <span class="spec">yolov8-obb</span>
+          </div>
+          <div class="l-row" data-r style="--d:.1s">
+            <span class="ix">/03</span>
+            <h3>Each detection meets the map</h3>
+            <p>Every one of Lot A's 100 spaces is a polygon drawn once on the pavement. A car counts for a space only when it genuinely sits inside that outline.</p>
+            <span class="spec">100 polygons</span>
+          </div>
+          <div class="l-row" data-r style="--d:.15s">
+            <span class="ix">/04</span>
+            <h3>The counts settle</h3>
+            <p>State holds until enough frames agree — then the tally lands. On this pass: 68 spaces taken, 32 open, 68% occupancy.</p>
+            <span class="spec">68 taken · 32 open</span>
+          </div>
+          <div class="l-row" data-r style="--d:.2s">
+            <span class="ix">/05</span>
+            <h3>The console hears about it</h3>
+            <p>Confirmed state pushes to the operator console over WebSocket. From a change on the pavement to a change on the screen: under a second.</p>
+            <span class="spec">&lt;1 s</span>
+          </div>
+        </div>
+        <div style="margin-top: var(--s-4); --d:.24s" data-r>
+          <a class="btn btn-line" href="technology.html">The full pipeline, all seven stages <span class="arr">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 5. the stills ============ -->
+    <section class="section" aria-labelledby="stills-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>The record</span>
+          <h2 class="t-title" id="stills-h" data-r style="--d:.06s">The same pass, on paper.</h2>
+        </div>
+        <div class="grid-2 top">
+          <figure class="card shot" data-r>
+            <div class="card-bar"><span class="label-mono">Annotated frame</span><span class="label-mono">68 taken · 32 open</span></div>
+            <img src="assets/img/overlay.jpg" alt="Lot A with every space outlined — taken spaces in red, open spaces in green" loading="lazy" />
+            <figcaption class="card-body"><p>Lot A as Sightline sees it: every space matched to its own polygon, taken in red, open in green.</p></figcaption>
+          </figure>
+          <figure class="card shot" data-r style="--d:.08s">
+            <div class="card-bar"><span class="label-mono">Operator console</span><span class="label-mono">live · &lt;1 s</span></div>
+            <img src="assets/img/dashboard.jpg" alt="The Sightline operator console showing Lot A's live counts, per-space map, and history" loading="lazy" />
+            <figcaption class="card-body"><p>Where the pass lands: live counts, the per-space map, and history, next to the feed that proves the reading.</p></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 6. why one lot ============ -->
+    <section class="section on-tint" aria-labelledby="why-h">
+      <div class="wrap grid-2 top">
+        <div>
+          <span class="label" data-r>Why one lot</span>
+          <h2 class="t-title" id="why-h" data-r style="--d:.06s">One true thing beats ten mockups.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            Sightline is pre-launch, and Lot A is not a customer network —
+            it's one honest lot, shown honestly. We think that's worth
+            more than a wall of invented logos, so the limits are on the
+            record next to the results.
+          </p>
+        </div>
+        <div>
+          <ul class="honest-list">
+            <li data-r><span class="mk">01</span><span><strong>The lot is real.</strong> A genuine 100-space surface lot from the PKLot research corpus, photographed by a single fixed camera.</span></li>
+            <li data-r style="--d:.05s"><span class="mk">02</span><span><strong>The pass is real.</strong> The outlines and counts you watched are Sightline's actual output for this frame — 68 taken, 32 open, each space matched to its own polygon.</span></li>
+            <li data-r style="--d:.1s"><span class="mk">03</span><span><strong>The limits are real too.</strong> One sample lot, no customers yet, no invented accuracy figures. When there's more to show, it will be shown the same way: measured.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 7. CTA ============ -->
+    <section class="section" aria-labelledby="cta-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>Next step</span>
+          <h2 class="t-title" id="cta-h" data-r style="--d:.06s">Then see your own lot the same way.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            Lot A proves the method. Your footage proves the fit. Bring a
+            camera feed and thirty minutes, and we'll map your spaces live
+            on the call.
+          </p>
+        </div>
+        <div class="hero-ctas" data-r style="--d:.18s">
+          <a class="btn btn-accent" href="demo.html">Book a demo <span class="arr">→</span></a>
+          <a class="btn btn-line" href="contact.html">Talk to us</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ dark footer ============ -->
+  <footer class="foot" data-theme="dark">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="nav-logo" href="index.html">
+            <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+              <g fill="currentColor" opacity=".32">
+                <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+              </g>
+              <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+            </svg>
+            Sightline
+          </a>
+          <p class="foot-tag">Per-space parking occupancy from the cameras you already own, on your own hardware.</p>
+          <p class="foot-status">status: proving Sightline on one real 100-space lot. more soon.</p>
+          <form data-form novalidate aria-label="Newsletter">
+            <div class="news-mini">
+              <input type="email" placeholder="you@company.com" aria-label="Email address" required />
+              <button class="btn btn-quiet btn-sm" type="submit" style="width:auto;">Subscribe</button>
+            </div>
+          </form>
+          <div class="form-success" style="margin-top:10px;"><span class="mk">ok</span> You're subscribed. Watch your inbox.</div>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="product.html">Product</a></li>
+            <li><a href="technology.html">Technology</a></li>
+            <li><a href="the-lot.html">The Lot</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="compare.html">Compare</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Solutions</h4>
+          <ul>
+            <li><a href="solutions.html#operators">Operators &amp; garages</a></li>
+            <li><a href="solutions.html#campuses">Campuses &amp; venues</a></li>
+            <li><a href="solutions.html#curb">Municipal curb</a></li>
+            <li><a href="demo.html">Book a demo</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About</a></li>
+            <li><a href="insights.html">Writing</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="data-policy.html">Data policy</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-legal">
+        <span>© 2026 Sightline · Monish Munagala · Charlotte, NC</span>
+        <div class="links">
+          <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+            <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+          </button>
+          <a href="data-policy.html">Data policy</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/env.js"></script>
+  <script src="assets/js/main.js?v=7"></script>
+  <script src="assets/js/replay.js?v=2" defer></script>
+</body>
+</html>

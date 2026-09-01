@@ -1,7 +1,10 @@
 # Sightline — Marketing Site
 
-Static multi-page marketing site for Sightline. No build step, no framework —
-plain HTML/CSS/JS with GSAP + ScrollTrigger (vendored in `assets/vendor/`).
+Static multi-page marketing site built on the **Instrument v2** design
+system (see `/BRAND.md` — it is law). No build step, no framework, zero
+JS dependencies: Bricolage Grotesque display, IBM Plex Sans body, IBM
+Plex Mono data, dual themes (ember default / signal) switched via
+`<html data-theme>` + `localStorage["sl-theme"]`.
 
 ## Run it
 
@@ -11,30 +14,38 @@ python -m http.server 8090
 # open http://localhost:8090
 ```
 
-A local server is required (the hero fetches `assets/data/slots.json`);
-opening `index.html` via `file://` will skip the detection animation.
+A local server is required (the detection replay fetches
+`assets/data/slots.json`).
 
 ## Pages
 
 | Page | Purpose |
 |---|---|
-| `index.html` | Home — live-detection hero, manifesto, how-it-works (pinned), features preview, stats, demo CTA, newsletter |
-| `features.html` | Six deep-dive feature sections with spec tables |
-| `about.html` | Story, goal manifesto, principles, values |
-| `demo.html` | Request-a-demo form |
-| `contact.html` | Contact channels + message form |
+| `index.html` | Home — typographic hero, live replay monitor, capability ledger, pipeline strip |
+| `platform.html` | The product + technology deep dive (`#engine #pipeline #console #analytics #privacy`) |
+| `solutions.html` | Verticals: `#operators`, `#campuses`, `#curb` |
+| `pricing.html` | The real plans ($99/$299/$999) + FAQ |
+| `compare.html` | Five ways to count a space — grounded vendor comparison |
+| `live-demo.html` | "Proof" — the real detection replay |
+| `insights.html` (+ `insight-*.html`) | "Writing" — editorial index + essays |
+| `about.html` / `contact.html` / `demo.html` / `login.html` | Company, contact form, demo form, console sign-in pointer |
 | `privacy.html` / `terms.html` | Legal |
+| `product.html` / `technology.html` / `features.html` | Redirect stubs → `platform.html` (noindex) |
+| `admin-portal/` | Internal admin portal (unlisted, `noindex`) — requires the backend API with `ADMIN_EMAIL`/`ADMIN_PASSWORD` set; see `.env.example` |
 
 ## Notes
 
-- **Real product data**: the hero replays a genuine detection pass — the 100
-  PKLot slot polygons from `assets/data/slots.json` drawn over the real camera
-  frame, synced to a scan-line sweep. Counters land on the true 68 / 32 split.
-- **Query params** (dev tooling): `?noanim=1` disables all animation (also
-  honoured for `prefers-reduced-motion`); `&qa=1` additionally collapses
-  viewport-height sections for full-page screenshots.
-- **Forms** are front-end only (validation + success states). Wire the
-  newsletter/demo/contact forms to a backend or service before launch, and
-  replace the placeholder email in `contact.html`.
-- Fonts load from Google Fonts (Space Grotesk / Inter / JetBrains Mono);
-  everything else is local.
+- **Machinery**: `assets/js/main.js` — reveals (IntersectionObserver),
+  nav/sheet, theme toggle, form POST wiring; `assets/js/replay.js` — the
+  vanilla-rAF detection replay (reads occupancy colors from tokens).
+- **Forms**: demo/contact POST JSON to the backend
+  (`/public/demo-requests`, `/public/contact-requests`) with a honeypot
+  (`name="website"`) and busy/soft-error states. API base defaults to
+  `http://localhost:8000`; override with `window.SIGHTLINE_API` before
+  `main.js`. The newsletter input is front-end only. Replace the
+  placeholder email in `contact.html` before launch.
+- **Dev flags**: `?noanim=1` renders final states with no motion
+  (also honored for `prefers-reduced-motion`).
+- **Launch checklist**: OG/Twitter images and `sitemap.xml` locs are
+  root-relative — absolutize to the production domain at launch (each og
+  block carries a comment); `robots.txt` disallows `/admin-portal/`.

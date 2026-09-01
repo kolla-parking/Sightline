@@ -9,6 +9,7 @@ import { SITES } from "../sim/sites.js";
 
 const CASES_KEY = "sightline.cases.v1";
 const SETTINGS_KEY = "sightline.settings.v1";
+const AUTH_KEY = "sightline.auth.v1";
 
 function loadJSON(key, fallback) {
   try {
@@ -34,6 +35,9 @@ const defaultSettings = {
   refreshSec: 5,
   showFlow: true,
   density: "dense",
+  theme: "system", // "system" | "light" | "dark" — explicit choices are
+  // mirrored as data-theme on <html>; "system" (or any legacy value)
+  // leaves the attribute off so CSS follows prefers-color-scheme.
 };
 
 export const useStore = create((set, get) => ({
@@ -54,6 +58,7 @@ export const useStore = create((set, get) => ({
 
   /* ---- ui ---- */
   selectedSpaceId: null,
+  selectedPlate: null, // plate string opens the Vehicle drawer; null closes
   drawer: null, // { type: "space"|"alert"|"case"|"session", ... }
   paletteOpen: false,
   copilotOpen: false,
@@ -68,6 +73,11 @@ export const useStore = create((set, get) => ({
 
   /* ---- settings ---- */
   settings: { ...defaultSettings, ...loadJSON(SETTINGS_KEY, {}) },
+
+  /* ---- auth ---- */
+  authToken: loadJSON(AUTH_KEY, {}).token || null,
+  authStatus: "checking", // "checking" | "authed" | "anon"
+  authUser: null, // member row from /auth/member/me (null until verified)
 
   /* ================= actions ================= */
 
@@ -96,6 +106,8 @@ export const useStore = create((set, get) => ({
     }),
 
   selectSpace: (selectedSpaceId) => set({ selectedSpaceId }),
+
+  selectPlate: (plate) => set({ selectedPlate: plate }),
 
   openDrawer: (drawer) => set({ drawer }),
   closeDrawer: () => set({ drawer: null, selectedSpaceId: null }),
@@ -163,6 +175,21 @@ export const useStore = create((set, get) => ({
     const settings = { ...get().settings, [key]: value };
     saveJSON(SETTINGS_KEY, settings);
     set({ settings });
+  },
+
+  /* ---- auth ---- */
+  setAuth: ({ token, user }) => {
+    saveJSON(AUTH_KEY, { token });
+    set({ authToken: token, authUser: user || null, authStatus: "authed" });
+  },
+
+  clearAuth: () => {
+    try {
+      localStorage.removeItem(AUTH_KEY);
+    } catch {
+      /* storage unavailable */
+    }
+    set({ authToken: null, authUser: null, authStatus: "anon" });
   },
 }));
 

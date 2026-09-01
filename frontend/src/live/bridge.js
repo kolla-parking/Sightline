@@ -5,7 +5,7 @@
 // real site, plus the camera summary row. Everything fails soft — if the
 // backend is down the twin keeps running on simulation alone.
 
-import { deriveWsUrl, fetchSummary, fetchSlots, fetchHealth } from "../lib/api.js";
+import { deriveWsUrl, fetchSummary, fetchSlots, fetchHealth, apiMe } from "../lib/api.js";
 import { useStore } from "../store/useStore.js";
 
 let started = false;
@@ -37,6 +37,23 @@ export function startBridge() {
     const up = !!health;
     if (up !== useStore.getState().backendUp) setRealData({ backendUp: up });
     if (up && !useStore.getState().realOccupancy) seed();
+
+    // ---- live kick: a revoked/expired session bounces to /login ≤15s ----
+    const { authToken, clearAuth } = useStore.getState();
+    if (authToken && window.location.pathname !== "/login") {
+      const res = await apiMe(authToken);
+      if (res.status === 401 || res.status === 403) {
+        clearAuth();
+        try {
+          sessionStorage.setItem("sl.kicked", String(res.status));
+        } catch {
+          /* storage unavailable */
+        }
+        // no router out here — a hard navigation also drops all app state
+        window.location.assign("/login");
+      }
+      // status 0 (backend unreachable) — fail soft, do nothing
+    }
   }, 15000);
 
   // ---- websocket ----

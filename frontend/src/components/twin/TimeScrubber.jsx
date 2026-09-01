@@ -76,7 +76,7 @@ export function TimeScrubber({ scope }) {
       }}
     >
       <div className="row" style={{ gap: 8 }}>
-        <span style={{ fontSize: "var(--fs-0)", fontWeight: 600, color: "var(--ink-muted)" }}>TIMELINE · 48H</span>
+        <span className="mono" style={{ fontSize: "var(--fs-0)", fontWeight: 500, letterSpacing: "0.08em", color: "var(--ink-muted)" }}>TIMELINE · 48H</span>
         <span className="pill" style={{ fontSize: 10 }}>
           <Kbd>[</Kbd>
           <Kbd>]</Kbd> ±15m
@@ -89,7 +89,7 @@ export function TimeScrubber({ scope }) {
               <button
                 key={x}
                 className={`btn sm ${playSpeed === x ? "" : "ghost"}`}
-                style={playSpeed === x ? { borderColor: "var(--accent-line)", color: "var(--accent-hover)" } : {}}
+                style={playSpeed === x ? { borderColor: "var(--accent-line)", color: "var(--accent-text)" } : {}}
                 onClick={() => setPlaySpeed(playSpeed === x ? 0 : x)}
                 title={`Replay at ${x}× real time`}
               >
@@ -126,8 +126,8 @@ export function TimeScrubber({ scope }) {
           ))}
           {path && (
             <>
-              <path d={`${path}L${W},${H}L0,${H}Z`} fill="var(--accent)" opacity={0.1} />
-              <path d={path} fill="none" stroke="var(--accent)" strokeWidth={1.2} opacity={0.7} />
+              <path d={`${path}L${W},${H}L0,${H}Z`} fill="var(--accent-text)" opacity={0.08} />
+              <path d={path} fill="none" stroke="var(--accent-text)" strokeWidth={1.2} opacity={0.7} />
             </>
           )}
           {/* replayed region */}

@@ -1,4 +1,7 @@
-// App shell: sidebar nav + topbar + global keyboard map + copilot panel.
+// App chrome (Daylight v3): left sidebar of job-named nav (grid-mark +
+// wordmark, grouped links, link telemetry in the footer) beside a topbar
+// (search/⌘K, clock, scope, copilot, session) over a full-bleed content
+// area. Global keyboard map (g-keys, ⌘K, \, l, [ ]) is unchanged.
 
 import { useEffect, useMemo, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -6,38 +9,98 @@ import { useStore, twinTime } from "../store/useStore.js";
 import { SITES, siteById } from "../sim/sites.js";
 import { activeAlerts } from "../sim/engine.js";
 import { fmtClockSec, fmtDateTime } from "../lib/format.js";
-import { Kbd, Toasts } from "./ui.jsx";
+import { apiLogout } from "../lib/api.js";
+import { Kbd, Mark, Toasts } from "./ui.jsx";
 import { CommandPalette } from "./CommandPalette.jsx";
 import { CopilotSidePanel } from "./CopilotPanel.jsx";
+import { VehicleDrawer } from "./VehicleDrawer.jsx";
 
-const I = {
-  sites: <path d="M2 6l5-3 5 3 5-3v8l-5 3-5-3-5 3V6zm5-3v8m5-5v8" />,
-  twin: <path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zm0 3a3.5 3.5 0 100 7 3.5 3.5 0 000-7zm0 2.4a1.1 1.1 0 100 2.2 1.1 1.1 0 000-2.2z" />,
-  analytics: <path d="M2 14V9m4 5V5m4 9v-4m4 4V2" />,
-  events: <path d="M8 2a4 4 0 00-4 4v3l-1.5 2.5h11L12 9V6a4 4 0 00-4-4zm-1.5 11a1.5 1.5 0 003 0" />,
-  enforcement: <path d="M8 1.5l5.5 2v4c0 3.5-2.3 6-5.5 7-3.2-1-5.5-3.5-5.5-7v-4l5.5-2zM5.8 8l1.6 1.6L10.6 6" />,
-  reports: <path d="M4 1.5h6l3 3v10H4v-13zm6 0v3h3M6.5 8h4m-4 3h4" />,
-  copilot: <path d="M8 1.5l1.3 4.2 4.2 1.3-4.2 1.3L8 12.5 6.7 8.3 2.5 7l4.2-1.3L8 1.5zm5 8.5l.7 2.3 2.3.7-2.3.7-.7 2.3-.7-2.3-2.3-.7 2.3-.7.7-2.3z" />,
-  settings: <path d="M8 5.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM8 1v2m0 10v2M2 8h2m8 0h2M3.8 3.8l1.4 1.4m5.6 5.6l1.4 1.4m0-8.4l-1.4 1.4M5.2 10.8l-1.4 1.4" />,
+/* ---------- nav icons: minimal 15px strokes, currentColor ---------- */
+
+const ic = { fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round" };
+
+const Icons = {
+  live: (
+    <svg viewBox="0 0 16 16" aria-hidden="true" {...ic}>
+      <circle cx="8" cy="8" r="1.6" fill="currentColor" stroke="none" />
+      <path d="M4.5 4.5a5 5 0 0 0 0 7M11.5 4.5a5 5 0 0 1 0 7" />
+    </svg>
+  ),
+  alerts: (
+    <svg viewBox="0 0 16 16" aria-hidden="true" {...ic}>
+      <path d="M8 2.2a3.8 3.8 0 0 0-3.8 3.8v2.6L3 11h10l-1.2-2.4V6A3.8 3.8 0 0 0 8 2.2Z" />
+      <path d="M6.6 13.2a1.5 1.5 0 0 0 2.8 0" />
+    </svg>
+  ),
+  copilot: (
+    <svg viewBox="0 0 16 16" aria-hidden="true" {...ic}>
+      <path d="M8 2.5 9.3 6.7 13.5 8l-4.2 1.3L8 13.5 6.7 9.3 2.5 8l4.2-1.3L8 2.5Z" />
+    </svg>
+  ),
+  sites: (
+    <svg viewBox="0 0 16 16" aria-hidden="true" {...ic}>
+      <rect x="2.5" y="2.5" width="4.6" height="4.6" rx="1" />
+      <rect x="8.9" y="2.5" width="4.6" height="4.6" rx="1" />
+      <rect x="2.5" y="8.9" width="4.6" height="4.6" rx="1" />
+      <rect x="8.9" y="8.9" width="4.6" height="4.6" rx="1" />
+    </svg>
+  ),
+  enforcement: (
+    <svg viewBox="0 0 16 16" aria-hidden="true" {...ic}>
+      <path d="M8 2.2 13 4v3.6c0 3.2-2.1 5.3-5 6.2-2.9-.9-5-3-5-6.2V4l5-1.8Z" />
+    </svg>
+  ),
+  analytics: (
+    <svg viewBox="0 0 16 16" aria-hidden="true" {...ic}>
+      <path d="M3 13.5V9M8 13.5V5.5M13 13.5V2.5" />
+    </svg>
+  ),
+  reports: (
+    <svg viewBox="0 0 16 16" aria-hidden="true" {...ic}>
+      <path d="M4 2.5h5.5L12.5 5v8.5H4V2.5Z" />
+      <path d="M6 8h4.5M6 10.5h4.5" />
+    </svg>
+  ),
+  settings: (
+    <svg viewBox="0 0 16 16" aria-hidden="true" {...ic}>
+      <path d="M3 5h10M3 11h10" />
+      <circle cx="6" cy="5" r="1.7" fill="currentColor" stroke="none" />
+      <circle cx="10" cy="11" r="1.7" fill="currentColor" stroke="none" />
+    </svg>
+  ),
+  search: (
+    <svg viewBox="0 0 16 16" aria-hidden="true" width="13" height="13" {...ic}>
+      <circle cx="7" cy="7" r="4" />
+      <path d="m10.2 10.2 3 3" />
+    </svg>
+  ),
 };
 
-function Icon({ name }) {
-  return (
-    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" strokeLinecap="round" aria-hidden="true">
-      {I[name]}
-    </svg>
-  );
-}
+/* ---------- nav model: job-named labels; routes/paths unchanged ---------- */
 
-const NAV = [
-  { to: "/sites", icon: "sites", label: "Sites" },
-  { to: "/twin", icon: "twin", label: "Live Twin" },
-  { to: "/analytics", icon: "analytics", label: "Analytics" },
-  { to: "/events", icon: "events", label: "Events & Alerts" },
-  { to: "/enforcement", icon: "enforcement", label: "Enforcement" },
-  { to: "/reports", icon: "reports", label: "Reports" },
-  { to: "/copilot", icon: "copilot", label: "Copilot" },
-  { to: "/settings", icon: "settings", label: "Settings" },
+const NAV_GROUPS = [
+  {
+    label: "Operate",
+    items: [
+      { to: "/twin", label: "Live", icon: "live" },
+      { to: "/events", label: "Alerts", icon: "alerts", badge: true },
+      { to: "/copilot", label: "Copilot", icon: "copilot" },
+    ],
+  },
+  {
+    label: "Portfolio",
+    items: [
+      { to: "/sites", label: "Sites", icon: "sites" },
+      { to: "/enforcement", label: "Enforcement", icon: "enforcement" },
+    ],
+  },
+  {
+    label: "Analyze",
+    items: [
+      { to: "/analytics", label: "Analytics", icon: "analytics" },
+      { to: "/reports", label: "Reports", icon: "reports" },
+    ],
+  },
 ];
 
 const G_KEYS = { o: "/sites", t: "/twin", a: "/analytics", e: "/events", n: "/enforcement", r: "/reports", c: "/copilot", s: "/settings" };
@@ -69,21 +132,42 @@ function AlertBadge() {
     [bucket, realSummary?.status],
   );
   if (!count) return null;
+  return <span className="nav-badge">{count}</span>;
+}
+
+function StatusChip() {
+  const backendUp = useStore((s) => s.backendUp);
+  const wsStatus = useStore((s) => s.wsStatus);
   return (
-    <span
-      className="num"
-      style={{
-        marginLeft: "auto",
-        fontSize: 10,
-        fontWeight: 700,
-        background: "var(--danger-dim)",
-        color: "var(--danger)",
-        borderRadius: 999,
-        padding: "1px 6px",
-      }}
+    <div className="status-chip" role="status" aria-label="Data link status">
+      <span className="row" style={{ gap: 5 }}>
+        <span className={`dot ${backendUp ? "ok pulse" : "danger"}`} />
+        <span>Backend {backendUp ? "up" : "down"}</span>
+      </span>
+      <span className="row" style={{ gap: 5 }}>
+        <span className={`dot ${wsStatus === "connected" ? "ok" : "warn"}`} />
+        <span>Stream {wsStatus}</span>
+      </span>
+    </div>
+  );
+}
+
+function SideLink({ item }) {
+  return (
+    <NavLink
+      to={item.to}
+      className={({ isActive }) => `side-link${isActive ? " active" : ""}`}
+      title={item.label}
     >
-      {count}
-    </span>
+      {Icons[item.icon]}
+      <span>{item.label}</span>
+      {item.badge && (
+        <>
+          <span className="spacer" aria-hidden="true" />
+          <AlertBadge />
+        </>
+      )}
+    </NavLink>
   );
 }
 
@@ -94,9 +178,15 @@ export function Shell({ children }) {
   const setPaletteOpen = useStore((s) => s.setPaletteOpen);
   const setCopilotOpen = useStore((s) => s.setCopilotOpen);
   const jumpLive = useStore((s) => s.jumpLive);
-  const backendUp = useStore((s) => s.backendUp);
-  const wsStatus = useStore((s) => s.wsStatus);
+  const authUser = useStore((s) => s.authUser);
+  const clearAuth = useStore((s) => s.clearAuth);
   const gRef = useRef(0);
+
+  const signOut = () => {
+    apiLogout(useStore.getState().authToken); // fire-and-forget
+    clearAuth();
+    window.location.assign("/login");
+  };
 
   useEffect(() => {
     const onKey = (e) => {
@@ -131,104 +221,56 @@ export function Shell({ children }) {
   }, [navigate, setPaletteOpen, setCopilotOpen, jumpLive]);
 
   return (
-    <div style={{ display: "flex", height: "100%", minWidth: 0 }}>
+    <div className="shell">
       {/* ---------- sidebar ---------- */}
-      <nav
-        style={{
-          width: 208,
-          flexShrink: 0,
-          background: "var(--bg-sunken)",
-          borderRight: "1px solid var(--line)",
-          display: "flex",
-          flexDirection: "column",
-        }}
-        aria-label="Primary"
-      >
-        <div className="row" style={{ padding: "14px 16px 12px", gap: 9 }}>
-          <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-            <circle cx="16" cy="16" r="12" stroke="var(--accent)" strokeWidth="2.5" />
-            <circle cx="16" cy="16" r="3.5" fill="var(--ok)" />
-          </svg>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: "var(--fs-2)", letterSpacing: "-0.01em" }}>Sightline</div>
-            <div style={{ fontSize: 10, color: "var(--ink-faint)" }}>Operations · v10</div>
-          </div>
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <Mark size={20} />
+          <span className="sidebar-word">Sightline</span>
+          <span className="sidebar-ops">OPS</span>
         </div>
 
-        <div style={{ padding: "4px 10px 10px" }}>
-          <button
-            className="row"
-            style={{
-              width: "100%",
-              padding: "6px 9px",
-              borderRadius: "var(--r-2)",
-              border: "1px solid var(--line)",
-              background: "var(--surface)",
-              fontSize: "var(--fs-1)",
-              color: "var(--ink-mid)",
-            }}
-            onClick={() => setPaletteOpen(true)}
-          >
-            <span>Search or command…</span>
-            <span className="spacer" />
-            <Kbd>⌘K</Kbd>
-          </button>
-        </div>
-
-        <div style={{ flex: 1, padding: "0 8px", display: "grid", gap: 1, alignContent: "start" }}>
-          {NAV.map((n) => (
-            <NavLink
-              key={n.to}
-              to={n.to}
-              className="row"
-              style={({ isActive }) => ({
-                padding: "6px 9px",
-                borderRadius: "var(--r-2)",
-                fontSize: "var(--fs-1)",
-                fontWeight: 500,
-                color: isActive ? "var(--ink)" : "var(--ink-muted)",
-                background: isActive ? "var(--surface-2)" : "transparent",
-                transition: "background var(--t-fast), color var(--t-fast)",
-              })}
-            >
-              <Icon name={n.icon} />
-              <span>{n.label}</span>
-              {n.to === "/events" && <AlertBadge />}
-            </NavLink>
+        <nav className="side-nav" aria-label="Primary">
+          {NAV_GROUPS.map((g) => (
+            <div key={g.label}>
+              <div className="side-group">{g.label}</div>
+              {g.items.map((item) => (
+                <SideLink key={item.to} item={item} />
+              ))}
+            </div>
           ))}
-        </div>
+        </nav>
 
-        <div style={{ padding: 12, borderTop: "1px solid var(--line)", display: "grid", gap: 6 }}>
-          <div className="row" style={{ fontSize: "var(--fs-0)", color: "var(--ink-muted)" }}>
-            <span className={`dot ${backendUp ? "ok pulse" : "danger"}`} />
-            <span>Backend {backendUp ? "connected" : "offline"}</span>
-          </div>
-          <div className="row" style={{ fontSize: "var(--fs-0)", color: "var(--ink-muted)" }}>
-            <span className={`dot ${wsStatus === "connected" ? "ok" : "warn"}`} />
-            <span>Stream {wsStatus}</span>
-          </div>
+        <div className="side-foot">
+          <SideLink item={{ to: "/settings", label: "Settings", icon: "settings" }} />
+          <StatusChip />
         </div>
-      </nav>
+      </aside>
 
       {/* ---------- main column ---------- */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-        <header
-          className="row"
-          style={{
-            height: 46,
-            padding: "0 14px",
-            borderBottom: "1px solid var(--line)",
-            gap: 10,
-            flexShrink: 0,
-          }}
-        >
+      <div className="shell-main">
+        <header className="topbar">
+          <button
+            className="topbar-search"
+            onClick={() => setPaletteOpen(true)}
+            aria-label="Open command palette"
+          >
+            {Icons.search}
+            <span>Search or command…</span>
+            <Kbd>⌘K</Kbd>
+          </button>
+
+          <div className="spacer" />
+
+          <Clock />
           <div className="select-wrap">
             <select
               className="select"
               value={scope}
               onChange={(e) => setScope(e.target.value)}
               aria-label="Site scope"
-              style={{ minWidth: 190, fontWeight: 600 }}
+              title={scope !== "portfolio" ? siteById[scope]?.address : undefined}
+              style={{ maxWidth: 190, fontWeight: 500 }}
             >
               <option value="portfolio">Portfolio — all sites</option>
               {SITES.map((s) => (
@@ -238,17 +280,25 @@ export function Shell({ children }) {
               ))}
             </select>
           </div>
-          {scope !== "portfolio" && (
-            <span className="pill">{siteById[scope]?.address}</span>
-          )}
-          <div className="spacer" />
-          <Clock />
-          <button className="btn ghost sm" onClick={() => setCopilotOpen(!useStore.getState().copilotOpen)} title="Toggle Copilot (\\)">
+          <button
+            className="btn ghost sm"
+            onClick={() => setCopilotOpen(!useStore.getState().copilotOpen)}
+            title="Toggle Copilot (\)"
+          >
             <span className="dot accent" />
             Copilot
           </button>
+          {authUser?.email && (
+            <span className="pill" title={authUser.email} style={{ maxWidth: 180 }}>
+              <span className="truncate">{authUser.email}</span>
+            </span>
+          )}
+          <button className="btn ghost sm" onClick={signOut}>
+            Sign out
+          </button>
         </header>
 
+        {/* ---------- full-bleed content ---------- */}
         <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
           <main className="scroll" style={{ flex: 1, minWidth: 0 }}>
             {children}
@@ -258,6 +308,9 @@ export function Shell({ children }) {
       </div>
 
       <CommandPalette />
+      {/* Vehicle identity drawer — mounted once so plate links work from
+          any page (twin, alerts, copilot). */}
+      <VehicleDrawer />
       <Toasts />
     </div>
   );

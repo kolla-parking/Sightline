@@ -128,7 +128,7 @@ function TypicalWeek({ siteId, ts }) {
                   width: 10,
                   height: 10,
                   borderRadius: 2,
-                  backgroundColor: `color-mix(in oklab, var(--accent) ${Math.round(6 + rate * 92)}%, var(--surface-2))`,
+                  backgroundColor: `color-mix(in oklab, var(--accent-text) ${Math.round(6 + rate * 92)}%, var(--surface-2))`,
                   outline: r === nowRow && h === nowCol ? "1px solid var(--ink-mid)" : "none",
                 }}
               />
@@ -144,7 +144,7 @@ function TypicalWeek({ siteId, ts }) {
             height: 6,
             borderRadius: 3,
             background:
-              "linear-gradient(90deg, color-mix(in oklab, var(--accent) 6%, var(--surface-2)), var(--accent))",
+              "linear-gradient(90deg, color-mix(in oklab, var(--accent-text) 6%, var(--surface-2)), var(--accent-text))",
           }}
         />
         <span style={{ fontSize: "var(--fs-0)", color: "var(--ink-faint)" }}>high</span>
@@ -221,7 +221,7 @@ function SingleSiteAnalytics({ siteId }) {
       site.zones.map((z) => {
         const agg = snap.zones[z.id] || { total: 0, occupied: 0 };
         const pct = agg.total ? (agg.occupied / agg.total) * 100 : 0;
-        return { label: z.name, v: pct, tone: pct > 90 ? "var(--space-occupied)" : undefined };
+        return { label: z.name, v: pct, tone: pct > 90 ? "var(--danger)" : undefined };
       }),
     [site, snap],
   );
@@ -233,7 +233,7 @@ function SingleSiteAnalytics({ siteId }) {
     <div style={{ padding: 16, display: "grid", gap: 12, alignContent: "start" }}>
       <header className="row" style={{ gap: 10, flexWrap: "wrap" }}>
         <div style={{ minWidth: 0 }}>
-          <h1 style={{ fontSize: "var(--fs-4)" }} className="truncate">
+          <h1 className="page-title truncate">
             {site.name}
           </h1>
           <div style={{ fontSize: "var(--fs-0)", color: "var(--ink-muted)" }} className="truncate">
@@ -420,7 +420,7 @@ function PortfolioAnalytics() {
     return {
       label: site.name,
       v: pct,
-      tone: pct >= congestionPct ? "var(--space-occupied)" : undefined,
+      tone: pct >= congestionPct ? "var(--danger)" : undefined,
     };
   });
 
@@ -428,7 +428,7 @@ function PortfolioAnalytics() {
     <div style={{ padding: 16, display: "grid", gap: 12, alignContent: "start" }}>
       <header className="row" style={{ gap: 10 }}>
         <div>
-          <h1 style={{ fontSize: "var(--fs-4)" }}>Analytics — Portfolio</h1>
+          <h1 className="page-title">Analytics — Portfolio</h1>
           <div style={{ fontSize: "var(--fs-0)", color: "var(--ink-muted)" }}>
             {fmtNum(SITES.length)} sites · {fmtNum(totalSpaces)} spaces · 24h history + 6h forecast per site
           </div>

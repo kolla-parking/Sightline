@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Sightline</title>
+  <meta name="description" content="Internal admin portal for Sightline staff. Restricted access." />
+  <meta name="robots" content="noindex, nofollow" />
+  <!-- Theme + density must apply before first paint (theme key shared with the marketing site) -->
+  <script>(function(){try{var t=localStorage.getItem("sl-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.setAttribute("data-theme","dark");if(localStorage.getItem("sl-density")==="compact")document.documentElement.setAttribute("data-density","compact")}catch(e){}})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,500;0,700;1,500&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/main.css?v=6" />
+  <link rel="stylesheet" href="portal.css?v=7" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FBFCFB'/%3E%3Cg fill='%23151B17' fill-opacity='.35'%3E%3Crect x='5' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1.8'/%3E%3C/g%3E%3Crect x='13' y='13' width='6' height='6' rx='1.8' fill='%2300E676'/%3E%3C/svg%3E" />
+  <script src="/assets/js/env.js"></script>
+  <script>window.SIGHTLINE_API = window.SIGHTLINE_API || "http://localhost:8000";</script>
+</head>
+<body class="portal">
+
+  <aside class="p-rail">
+    <a class="p-logo" href="#/" aria-label="Sightline admin home">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><g fill="currentColor" opacity=".32"><rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/><rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/><rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/></g><rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/></svg>
+      <span class="p-logo-name">Sightline</span>
+      <span class="p-rail-tag">Admin</span>
+    </a>
+
+    <nav class="p-tabs" aria-label="Portal">
+      <a href="#/" data-nav="overview">Overview</a>
+      <a href="#/demos" data-nav="demos">Demo requests</a>
+      <a href="#/orgs" data-nav="orgs">Organizations</a>
+      <a href="#/audit" data-nav="audit">Audit log</a>
+      <a href="#/outbox" data-nav="outbox">Email outbox</a>
+    </nav>
+
+    <div class="p-rail-foot">
+      <div class="p-rail-controls">
+        <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+          <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+        </button>
+        <button class="p-seg" type="button" data-density-toggle aria-label="Toggle table density">
+          <span class="seg-a">Cozy</span><span class="seg-b">Compact</span>
+        </button>
+      </div>
+      <span class="p-env" id="env-host"></span>
+      <span class="p-admin-email" id="admin-email"></span>
+      <button class="btn btn-ghost btn-sm" type="button" data-action="logout">Sign out</button>
+    </div>
+  </aside>
+
+  <main id="view" class="p-main"></main>
+
+  <div id="modal-mount"></div>
+  <div id="toast-mount" class="p-toasts" aria-live="polite"></div>
+
+  <noscript><p style="padding:40px; text-align:center;">The Sightline admin portal requires JavaScript.</p></noscript>
+
+  <script>
+    // shell-level controls: theme (shared sl-theme key) + table density.
+    (function () {
+      "use strict";
+      document.addEventListener("click", function (e) {
+        var mode = e.target.closest("[data-mode-toggle]");
+        if (mode) {
+          var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+          if (next === "dark") document.documentElement.setAttribute("data-theme", "dark");
+          else document.documentElement.removeAttribute("data-theme");
+          try { localStorage.setItem("sl-theme", next); } catch (err) { /* storage unavailable */ }
+        }
+        var dens = e.target.closest("[data-density-toggle]");
+        if (dens) {
+          var compact = document.documentElement.getAttribute("data-density") === "compact";
+          if (compact) document.documentElement.removeAttribute("data-density");
+          else document.documentElement.setAttribute("data-density", "compact");
+          try { localStorage.setItem("sl-density", compact ? "cozy" : "compact"); } catch (err) { /* storage unavailable */ }
+        }
+      });
+    })();
+  </script>
+  <script src="portal.js?v=7"></script>
+</body>
+</html>

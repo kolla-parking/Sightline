@@ -107,27 +107,10 @@ export function CommandPalette() {
   return (
     <>
       <div className="drawer-backdrop" style={{ zIndex: "var(--z-modal-backdrop)" }} onClick={() => setOpen(false)} />
-      <div
-        role="dialog"
-        aria-label="Command palette"
-        style={{
-          position: "fixed",
-          top: "16vh",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "min(560px, 92vw)",
-          zIndex: "var(--z-modal)",
-          background: "var(--surface)",
-          border: "1px solid var(--line-strong)",
-          borderRadius: "var(--r-4)",
-          overflow: "hidden",
-          boxShadow: "0 8px 24px oklch(0 0 0 / 0.4)",
-        }}
-      >
+      <div role="dialog" aria-label="Command palette" className="palette">
         <input
           ref={inputRef}
-          className="input"
-          style={{ width: "100%", height: 44, border: 0, borderBottom: "1px solid var(--line)", borderRadius: 0, background: "transparent", fontSize: "var(--fs-2)", padding: "0 16px" }}
+          className="palette-input"
           placeholder="Type a command, a site, or a question for Copilot…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -139,21 +122,9 @@ export function CommandPalette() {
             lastGroup = c.group;
             return (
               <div key={c.id}>
-                {header && (
-                  <div style={{ padding: "8px 10px 3px", fontSize: "var(--fs-0)", fontWeight: 600, color: "var(--ink-faint)" }}>
-                    {header}
-                  </div>
-                )}
+                {header && <div className="palette-group">{header}</div>}
                 <button
-                  className="row"
-                  style={{
-                    width: "100%",
-                    textAlign: "left",
-                    padding: "7px 10px",
-                    borderRadius: "var(--r-2)",
-                    background: i === index ? "var(--surface-2)" : "transparent",
-                    fontSize: "var(--fs-1)",
-                  }}
+                  className={`row palette-item${i === index ? " active" : ""}`}
                   onMouseEnter={() => setIndex(i)}
                   onClick={() => run(c)}
                 >
@@ -166,8 +137,8 @@ export function CommandPalette() {
           })}
           {askable && (
             <button
-              className="row"
-              style={{ width: "100%", textAlign: "left", padding: "10px", borderRadius: "var(--r-2)", background: "var(--surface-2)", fontSize: "var(--fs-1)" }}
+              className="row palette-item active"
+              style={{ padding: 10 }}
               onClick={() => {
                 setOpen(false);
                 setCopilotOpen(true);

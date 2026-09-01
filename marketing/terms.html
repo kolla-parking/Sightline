@@ -3,159 +3,325 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Terms of service | Sightline</title>
-  <meta name="description" content="The terms that govern use of the Sightline website and platform." />
+  <title>Sightline | Terms of service</title>
+  <meta name="description" content="The terms governing the Sightline website and software platform: who may use the services, licensing, responsibilities for lawful camera use, disclaimers, and governing law." />
+  <!-- Mode must apply before first paint: stored choice, else OS preference -->
+  <script>(function(){try{var t=localStorage.getItem("sl-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.setAttribute("data-theme","dark")}catch(e){}})();</script>
+  <!-- Social cards. Image paths are root-relative on purpose (no production domain yet): swap og:image/twitter:image to absolute https://<domain>/assets/img/preview.jpg URLs at launch — OG scrapers ignore relative paths. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Sightline" />
+  <meta property="og:title" content="Sightline — Terms of service" />
+  <meta property="og:description" content="The terms governing the Sightline website and software platform." />
+  <meta property="og:image" content="assets/img/preview.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sightline — Terms of service" />
+  <meta name="twitter:description" content="The terms governing the Sightline website and software platform." />
+  <meta name="twitter:image" content="assets/img/preview.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/main.css?v=2" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2307080c'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23ff4d2e' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%232ee58a'/%3E%3C/svg%3E" />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,500;0,700;1,500&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css?v=6" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FBFCFB'/%3E%3Cg fill='%23151B17' fill-opacity='.35'%3E%3Crect x='5' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1.8'/%3E%3C/g%3E%3Crect x='13' y='13' width='6' height='6' rx='1.8' fill='%2300E676'/%3E%3C/svg%3E" />
+  <!-- Structured data: item URLs are root-relative until the production domain exists — absolutize at launch. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "/index.html" },
+      { "@type": "ListItem", "position": 2, "name": "Terms of service", "item": "/terms.html" }
+    ]
+  }
+  </script>
+  <style>
+    /* ---------- page: legal ---------- */
+    .legal-head { padding: calc(var(--nav-h) + var(--s-6)) 0 0; }
+    .legal-head .label-mono { margin-bottom: var(--s-3); }
+    .legal-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px var(--s-4);
+      margin-top: var(--s-4);
+      padding: 14px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      font-variant-numeric: tabular-nums;
+      color: var(--text-3);
+    }
+
+    /* data-policy cross-link, near the top */
+    .dp-note {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 8px var(--s-2);
+      margin-top: var(--s-4);
+      padding: var(--s-2) var(--s-3);
+      border: 1px solid var(--border);
+      border-radius: var(--r-2);
+      background: var(--bg-2);
+      font-size: var(--fs-small);
+      color: var(--text-2);
+    }
+    .dp-note .label-mono { margin: 0; }
+
+    /* calm reading column */
+    .legal {
+      max-width: 68ch;
+      margin: var(--s-5) auto 0;
+      line-height: 1.75;
+      padding-bottom: var(--s-6);
+    }
+    .legal p, .legal li { color: var(--text-2); }
+    .legal p { margin-bottom: 1.4em; text-wrap: pretty; }
+    .legal ul { padding-left: 1.2em; margin-bottom: 1.4em; display: grid; gap: 10px; }
+    .legal h2 {
+      /* sub-28px heading: Public Sans 600 per the ramp — Schibsted display
+         is reserved for >=28px per BRAND.md */
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 1.35rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+      margin: 2.2em 0 0.8em;
+      padding-top: 1.2em;
+      border-top: 1px solid var(--border);
+    }
+    .legal h2 .sx {
+      display: block;
+      margin-bottom: 8px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--accent-text);
+    }
+
+    /* newsletter (footer) */
+    .news-mini { display: flex; gap: 8px; margin-top: var(--s-2); }
+    .news-mini input {
+      flex: 1; min-width: 0;
+      padding: 10px 12px;
+      border-radius: var(--r-1);
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      color: var(--text-1);
+      outline: 0;
+      font-size: 0.9rem;
+    }
+    .news-mini input:focus { border-color: var(--accent-text); }
+    [data-theme="dark"] .news-mini input { background: var(--fill); }
+  </style>
 </head>
 <body>
 
+  <a class="skip-link" href="#main">Skip to content</a>
+
   <header class="nav">
-    <a class="nav-logo" href="index.html" aria-label="Sightline home">
-      <svg class="mark" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12" stroke="#ff4d2e" stroke-width="2.5"/><circle cx="16" cy="16" r="3.5" fill="#2ee58a"/></svg>
-      Sightline
-    </a>
-    <nav>
-      <ul class="nav-links">
-        <li><a href="features.html">Features</a></li>
-        <li><a href="compare.html">Compare</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-    <div style="display:flex; align-items:center; gap:8px;">
-      <a class="btn btn-primary btn-sm nav-cta" href="demo.html">Request a demo <span class="arr">→</span></a>
-      <a class="btn btn-ghost btn-sm nav-cta nav-login" href="login.html">Log in</a>
-      <button class="nav-burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div class="wrap nav-inner">
+      <a class="nav-logo" href="index.html" aria-label="Sightline home">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <g fill="currentColor" opacity=".32">
+            <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+          </g>
+          <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+        </svg>
+        Sightline
+      </a>
+      <nav aria-label="Primary">
+        <ul class="nav-links">
+          <li><a href="product.html">Product</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="the-lot.html">The Lot</a></li>
+          <li><a href="data-policy.html">Data policy</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-side">
+        <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+          <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+        </button>
+        <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+        <a class="btn btn-accent btn-sm" href="demo.html">Book a demo <span class="arr">→</span></a>
+        <button class="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
     </div>
   </header>
 
-  <div class="mobile-menu">
+  <nav class="sheet" aria-label="Mobile">
     <a href="index.html">Home</a>
-    <a href="features.html">Features</a>
-    <a href="compare.html">Compare</a>
-    <a href="about.html">About</a>
+    <a href="product.html">Product</a>
+    <a href="technology.html">Technology</a>
+    <a href="the-lot.html">The Lot</a>
+    <a href="data-policy.html">Data policy</a>
     <a href="contact.html">Contact</a>
+    <a href="solutions.html">Solutions</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="compare.html">Compare</a>
+    <a href="insights.html">Writing</a>
     <a href="login.html">Log in</a>
-    <a href="demo.html">Request a demo</a>
-  </div>
+    <a href="demo.html">Book a demo</a>
+  </nav>
 
-  <section class="page-hero" style="padding-bottom:30px;">
-    <div class="container">
-      <span class="eyebrow">Legal</span>
-      <h1 class="display-lg" data-reveal="up">Terms of service</h1>
-      <p class="legal-meta">Effective date: August 3, 2026 · Version 1.0</p>
-    </div>
-  </section>
+  <main id="main">
 
-  <section style="padding: 20px 0 clamp(90px, 12vh, 160px);">
-    <div class="container legal-body">
+    <!-- ============ head ============ -->
+    <section class="legal-head">
+      <div class="wrap-narrow">
+        <span class="label-mono" data-r>Legal · terms</span>
+        <h1 class="t-title" data-r style="--d:.06s">Terms of service</h1>
+        <div class="legal-meta" data-r style="--d:.12s">
+          <span>effective 2026-08-03</span>
+          <span>updated 2026-08-29</span>
+          <span>version 1.1</span>
+        </div>
+        <p class="dp-note" data-r style="--d:.16s">
+          <span class="label-mono">See also</span>
+          <span>How the platform actually handles video — no ANPR,
+          processing on your own hardware, state retained rather than
+          video — is described in plain language on the
+          <a href="data-policy.html">Data policy</a> page.</span>
+        </p>
+      </div>
+    </section>
 
-      <p>These Terms of Service ("Terms") govern your use of the Sightline website and, where applicable, the Sightline software platform (together, the "Services"). By using the Services, you agree to these Terms.</p>
+    <!-- ============ body ============ -->
+    <section aria-label="Terms of service text">
+      <div class="wrap-narrow">
+        <div class="legal">
 
-      <h2>1. Who may use the Services</h2>
-      <p>You must be at least 16 years old and able to form a binding contract. If you use the Services on behalf of an organisation, you represent that you have authority to bind that organisation, and "you" refers to it.</p>
+          <p>These Terms of Service ("Terms") govern your use of the Sightline website and, where applicable, the Sightline software platform (together, the "Services"). By using the Services, you agree to these Terms.</p>
 
-      <h2>2. The website</h2>
-      <p>The content on this website is provided for general information about Sightline. We may change, suspend, or discontinue any part of the website at any time. Submitting a demo request or contact form does not create a service engagement; any pilot or deployment is governed by a separate written agreement.</p>
+          <h2><span class="sx">/01</span>Who may use the Services</h2>
+          <p>You must be at least 16 years old and able to form a binding contract. If you use the Services on behalf of an organisation, you represent that you have authority to bind that organisation, and "you" refers to it.</p>
 
-      <h2>3. The platform</h2>
-      <p>Access to the Sightline platform is provided under the licence terms accompanying your deployment or evaluation agreement. Unless a separate written agreement says otherwise:</p>
-      <ul>
-        <li>Sightline software is <strong>proprietary and all rights are reserved</strong>. No licence is granted by virtue of these Terms alone.</li>
-        <li>You may not copy, modify, distribute, sublicense, reverse-engineer, or create derivative works of the software except where applicable law expressly permits.</li>
-        <li>Evaluation access, where granted, is for internal assessment only.</li>
-      </ul>
+          <h2><span class="sx">/02</span>The website</h2>
+          <p>The content on this website is provided for general information about Sightline. We may change, suspend, or discontinue any part of the website at any time. Submitting a demo request or contact form does not create a service engagement; any pilot or deployment is governed by a separate written agreement.</p>
 
-      <h2>4. Your responsibilities</h2>
-      <ul>
-        <li><strong>Lawful camera use.</strong> You are responsible for operating your cameras and any footage they capture in compliance with applicable surveillance, privacy, and signage laws in your jurisdiction.</li>
-        <li><strong>Accurate information.</strong> Information you submit through our forms must be accurate and yours to provide.</li>
-        <li><strong>No misuse.</strong> Don't attempt to disrupt, probe, or gain unauthorised access to the Services, and don't use them to infringe others' rights.</li>
-      </ul>
+          <h2><span class="sx">/03</span>The platform</h2>
+          <p>Access to the Sightline platform is provided under the licence terms accompanying your deployment or evaluation agreement. The platform is designed to run on your own hardware and to process footage on your premises, as described in our <a href="data-policy.html">data policy</a>. Unless a separate written agreement says otherwise:</p>
+          <ul>
+            <li>Sightline software is <strong>proprietary and all rights are reserved</strong>. No licence is granted by virtue of these Terms alone.</li>
+            <li>You may not copy, modify, distribute, sublicense, reverse-engineer, or create derivative works of the software except where applicable law expressly permits.</li>
+            <li>Evaluation access, where granted, is for internal assessment only.</li>
+          </ul>
 
-      <h2>5. Intellectual property</h2>
-      <p>The Services (including software, design, text, graphics, and trademarks) are owned by Sightline / Monish Munagala and protected by intellectual-property laws. Third-party sample data and open-source components referenced by the platform remain subject to their own licences and attributions.</p>
+          <h2><span class="sx">/04</span>Your responsibilities</h2>
+          <ul>
+            <li><strong>Lawful camera use.</strong> You are responsible for operating your cameras and any footage they capture in compliance with applicable surveillance, privacy, and signage laws in your jurisdiction. Sightline detects occupancy, not identity — it performs no plate reading and no face recognition — but the cameras themselves remain yours to operate lawfully.</li>
+            <li><strong>Accurate information.</strong> Information you submit through our forms must be accurate and yours to provide.</li>
+            <li><strong>No misuse.</strong> Don't attempt to disrupt, probe, or gain unauthorised access to the Services, and don't use them to infringe others' rights.</li>
+          </ul>
 
-      <h2>6. Feedback</h2>
-      <p>If you send us feedback or suggestions, you grant us a perpetual, irrevocable, royalty-free licence to use them without restriction or obligation to you.</p>
+          <h2><span class="sx">/05</span>Intellectual property</h2>
+          <p>The Services (including software, design, text, graphics, and trademarks) are owned by Sightline / Monish Munagala and protected by intellectual-property laws. Third-party sample data and open-source components referenced by the platform remain subject to their own licences and attributions.</p>
 
-      <h2>7. Disclaimers</h2>
-      <p>The Services are provided <strong>"as is" and "as available."</strong> To the maximum extent permitted by law, we disclaim all warranties, express or implied, including merchantability, fitness for a particular purpose, and non-infringement. Occupancy detection is probabilistic; the Services are not a safety system and must not be relied upon as the sole mechanism for any safety-critical, enforcement, or emergency function.</p>
+          <h2><span class="sx">/06</span>Feedback</h2>
+          <p>If you send us feedback or suggestions, you grant us a perpetual, irrevocable, royalty-free licence to use them without restriction or obligation to you.</p>
 
-      <h2>8. Limitation of liability</h2>
-      <p>To the maximum extent permitted by law, Sightline will not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits, revenue, data, or goodwill, arising from or related to your use of the Services. Our aggregate liability for claims relating to the Services will not exceed the greater of (a) amounts you paid us for the Services in the twelve months before the claim, or (b) one hundred US dollars.</p>
+          <h2><span class="sx">/07</span>Disclaimers</h2>
+          <p>The Services are provided <strong>"as is" and "as available."</strong> To the maximum extent permitted by law, we disclaim all warranties, express or implied, including merchantability, fitness for a particular purpose, and non-infringement. Occupancy detection is probabilistic; the Services are not a safety system and must not be relied upon as the sole mechanism for any safety-critical, enforcement, or emergency function.</p>
 
-      <h2>9. Indemnity</h2>
-      <p>You will indemnify and hold us harmless from claims arising out of your camera deployments, your footage, or your breach of these Terms.</p>
+          <h2><span class="sx">/08</span>Limitation of liability</h2>
+          <p>To the maximum extent permitted by law, Sightline will not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits, revenue, data, or goodwill, arising from or related to your use of the Services. Our aggregate liability for claims relating to the Services will not exceed the greater of (a) amounts you paid us for the Services in the twelve months before the claim, or (b) one hundred US dollars.</p>
 
-      <h2>10. Termination</h2>
-      <p>We may suspend or terminate your access to the website for breach of these Terms. Platform access terminates as set out in your deployment or evaluation agreement. Sections that by their nature should survive (including sections 5 through 9) survive termination.</p>
+          <h2><span class="sx">/09</span>Indemnity</h2>
+          <p>You will indemnify and hold us harmless from claims arising out of your camera deployments, your footage, or your breach of these Terms.</p>
 
-      <h2>11. Governing law</h2>
-      <p>These Terms are governed by the laws of the State of North Carolina, USA, excluding its conflict-of-laws rules. Courts located in North Carolina have exclusive jurisdiction, and each party consents to their venue.</p>
+          <h2><span class="sx">/10</span>Termination</h2>
+          <p>We may suspend or terminate your access to the website for breach of these Terms. Platform access terminates as set out in your deployment or evaluation agreement. Sections that by their nature should survive (including sections 5 through 9) survive termination.</p>
 
-      <h2>12. Changes</h2>
-      <p>We may update these Terms from time to time. The current version will always be posted here with its effective date. Continued use after changes take effect constitutes acceptance.</p>
+          <h2><span class="sx">/11</span>Governing law</h2>
+          <p>These Terms are governed by the laws of the State of North Carolina, USA, excluding its conflict-of-laws rules. Courts located in North Carolina have exclusive jurisdiction, and each party consents to their venue.</p>
 
-      <h2>13. Contact</h2>
-      <p>Questions about these Terms? Reach us through the <a href="contact.html" style="text-decoration:underline;">contact page</a>.</p>
+          <h2><span class="sx">/12</span>Changes</h2>
+          <p>We may update these Terms from time to time. The current version will always be posted here with its effective date. Continued use after changes take effect constitutes acceptance.</p>
 
-    </div>
-  </section>
+          <h2><span class="sx">/13</span>Contact</h2>
+          <p>Questions about these Terms? Reach us through the <a href="contact.html">contact page</a>.</p>
 
-  <footer>
-    <div class="container">
-      <div class="footer-grid">
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ dark footer ============ -->
+  <footer class="foot" data-theme="dark">
+    <div class="wrap">
+      <div class="foot-grid">
         <div>
           <a class="nav-logo" href="index.html">
-            <svg class="mark" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12" stroke="#ff4d2e" stroke-width="2.5"/><circle cx="16" cy="16" r="3.5" fill="#2ee58a"/></svg>
+            <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+              <g fill="currentColor" opacity=".32">
+                <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+              </g>
+              <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+            </svg>
             Sightline
           </a>
-          <p class="footer-tag">Live parking occupancy from the cameras you already own, running on your own hardware.</p>
+          <p class="foot-tag">Per-space parking occupancy from the cameras you already own, on your own hardware.</p>
+          <p class="foot-status">status: proving Sightline on one real 100-space lot. more soon.</p>
+          <form data-form novalidate aria-label="Newsletter">
+            <div class="news-mini">
+              <input type="email" placeholder="you@company.com" aria-label="Email address" required />
+              <button class="btn btn-quiet btn-sm" type="submit" style="width:auto;">Subscribe</button>
+            </div>
+          </form>
+          <div class="form-success" style="margin-top:10px;"><span class="mk">ok</span> You're subscribed. Watch your inbox.</div>
         </div>
         <div>
           <h4>Product</h4>
           <ul>
-            <li><a href="features.html">Features</a></li>
+            <li><a href="product.html">Product</a></li>
+            <li><a href="technology.html">Technology</a></li>
+            <li><a href="the-lot.html">The Lot</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
             <li><a href="compare.html">Compare</a></li>
-            <li><a href="demo.html">Request a demo</a></li>
-            <li><a href="index.html#hiw">How it works</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Solutions</h4>
+          <ul>
+            <li><a href="solutions.html#operators">Operators &amp; garages</a></li>
+            <li><a href="solutions.html#campuses">Campuses &amp; venues</a></li>
+            <li><a href="solutions.html#curb">Municipal curb</a></li>
+            <li><a href="demo.html">Book a demo</a></li>
           </ul>
         </div>
         <div>
           <h4>Company</h4>
           <ul>
-            <li><a href="about.html">About us</a></li>
-            <li><a href="about.html#goal">Our goal</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="insights.html">Writing</a></li>
             <li><a href="contact.html">Contact</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Legal</h4>
-          <ul>
-            <li><a href="privacy.html">Privacy policy</a></li>
-            <li><a href="terms.html">Terms of service</a></li>
+            <li><a href="data-policy.html">Data policy</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
           </ul>
         </div>
       </div>
-      <div class="footer-wordmark" aria-hidden="true">Sightline</div>
-      <div class="footer-legal">
-        <span>© 2026 Sightline · Monish Munagala. All rights reserved.</span>
+      <div class="foot-legal">
+        <span>© 2026 Sightline · Monish Munagala · Charlotte, NC</span>
         <div class="links">
+          <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+            <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+          </button>
+          <a href="data-policy.html">Data policy</a>
           <a href="privacy.html">Privacy</a>
           <a href="terms.html">Terms</a>
-          <a href="contact.html">Contact</a>
         </div>
       </div>
     </div>
   </footer>
 
-  <script src="assets/vendor/gsap.min.js"></script>
-  <script src="assets/vendor/ScrollTrigger.min.js"></script>
-  <script src="assets/js/main.js?v=2"></script>
+  <script src="assets/js/env.js"></script>
+  <script src="assets/js/main.js?v=7"></script>
 </body>
 </html>

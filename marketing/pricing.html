@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sightline | Pricing</title>
+  <meta name="description" content="Three real plans: Starter $99/mo, Growth $299/mo, Multi-site $999/mo. Flat per-site software pricing — no per-space sensor fees, nothing to install." />
+  <!-- Mode must apply before first paint: stored choice, else OS preference -->
+  <script>(function(){try{var t=localStorage.getItem("sl-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.setAttribute("data-theme","dark")}catch(e){}})();</script>
+  <!-- Social cards. Image paths are root-relative on purpose (no production domain yet): swap og:image/twitter:image to absolute https://<domain>/assets/img/preview.jpg URLs at launch — OG scrapers ignore relative paths. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Sightline" />
+  <meta property="og:title" content="Sightline — Pricing" />
+  <meta property="og:description" content="Three real plans: Starter $99/mo, Growth $299/mo, Multi-site $999/mo. Flat per-site pricing, no per-space sensor fees." />
+  <meta property="og:image" content="assets/img/preview.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sightline — Pricing" />
+  <meta name="twitter:description" content="Three real plans: Starter $99/mo, Growth $299/mo, Multi-site $999/mo. Flat per-site pricing, no per-space sensor fees." />
+  <meta name="twitter:image" content="assets/img/preview.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,500;0,700;1,500&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css?v=6" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FBFCFB'/%3E%3Cg fill='%23151B17' fill-opacity='.35'%3E%3Crect x='5' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1.8'/%3E%3C/g%3E%3Crect x='13' y='13' width='6' height='6' rx='1.8' fill='%2300E676'/%3E%3C/svg%3E" />
+  <!-- Structured data: item URLs are root-relative until the production domain exists — absolutize at launch. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "/index.html" },
+          { "@type": "ListItem", "position": 2, "name": "Pricing", "item": "/pricing.html" }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Do I need to buy new cameras?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Almost certainly not. Sightline reads standard RTSP streams — the protocol nearly every security camera made in the last decade already speaks. If your lot is on camera today, that camera is your sensor. If one corner has no coverage, any ordinary camera fills the gap; there is no proprietary hardware to buy from us at any price."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where does our footage go?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Nowhere. Detection runs on your hardware, inside your network. The camera streams to a machine you control, and what Sightline keeps is the state of each space — not video. Footage never leaves your building on any plan."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What are the contract terms?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Plans are monthly, and no annual lock-in is required. Because Sightline is pre-launch, final terms — including any early-operator arrangement — are agreed together on your demo call and written down before anything is charged."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What counts as a site?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "One physical property: a surface lot, a garage, or a lot and garage that share an address and an operations team. All the cameras on that property count as one site. A portfolio spread across town is multiple sites — which is what the Multi-site plan is for."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I move between plans?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. A plan is a monthly setting, not a construction project. Move up when you add cameras or sites, move down if you scale back, and the change takes effect on your next cycle."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <style>
+    /* ---------- page: pricing ---------- */
+    .hero { padding-bottom: var(--s-5); }
+    .hero .label-mono { margin-bottom: var(--s-3); }
+    .hero h1 { max-width: 15ch; }
+    .hero .lede { margin-top: var(--s-3); }
+
+    /* the rate card: three plan cards, Growth led quietly */
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--s-3);
+      align-items: stretch;
+    }
+    .plan { display: flex; flex-direction: column; }
+    .plan.lead { border-color: var(--border-3); }
+    .plan .card-bar .rec { color: var(--accent-text); }
+    .plan .card-body {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      padding: var(--s-4);
+    }
+    .plan h3 { font-size: 1.375rem; }
+    .plan .who { margin-top: 6px; color: var(--text-3); font-size: var(--fs-small); min-height: 2.6em; }
+    .plan-price {
+      margin: var(--s-3) 0 4px;
+      font-family: var(--font-mono);
+      font-weight: 500;
+      font-size: clamp(2rem, 3vw, 2.75rem);
+      line-height: 1;
+      color: var(--text-1);
+      font-variant-numeric: tabular-nums;
+    }
+    .plan-price .per {
+      margin-left: 4px;
+      font-size: 0.38em;
+      font-weight: 400;
+      color: var(--text-3);
+    }
+    .plan .bill {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      color: var(--text-3);
+    }
+    .plan ul { list-style: none; margin: var(--s-3) 0 var(--s-4); }
+    .plan li {
+      padding: 10px 0;
+      border-top: 1px solid var(--border);
+      font-size: var(--fs-small);
+      color: var(--text-2);
+    }
+    .plan .btn { margin-top: auto; width: 100%; }
+    @media (max-width: 980px) {
+      .plans { grid-template-columns: 1fr; }
+      .plan .who { min-height: 0; }
+    }
+
+    /* pre-launch honesty note */
+    .honest {
+      margin-top: var(--s-3);
+      max-width: 780px;
+      padding: var(--s-3);
+      border: 1px solid var(--border);
+      border-radius: var(--r-2);
+      background: var(--surface);
+      box-shadow: var(--shadow-card);
+    }
+    .honest p { margin-top: 8px; font-size: var(--fs-small); color: var(--text-2); max-width: 68ch; }
+
+    /* FAQ */
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: var(--s-6);
+      align-items: start;
+    }
+    .faq-side { position: sticky; top: calc(var(--nav-h) + var(--s-4)); }
+    .faq-side .lede { margin-top: var(--s-2); font-size: 1rem; }
+    .faq { border-top: 1px solid var(--border); }
+    .faq details { border-bottom: 1px solid var(--border); }
+    .faq summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--s-3);
+      padding: var(--s-3) 0;
+      font-family: var(--font-display);
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-1);
+      transition: color 0.2s;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after {
+      content: "+";
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 1.2rem;
+      color: var(--accent-text);
+      transition: rotate 0.3s var(--ease);
+    }
+    .faq details[open] summary::after { rotate: 45deg; }
+    .faq summary:hover { color: var(--accent-text); }
+    .faq details p {
+      padding: 0 var(--s-5) var(--s-3) 0;
+      font-size: var(--fs-small);
+      color: var(--text-3);
+      max-width: 62ch;
+    }
+    @media (max-width: 1000px) {
+      .faq-grid { grid-template-columns: 1fr; gap: var(--s-5); }
+      .faq-side { position: static; }
+    }
+
+    /* CTA row */
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s-4);
+      margin-top: var(--s-4);
+    }
+    .cta-row .lede { max-width: 46ch; }
+    .cta-btns { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    /* newsletter (footer) */
+    .news-mini { display: flex; gap: 8px; margin-top: var(--s-2); }
+    .news-mini input {
+      flex: 1; min-width: 0;
+      padding: 10px 12px;
+      border-radius: var(--r-1);
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      color: var(--text-1);
+      outline: 0;
+      font-size: 0.9rem;
+    }
+    .news-mini input:focus { border-color: var(--accent-text); }
+    [data-theme="dark"] .news-mini input { background: var(--fill); }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="nav-logo" href="index.html" aria-label="Sightline home">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <g fill="currentColor" opacity=".32">
+            <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+          </g>
+          <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+        </svg>
+        Sightline
+      </a>
+      <nav aria-label="Primary">
+        <ul class="nav-links">
+          <li><a href="product.html">Product</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="the-lot.html">The Lot</a></li>
+          <li><a href="data-policy.html">Data policy</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-side">
+        <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+          <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+        </button>
+        <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+        <a class="btn btn-accent btn-sm" href="demo.html">Book a demo <span class="arr">→</span></a>
+        <button class="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sheet" aria-label="Mobile">
+    <a href="index.html">Home</a>
+    <a href="product.html">Product</a>
+    <a href="technology.html">Technology</a>
+    <a href="the-lot.html">The Lot</a>
+    <a href="data-policy.html">Data policy</a>
+    <a href="contact.html">Contact</a>
+    <a href="solutions.html">Solutions</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="compare.html">Compare</a>
+    <a href="insights.html">Writing</a>
+    <a href="login.html">Log in</a>
+    <a href="demo.html">Book a demo</a>
+  </nav>
+
+  <main id="main">
+
+    <!-- ============ hero ============ -->
+    <section class="hero hero-pad" aria-labelledby="hero-h">
+      <div class="wrap">
+        <span class="label-mono" data-r>Pricing · flat per site</span>
+        <h1 class="t-hero" id="hero-h" data-r style="--d:.06s">Three plans. No hardware line item.</h1>
+        <p class="lede" data-r style="--d:.12s">
+          Sightline is priced like what it is — software. A flat monthly rate
+          per site, no per-space sensor fees, and no installation project
+          hiding in year one. The number below is the number we quote.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ the rate card ============ -->
+    <section class="section tight" aria-labelledby="plans-h">
+      <div class="wrap">
+        <h2 class="label-mono" id="plans-h" data-r style="margin-bottom: var(--s-3);">The rate card</h2>
+        <div class="plans" data-r style="--d:.06s">
+
+          <div class="card plan">
+            <div class="card-bar">
+              <span class="label-mono">01 · Starter</span>
+              <span class="label-mono">per site</span>
+            </div>
+            <div class="card-body">
+              <h3>Starter</h3>
+              <p class="who">For one lot and the cameras it already has.</p>
+              <div class="plan-price">$99<span class="per">/month</span></div>
+              <p class="bill">per site · billed monthly</p>
+              <ul>
+                <li><strong>One site</strong>, a handful of cameras</li>
+                <li>Per-space live occupancy</li>
+                <li>The live console, with annotated video</li>
+                <li>Processing on your own hardware</li>
+              </ul>
+              <a class="btn btn-line" href="demo.html">Book a demo</a>
+            </div>
+          </div>
+
+          <div class="card plan lead">
+            <div class="card-bar">
+              <span class="label-mono">02 · Growth</span>
+              <span class="label-mono rec">recommended</span>
+            </div>
+            <div class="card-body">
+              <h3>Growth</h3>
+              <p class="who">For a full site that runs on its numbers.</p>
+              <div class="plan-price">$299<span class="per">/month</span></div>
+              <p class="bill">per site · billed monthly</p>
+              <ul>
+                <li><strong>One site</strong>, as many cameras as it takes</li>
+                <li>Everything in Starter</li>
+                <li>Occupancy history and analytics</li>
+                <li>Enforcement views</li>
+              </ul>
+              <a class="btn btn-accent" href="demo.html">Book a demo <span class="arr">→</span></a>
+            </div>
+          </div>
+
+          <div class="card plan">
+            <div class="card-bar">
+              <span class="label-mono">03 · Multi-site</span>
+              <span class="label-mono">portfolio</span>
+            </div>
+            <div class="card-body">
+              <h3>Multi-site</h3>
+              <p class="who">For portfolios run from one room.</p>
+              <div class="plan-price">$999<span class="per">/month</span></div>
+              <p class="bill">portfolio · billed monthly</p>
+              <ul>
+                <li><strong>Multiple sites</strong> in one console</li>
+                <li>Everything in Growth</li>
+                <li>Portfolio operations views</li>
+                <li>Priority support</li>
+              </ul>
+              <a class="btn btn-line" href="demo.html">Book a demo</a>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="honest" data-r style="--d:.12s">
+          <span class="label-mono">note · pre-launch</span>
+          <p>
+            Sightline is pre-launch. These three plans are real — they are the
+            plans wired into our billing system — and pricing is confirmed
+            together on your <a href="demo.html">demo call</a> before anything
+            is charged. No surprise tiers, no call-for-pricing games.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ every plan ============ -->
+    <section class="section on-tint" aria-labelledby="every-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>Every plan</span>
+          <h2 class="t-title" id="every-h" data-r style="--d:.06s">The parts that never cost extra.</h2>
+        </div>
+        <div class="ledger">
+          <div class="l-row" data-r>
+            <span class="ix">/01</span>
+            <h3>Per-space detection</h3>
+            <p>Every space has its own outline on the pavement and its own live state — on every plan, from the first camera.</p>
+          </div>
+          <div class="l-row" data-r style="--d:.05s">
+            <span class="ix">/02</span>
+            <h3>The live console</h3>
+            <p>The dashboard, the annotated video, and the per-space map update the moment a space changes.</p>
+          </div>
+          <div class="l-row" data-r style="--d:.1s">
+            <span class="ix">/03</span>
+            <h3>On your hardware</h3>
+            <p>Detection runs on machines you control, inside your network. Your footage never leaves the building.</p>
+          </div>
+          <div class="l-row" data-r style="--d:.15s">
+            <span class="ix">/04</span>
+            <h3>No per-space fees</h3>
+            <p>Pricing scales with sites, not spaces. There is no sensor to buy, so there is nothing to multiply by 100.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section" aria-labelledby="faq-h">
+      <div class="wrap faq-grid">
+        <div class="faq-side">
+          <span class="label" data-r>Questions</span>
+          <h2 class="t-title" id="faq-h" data-r style="--d:.06s; max-width: 14ch;">Asked plainly, answered plainly.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            If yours isn't here, <a href="contact.html">ask us directly</a> —
+            we answer the same way we write.
+          </p>
+        </div>
+        <div class="faq" data-r style="--d:.1s">
+          <details>
+            <summary>Do I need to buy new cameras?</summary>
+            <p>
+              Almost certainly not. Sightline reads standard RTSP streams —
+              the protocol nearly every security camera made in the last
+              decade already speaks. If your lot is on camera today, that
+              camera is your sensor. If one corner has no coverage, any
+              ordinary camera fills the gap; there is no proprietary hardware
+              to buy from us at any price.
+            </p>
+          </details>
+          <details>
+            <summary>Where does our footage go?</summary>
+            <p>
+              Nowhere. Detection runs on your hardware, inside your network.
+              The camera streams to a machine you control, and what Sightline
+              keeps is the state of each space — not video. Footage never
+              leaves your building on any plan. The
+              <a href="data-policy.html">data policy</a> spells this out.
+            </p>
+          </details>
+          <details>
+            <summary>What are the contract terms?</summary>
+            <p>
+              Plans are monthly, and no annual lock-in is required. Because
+              Sightline is pre-launch, final terms — including any
+              early-operator arrangement — are agreed together on your demo
+              call and written down before anything is charged.
+            </p>
+          </details>
+          <details>
+            <summary>What counts as a site?</summary>
+            <p>
+              One physical property: a surface lot, a garage, or a lot and
+              garage that share an address and an operations team. All the
+              cameras on that property count as one site. A portfolio spread
+              across town is multiple sites — which is what the Multi-site
+              plan is for.
+            </p>
+          </details>
+          <details>
+            <summary>Can I move between plans?</summary>
+            <p>
+              Yes. A plan is a monthly setting, not a construction project.
+              Move up when you add cameras or sites, move down if you scale
+              back, and the change takes effect on your next cycle.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="section on-tint" aria-labelledby="cta-h">
+      <div class="wrap">
+        <span class="label" data-r>Next step</span>
+        <h2 class="t-title" id="cta-h" data-r style="--d:.06s; max-width: 16ch; margin-top: var(--s-2);">Get a number for your lot.</h2>
+        <div class="cta-row">
+          <p class="lede" data-r style="--d:.12s">
+            Bring a camera feed and thirty minutes. We'll map your spaces on
+            the call, confirm the plan that fits, and put the price in
+            writing. Weighing sensors against cameras first? <a href="compare.html">Compare the approaches</a>.
+          </p>
+          <div class="cta-btns" data-r style="--d:.18s">
+            <a class="btn btn-accent" href="demo.html">Book a demo <span class="arr">→</span></a>
+            <a class="btn btn-line" href="contact.html">Talk to us</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ dark footer ============ -->
+  <footer class="foot" data-theme="dark">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="nav-logo" href="index.html">
+            <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+              <g fill="currentColor" opacity=".32">
+                <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+              </g>
+              <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+            </svg>
+            Sightline
+          </a>
+          <p class="foot-tag">Per-space parking occupancy from the cameras you already own, on your own hardware.</p>
+          <p class="foot-status">status: proving Sightline on one real 100-space lot. more soon.</p>
+          <form data-form novalidate aria-label="Newsletter">
+            <div class="news-mini">
+              <input type="email" placeholder="you@company.com" aria-label="Email address" required />
+              <button class="btn btn-quiet btn-sm" type="submit" style="width:auto;">Subscribe</button>
+            </div>
+          </form>
+          <div class="form-success" style="margin-top:10px;"><span class="mk">ok</span> You're subscribed. Watch your inbox.</div>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="product.html">Product</a></li>
+            <li><a href="technology.html">Technology</a></li>
+            <li><a href="the-lot.html">The Lot</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="compare.html">Compare</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Solutions</h4>
+          <ul>
+            <li><a href="solutions.html#operators">Operators &amp; garages</a></li>
+            <li><a href="solutions.html#campuses">Campuses &amp; venues</a></li>
+            <li><a href="solutions.html#curb">Municipal curb</a></li>
+            <li><a href="demo.html">Book a demo</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About</a></li>
+            <li><a href="insights.html">Writing</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="data-policy.html">Data policy</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-legal">
+        <span>© 2026 Sightline · Monish Munagala · Charlotte, NC</span>
+        <div class="links">
+          <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+            <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+          </button>
+          <a href="data-policy.html">Data policy</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/env.js"></script>
+  <script src="assets/js/main.js?v=7"></script>
+</body>
+</html>

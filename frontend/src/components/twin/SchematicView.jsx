@@ -1,26 +1,63 @@
 // Schematic twin — SVG layout view with wheel zoom + drag pan.
 //
+// ISA-101 rendering (Daylight v3): healthy states are QUIET — free stalls
+// are a quiet outline, occupied stalls a muted neutral fill. Saturation is
+// reserved for abnormality: red = violation, amber = needs attention
+// (session inside 10 min of its limit), blue = selected/info. Never color
+// every stall.
+//
 // For the real site (sample-lot) with the backend up, the schematic renders
 // the backend's actual per-slot polygons in camera space (1280x720) — the
 // same geometry the detector runs on. Every other site renders its
 // generated layout grid.
 
 import { useMemo, useRef, useState } from "react";
+import { sessionPhase, LOW_CONFIDENCE } from "../../sim/engine.js";
+import { matchesStallFilter } from "./stallFilters.js";
 
-const FILL = {
-  free: "var(--space-free)",
-  occupied: "var(--space-occupied)",
-  violation: "var(--space-violation)",
-  special: "var(--space-special)",
-  unknown: "var(--space-unknown)",
-};
+const ATTENTION_MS = 10 * 60000; // occupied and inside 10 min of the limit
 
-function statusFill(space, status) {
-  if (status === "free" && space?.type && space.type !== "standard") return FILL.special;
-  return FILL[status] || FILL.unknown;
+// status + session → quiet-first visual treatment (tokens only)
+function stallVisual(space, st, snapshotTs) {
+  const status = st ? st.status : "unknown";
+  let v;
+  if (status === "violation") {
+    v = { fill: "var(--stall-violation-fill)", line: "var(--stall-violation-line)", width: 1.4 };
+  } else if (status === "occupied") {
+    const s = st?.session;
+    if (s?.overstayAt && snapshotTs != null && s.overstayAt - snapshotTs < ATTENTION_MS) {
+      v = { fill: "var(--stall-attention-fill)", line: "var(--stall-attention-line)", width: 1.2 };
+    } else {
+      v = { fill: "var(--stall-occ-fill)", line: "var(--stall-occ-line)", width: 1 };
+    }
+  } else if (status === "free") {
+    if (space?.type && space.type !== "standard") {
+      v = { fill: "var(--stall-free-fill)", line: "var(--stall-special-line)", width: 1.2, dash: "3 2" };
+    } else {
+      v = { fill: "var(--stall-free-fill)", line: "var(--stall-line)", width: 1 };
+    }
+  } else {
+    v = { fill: "var(--stall-unknown-fill)", line: "var(--stall-unknown-line)", width: 1, dash: "2 3" };
+  }
+  // Uncertainty is a LINE treatment, never a new hue: sessions below the
+  // confidence threshold keep their state color but render dashed.
+  if (st?.session && st.session.confidence < LOW_CONFIDENCE) {
+    v = { ...v, dash: "4 3" };
+  }
+  return v;
 }
 
-export function SchematicView({ site, snapshot, selectedId, onSelect, level, realPolys }) {
+const LEGEND = [
+  { label: "Free", swatch: { background: "var(--stall-free-fill)", border: "1px solid var(--stall-line)" } },
+  { label: "Occupied", swatch: { background: "var(--stall-occ-fill)", border: "1px solid var(--stall-occ-line)" } },
+  { label: "Attention", swatch: { background: "var(--stall-attention-fill)", border: "1px solid var(--stall-attention-line)" } },
+  { label: "Violation", swatch: { background: "var(--stall-violation-fill)", border: "1px solid var(--stall-violation-line)" } },
+  { label: "Unverified", swatch: { background: "var(--stall-occ-fill)", border: "1px dashed var(--stall-occ-line)" } },
+  { label: "EV / ADA / Res.", swatch: { background: "var(--stall-free-fill)", border: "1px dashed var(--info)" } },
+  { label: "Selected", swatch: { background: "transparent", border: "2px solid var(--stall-selected)" } },
+];
+
+export function SchematicView({ site, snapshot, selectedId, onSelect, level, realPolys, stateFilter = "all" }) {
   const svgRef = useRef(null);
   const [view, setView] = useState(null); // {x, y, w, h} viewBox override
   const dragRef = useRef(null);
@@ -62,7 +99,7 @@ export function SchematicView({ site, snapshot, selectedId, onSelect, level, rea
   const onPointerUp = () => (dragRef.current = null);
 
   return (
-    <div style={{ position: "absolute", inset: 0, background: "var(--bg-sunken)" }}>
+    <div style={{ position: "absolute", inset: 0, background: "var(--bg)" }}>
       <svg
         ref={svgRef}
         viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
@@ -75,25 +112,37 @@ export function SchematicView({ site, snapshot, selectedId, onSelect, level, rea
         role="img"
         aria-label={`${site.name} schematic`}
       >
-        {/* ground */}
-        <rect x={base.x} y={base.y} width={base.w} height={base.h} fill="var(--bg)" stroke="var(--line)" />
+        {/* turnover pulse: quiet, reduced-motion-safe (static dot fallback) */}
+        <style>{`
+          @keyframes stall-turnover { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.95; } }
+          .turnover-dot { animation: stall-turnover 2.4s ease-in-out infinite; }
+          @media (prefers-reduced-motion: reduce) {
+            .turnover-dot { animation: none; opacity: 0.8; }
+          }
+        `}</style>
+
+        {/* lot ground: a quiet tinted slab */}
+        <rect x={base.x} y={base.y} width={base.w} height={base.h} fill="var(--bg-2)" stroke="var(--border-2)" />
 
         {useReal
           ? realPolys.map((slot) => {
-              const st = snapshot?.states.get(`sample-lot:real:${slot.slot_id}`) || null;
               const occupied = snapshot?.realMap?.get(slot.slot_id);
               const status = occupied == null ? "unknown" : occupied ? "occupied" : "free";
+              const st = { status };
+              const v = stallVisual(null, st, snapshot?.ts);
               const pts = slot.polygon.map((p) => p.join(",")).join(" ");
               const sel = selectedId === `real:${slot.slot_id}`;
+              const dim = !matchesStallFilter(stateFilter, null, st);
               return (
                 <polygon
                   key={slot.slot_id}
+                  className={`stall${sel ? " selected" : ""}`}
                   points={pts}
-                  fill={FILL[status]}
-                  fillOpacity={0.66}
-                  stroke={sel ? "var(--accent)" : "oklch(0 0 0 / 0.55)"}
-                  strokeWidth={sel ? 2.5 : 0.8}
-                  style={{ cursor: "pointer", transition: "fill var(--t-med)" }}
+                  fill={v.fill}
+                  stroke={v.line}
+                  strokeWidth={v.width}
+                  strokeDasharray={v.dash}
+                  opacity={dim ? 0.25 : 1}
                   onClick={(e) => {
                     e.stopPropagation();
                     onSelect(`real:${slot.slot_id}`);
@@ -106,33 +155,49 @@ export function SchematicView({ site, snapshot, selectedId, onSelect, level, rea
           : spaces.map((sp) => {
               const st = snapshot?.states.get(sp.id);
               const status = st ? st.status : "unknown";
+              const v = stallVisual(sp, st, snapshot?.ts);
               const sel = selectedId === sp.id;
+              const dim = !matchesStallFilter(stateFilter, sp, st);
+              const ph = st?.session ? sessionPhase(st.session, snapshot?.ts) : null;
+              const w = Math.max(6, sp.sw - 3);
               return (
-                <rect
-                  key={sp.id}
-                  x={sp.sx}
-                  y={sp.sy}
-                  width={Math.max(6, sp.sw - 3)}
-                  height={Math.max(6, sp.sh - 6)}
-                  rx={2}
-                  fill={statusFill(sp, status)}
-                  fillOpacity={status === "free" ? 0.55 : 0.85}
-                  stroke={sel ? "var(--accent)" : "oklch(0 0 0 / 0.4)"}
-                  strokeWidth={sel ? 2.5 : 0.7}
-                  style={{ cursor: "pointer", transition: "fill var(--t-med)" }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSelect(sp.id);
-                  }}
-                >
-                  <title>
-                    {sp.label} · {sp.zone} — {status}
-                  </title>
-                </rect>
+                <g key={sp.id} opacity={dim ? 0.25 : 1}>
+                  <rect
+                    className={`stall${sel ? " selected" : ""}`}
+                    x={sp.sx}
+                    y={sp.sy}
+                    width={w}
+                    height={Math.max(6, sp.sh - 6)}
+                    rx={2}
+                    fill={v.fill}
+                    stroke={v.line}
+                    strokeWidth={v.width}
+                    strokeDasharray={v.dash}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelect(sp.id);
+                    }}
+                  >
+                    <title>
+                      {sp.label} · {sp.zone} — {status}
+                    </title>
+                  </rect>
+                  {ph?.turning && !dim && (
+                    <circle
+                      className="turnover-dot"
+                      cx={sp.sx + w - 5}
+                      cy={sp.sy + 5}
+                      r={2.4}
+                      fill="var(--stall-occ-line)"
+                      pointerEvents="none"
+                    />
+                  )}
+                </g>
               );
             })}
 
-        {/* zone labels (generated layouts only) */}
+        {/* zone labels: dark text on small light chips so they survive
+            busy layers (generated layouts only) */}
         {!useReal &&
           site.zones
             .filter((z) => (level == null ? true : z.id === `L${level}`))
@@ -141,17 +206,28 @@ export function SchematicView({ site, snapshot, selectedId, onSelect, level, rea
               if (!zs.length) return null;
               const minX = Math.min(...zs.map((s) => s.sx));
               const minY = Math.min(...zs.map((s) => s.sy));
+              const w = String(z.id).length * 8 + 12;
               return (
-                <text
-                  key={z.id}
-                  x={minX}
-                  y={minY - 8}
-                  fontSize={13}
-                  fontFamily="var(--font-data)"
-                  fill="var(--ink-faint)"
-                >
-                  {z.id}
-                </text>
+                <g key={z.id} aria-hidden="true">
+                  <rect
+                    x={minX}
+                    y={minY - 24}
+                    width={w}
+                    height={17}
+                    rx={4}
+                    fill="var(--stall-label-bg)"
+                    stroke="var(--border)"
+                  />
+                  <text
+                    x={minX + 6}
+                    y={minY - 12}
+                    fontSize={11}
+                    fontFamily="var(--font-data)"
+                    fill="var(--stall-label-ink)"
+                  >
+                    {z.id}
+                  </text>
+                </g>
               );
             })}
       </svg>
@@ -163,23 +239,20 @@ export function SchematicView({ site, snapshot, selectedId, onSelect, level, rea
           left: 10,
           bottom: 10,
           gap: 10,
+          flexWrap: "wrap",
           fontSize: "var(--fs-0)",
           color: "var(--ink-muted)",
           background: "var(--overlay)",
-          border: "1px solid var(--line)",
+          border: "1px solid var(--border)",
           borderRadius: "var(--r-2)",
+          boxShadow: "var(--shadow-1)",
           padding: "4px 10px",
         }}
       >
-        {[
-          ["Free", FILL.free],
-          ["Occupied", FILL.occupied],
-          ["Violation", FILL.violation],
-          ["EV / ADA / Res.", FILL.special],
-        ].map(([label, color]) => (
-          <span key={label} className="row" style={{ gap: 4 }}>
-            <span style={{ width: 8, height: 8, borderRadius: 2, background: color }} />
-            {label}
+        {LEGEND.map((l) => (
+          <span key={l.label} className="row" style={{ gap: 4 }}>
+            <span style={{ width: 9, height: 9, borderRadius: 2, ...l.swatch }} />
+            {l.label}
           </span>
         ))}
         <span style={{ color: "var(--ink-faint)" }}>· scroll to zoom · double-click to reset</span>

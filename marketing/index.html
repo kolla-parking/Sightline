@@ -3,702 +3,423 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sightline | Live parking occupancy from the cameras you already own</title>
-  <meta name="description" content="Sightline reads your existing parking cameras and shows you which spaces are taken, right now. Nothing to install and nothing to dig up." />
+  <title>Sightline | Per-space truth for every parking asset</title>
+  <meta name="description" content="Sightline turns the cameras a parking asset already has into live per-space occupancy — a real-time record of every stall, on your own hardware. Proven on a real 100-space lot." />
+  <!-- Mode must apply before first paint: stored choice, else OS preference -->
+  <script>(function(){try{var t=localStorage.getItem("sl-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.setAttribute("data-theme","dark")}catch(e){}})();</script>
+  <!-- Social cards. Image paths are root-relative on purpose (no production domain yet): swap og:image/twitter:image to absolute https://<domain>/assets/img/preview.jpg URLs at launch — OG scrapers ignore relative paths. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Sightline" />
+  <meta property="og:title" content="Sightline — Per-space truth for every parking asset" />
+  <meta property="og:description" content="Live per-space occupancy from the cameras you already own, on your own hardware. Proven on a real 100-space lot." />
+  <meta property="og:image" content="assets/img/preview.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sightline — Per-space truth for every parking asset" />
+  <meta name="twitter:description" content="Live per-space occupancy from the cameras you already own, on your own hardware. Proven on a real 100-space lot." />
+  <meta name="twitter:image" content="assets/img/preview.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/main.css?v=2" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2307080c'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23ff4d2e' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%232ee58a'/%3E%3C/svg%3E" />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,500;0,700;1,500&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css?v=6" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FBFCFB'/%3E%3Cg fill='%23151B17' fill-opacity='.35'%3E%3Crect x='5' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1.8'/%3E%3C/g%3E%3Crect x='13' y='13' width='6' height='6' rx='1.8' fill='%2300E676'/%3E%3C/svg%3E" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "name": "Sightline",
+        "description": "Per-space parking occupancy from existing cameras, processed on the operator's own hardware.",
+        "founder": { "@type": "Person", "name": "Monish Munagala" },
+        "address": { "@type": "PostalAddress", "addressLocality": "Charlotte", "addressRegion": "NC", "addressCountry": "US" }
+      },
+      { "@type": "WebSite", "name": "Sightline", "inLanguage": "en" },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Sightline",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Camera-based parking occupancy platform: per-space detection, live operator console, analytics, and curb management on your own hardware."
+      }
+    ]
+  }
+  </script>
   <style>
-    /* ---------- page-specific: hero ---------- */
-    .hero {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: calc(var(--nav-h) + 48px) 0 48px;
-      overflow: hidden;
-      background:
-        radial-gradient(1100px circle at 85% -10%, rgba(123, 108, 255, 0.12), transparent 55%),
-        radial-gradient(900px circle at 0% 110%, rgba(255, 77, 46, 0.09), transparent 50%),
-        var(--ink);
-    }
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.05fr 1fr;
-      gap: clamp(30px, 5vw, 70px);
-      align-items: center;
-      position: relative;
-      z-index: 2;
-    }
-    .hero h1 { margin: 0 0 22px; }
-    .hero h1 .line {
-      display: block;
-      overflow: hidden;
-      /* leave room inside the reveal mask for Lora's deep descenders and
-         the gradient underline, then pull the lines back together */
-      padding-bottom: 0.32em;
-      margin-bottom: -0.32em;
-    }
-    .hero h1 .line > span {
-      display: inline-block;
-      /* start far enough down that the waiting span cannot peek through
-         the taller mask window */
-      transform: translateY(160%);
-    }
-    html.no-js .hero h1 .line,
-    html.reduced-motion .hero h1 .line {
-      overflow: visible;
-    }
-    html.no-js .hero h1 .line > span {
-      transform: none;
-    }
-    .hero-ctas {
+    /* ---------- page: home ---------- */
+    .hero { padding-bottom: var(--s-6); }
+    .hero .label-mono { margin-bottom: var(--s-3); }
+    .hero h1 { max-width: 16ch; }
+    .hero-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 14px;
-      margin-top: 34px;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s-4);
+      margin-top: var(--s-4);
     }
-    .hero-cam {
-      position: relative;
+    .hero-row .lede { max-width: 50ch; }
+    .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    /* three-panel progression: same real frame, three states */
+    .hiw-panel .card-bar .label-mono { color: var(--text-3); margin: 0; }
+    .hiw-panel img { aspect-ratio: 16/10; object-fit: cover; width: 100%; }
+    .hiw-panel .card-body h3 { margin-bottom: 6px; }
+    .hiw-panel .card-body p { font-size: var(--fs-small); color: var(--text-3); }
+    .hiw-arrows {
+      display: none;
     }
-    .hero-cam .cam-frame {
-      aspect-ratio: 16 / 9;
-    }
-    .hero-cam img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: saturate(0.85) contrast(1.05);
-    }
-    .hero-cam svg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 3;
-    }
-    #hero-scan {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      width: 2px;
-      z-index: 4;
-      opacity: 0;
-      background: linear-gradient(180deg, transparent, rgba(255, 77, 46, 0.9), transparent);
-      box-shadow: 0 0 24px rgba(255, 77, 46, 0.8);
-    }
-    .hero-telemetry {
+
+    /* lot case-study card */
+    .lot-card { display: grid; grid-template-columns: 1.1fr 1fr; }
+    .lot-card img { height: 100%; object-fit: cover; }
+    .lot-facts { padding: var(--s-4); display: grid; gap: var(--s-2); align-content: center; }
+    .lot-facts .row { display: flex; justify-content: space-between; gap: var(--s-2); padding-bottom: var(--s-1); border-bottom: 1px solid var(--border); font-size: var(--fs-small); }
+    .lot-facts .row .k { color: var(--text-3); }
+    .lot-facts .row .v { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-1); }
+    @media (max-width: 900px) { .lot-card { grid-template-columns: 1fr; } }
+
+    /* mini pipeline diagram */
+    .flow {
       display: flex;
       flex-wrap: wrap;
-      gap: 24px 44px;
-      margin-top: 30px;
-    }
-    .hero-telemetry .t .v {
-      font-family: var(--font-display);
-      font-size: 1.8rem;
-      font-weight: 600;
-    }
-    .hero-telemetry .t .v.green { color: var(--green); }
-    .hero-telemetry .t .v.red { color: var(--red); }
-    .hero-telemetry .t .k {
-      font-size: 0.72rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--grey-dim);
-      margin-top: 4px;
-    }
-    .hero .ghost-num { top: 6%; right: -2%; }
-
-    /* ---------- what it does ---------- */
-    .split {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: clamp(40px, 6vw, 90px);
       align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      color: var(--text-2);
     }
-    .checklist {
-      list-style: none;
-      margin-top: 30px;
-      display: grid;
-      gap: 14px;
+    .flow .st {
+      padding: 10px 16px;
+      border: 1px solid var(--border-2);
+      border-radius: var(--r-1);
+      background: var(--surface);
+      box-shadow: var(--shadow-card);
+      white-space: nowrap;
     }
-    .checklist li {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-      padding: 16px 18px;
-      border: 1px solid var(--hair);
-      border-radius: var(--radius);
-      background: rgba(255, 255, 255, 0.03);
-      font-size: 0.92rem;
-      color: var(--grey);
-    }
-    .checklist li strong {
-      color: var(--white);
-      font-weight: 700;
-    }
-    .checklist .tick {
-      flex-shrink: 0;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: rgba(46, 229, 138, 0.12);
-      border: 1px solid rgba(46, 229, 138, 0.4);
-      color: var(--green);
-      font-size: 0.7rem;
-    }
+    .flow .st.hot { border-color: var(--accent-text); color: var(--accent-text); }
+    .flow .ar { color: var(--text-3); }
 
-    /* ---------- how it works (pinned) ---------- */
-    .hiw {
-      background: var(--ink-2);
-      border-top: 1px solid var(--hair);
-      border-bottom: 1px solid var(--hair);
-    }
-    .hiw-pin {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      padding: 70px 0;
-    }
-    .hiw-head {
-      text-align: center;
-      max-width: 640px;
-      margin: 0 auto 56px;
-    }
-    .hiw-head h2 { margin-top: 18px; }
-    .hiw-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: clamp(40px, 5vw, 80px);
-      align-items: center;
-      width: 100%;
-    }
-    .hiw-step {
-      padding: 24px 0;
-      border-top: 1px solid var(--hair);
-      opacity: 0.3;
-      transition: opacity 0.4s;
-    }
-    .hiw-step:first-child { border-top: 0; }
-    .hiw-step.active { opacity: 1; }
-    .hiw-step h3 {
-      font-size: 1.35rem;
-      margin-bottom: 8px;
-    }
-    .hiw-step h3 .step-no {
-      display: inline-block;
-      width: 2em;
-      color: var(--red);
-      font-size: 0.75em;
-      font-weight: 500;
-    }
-    .hiw-step p {
-      color: var(--grey);
-      font-size: 0.92rem;
-      max-width: 48ch;
-      padding-left: 2.65em;
-    }
-    .hiw-cam { position: relative; }
-    .hiw-cam .cam-frame { aspect-ratio: 16 / 10; }
-    .hiw-cam .shot {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      filter: saturate(0.85) contrast(1.05);
-    }
-    .hiw-cam .shot.first { opacity: 1; }
-    .hiw-cam div.shot img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .hiw-cam div.shot svg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-    .hiw-progress {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 3px;
-      z-index: 7;
-      background: rgba(255, 255, 255, 0.08);
-    }
-    .hiw-progress .bar {
-      height: 100%;
-      width: 0%;
-      background: var(--grad);
-    }
+    /* trust band bullets */
+    .trust-list { list-style: none; display: grid; gap: var(--s-2); margin-top: var(--s-3); }
+    .trust-list li { display: flex; gap: 12px; align-items: flex-start; font-size: var(--fs-small); color: var(--text-2); }
+    .trust-list .mk { font-family: var(--font-mono); color: var(--accent-text); flex-shrink: 0; }
 
-    /* ---------- features preview grid ---------- */
-    .feat-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-      margin-top: 56px;
+    .news-mini { display: flex; gap: 8px; margin-top: var(--s-2); }
+    .news-mini input {
+      flex: 1; min-width: 0;
+      padding: 10px 12px;
+      border-radius: var(--r-1);
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      color: var(--text-1);
+      outline: 0;
+      font-size: 0.9rem;
     }
-
-    @media (max-width: 1000px) {
-      .hero-grid, .split, .hiw-grid { grid-template-columns: 1fr; }
-      .feat-grid { grid-template-columns: 1fr 1fr; }
-      .hero { padding-top: calc(var(--nav-h) + 60px); }
-      .hiw-pin { min-height: 0; }
-      .hiw-head { margin-bottom: 40px; }
-    }
-    @media (max-width: 640px) {
-      .feat-grid { grid-template-columns: 1fr; }
-    }
+    .news-mini input:focus { border-color: var(--accent-text); }
+    [data-theme="dark"] .news-mini input { background: var(--fill); }
   </style>
 </head>
 <body>
 
-  <!-- ================= NAV ================= -->
+  <a class="skip-link" href="#main">Skip to content</a>
+
   <header class="nav">
-    <a class="nav-logo" href="index.html" aria-label="Sightline home">
-      <svg class="mark" viewBox="0 0 32 32" fill="none">
-        <circle cx="16" cy="16" r="12" stroke="#ff4d2e" stroke-width="2.5"/>
-        <circle cx="16" cy="16" r="3.5" fill="#2ee58a"/>
-      </svg>
-      Sightline
-    </a>
-    <nav>
-      <ul class="nav-links">
-        <li><a href="features.html">Features</a></li>
-        <li><a href="compare.html">Compare</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-    <div style="display:flex; align-items:center; gap:8px;">
-      <a class="btn btn-primary btn-sm nav-cta" href="demo.html">Request a demo <span class="arr">→</span></a>
-      <a class="btn btn-ghost btn-sm nav-cta nav-login" href="login.html">Log in</a>
-      <button class="nav-burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div class="wrap nav-inner">
+      <a class="nav-logo" href="index.html" aria-label="Sightline home">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <g fill="currentColor" opacity=".32">
+            <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+          </g>
+          <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+        </svg>
+        Sightline
+      </a>
+      <nav aria-label="Primary">
+        <ul class="nav-links">
+          <li><a href="product.html">Product</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="the-lot.html">The Lot</a></li>
+          <li><a href="data-policy.html">Data policy</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-side">
+        <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+          <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+        </button>
+        <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+        <a class="btn btn-accent btn-sm" href="demo.html">Book a demo <span class="arr">→</span></a>
+        <button class="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
     </div>
   </header>
 
-  <div class="mobile-menu">
+  <nav class="sheet" aria-label="Mobile">
     <a href="index.html">Home</a>
-    <a href="features.html">Features</a>
-    <a href="compare.html">Compare</a>
-    <a href="about.html">About</a>
+    <a href="product.html">Product</a>
+    <a href="technology.html">Technology</a>
+    <a href="the-lot.html">The Lot</a>
+    <a href="data-policy.html">Data policy</a>
     <a href="contact.html">Contact</a>
+    <a href="solutions.html">Solutions</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="compare.html">Compare</a>
+    <a href="insights.html">Writing</a>
     <a href="login.html">Log in</a>
-    <a href="demo.html">Request a demo</a>
-  </div>
+    <a href="demo.html">Book a demo</a>
+  </nav>
 
-  <!-- ================= HERO ================= -->
-  <section class="hero">
-    <div class="ghost-num">01</div>
-    <div class="container hero-grid">
-      <div>
-        <h1 class="display-xl">
-          <span class="line"><span>See every</span></span>
-          <span class="line"><span><em class="u-grad" style="font-style:normal;">space.</em></span></span>
-        </h1>
-        <p class="lede" id="hero-lede">
-          Sightline reads the cameras your lot already has and shows you which
-          spaces are taken, right now. There is nothing to install and nothing
-          to dig up. If your lot has a camera, you have what you need.
-        </p>
-        <div class="hero-ctas" id="hero-ctas">
-          <a class="btn btn-primary" href="demo.html">Request a demo <span class="arr">→</span></a>
-          <a class="btn btn-ghost" href="features.html">See the features</a>
-        </div>
-        <div class="hero-telemetry" id="hero-telemetry">
-          <div class="t">
-            <div class="v red"><span id="count-occupied">0</span></div>
-            <div class="k">Taken</div>
-          </div>
-          <div class="t">
-            <div class="v green"><span id="count-free">0</span></div>
-            <div class="k">Open</div>
-          </div>
-          <div class="t">
-            <div class="v"><span id="count-pct">0</span>%</div>
-            <div class="k">Full</div>
-          </div>
-          <div class="t">
-            <div class="v">5</div>
-            <div class="k">Frames / sec</div>
+  <main id="main">
+
+    <!-- ============ 1a. hero (light) ============ -->
+    <section class="hero hero-pad" aria-labelledby="hero-h">
+      <div class="wrap">
+        <span class="label-mono" data-r>Lot A · live now</span>
+        <h1 class="t-hero" id="hero-h" data-r style="--d:.06s">Per-space truth for every parking asset.</h1>
+        <div class="hero-row">
+          <p class="lede" data-r style="--d:.12s">
+            Sightline turns the cameras a lot already has into a live record
+            of every stall — camera in, per-space model, operator console
+            out. It runs on your hardware, and the footage never leaves
+            your building.
+          </p>
+          <div class="hero-ctas" data-r style="--d:.18s">
+            <a class="btn btn-accent" href="#evidence">See the live lot <span class="arr">↓</span></a>
+            <a class="btn btn-line" href="contact.html">Talk to us</a>
           </div>
         </div>
       </div>
+    </section>
 
-      <div class="hero-cam" id="hero-cam">
-        <div class="cam-frame">
-          <img src="assets/img/preview.jpg" alt="A parking lot camera view analyzed by Sightline" />
-          <svg id="hero-svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
-          <div id="hero-scan"></div>
-        </div>
-        <p class="frame-caption">A real detection pass on a 100-space lot. Red is taken, green is open.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= MARQUEE ================= -->
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee-track">
-      <span>100 spaces watched by one camera</span>
-      <span>68 taken, 32 open right now</span>
-      <span>5 frames analyzed every second</span>
-      <span>Updates in under a second</span>
-      <span>Zero new hardware installed</span>
-    </div>
-  </div>
-
-  <!-- ================= MANIFESTO ================= -->
-  <section id="manifesto" class="on-paper section-pad" style="position:relative; overflow:hidden;">
-    <div class="ghost-num" style="top:-4%; left:-3%;">02</div>
-    <div class="container" style="position:relative; z-index:1;">
-      <span class="eyebrow">What we believe</span>
-      <h2 class="display-lg word-scrub" style="margin-top:30px; max-width:22ch;">
-        Parking data shouldn't require tearing up asphalt.
-        Your cameras already see <span class="u-grad">every space</span>.
-        Sightline turns what they see into
-        <span class="u-grad">numbers you can use</span>.
-      </h2>
-      <div style="display:flex; flex-wrap:wrap; gap:40px; margin-top:60px; align-items:flex-end; justify-content:space-between;">
-        <p class="lede" data-reveal="up" style="max-width:52ch;">
-          Every frame becomes a live count of which spaces are taken and which
-          are free, computed on your own hardware. Nothing leaves your network.
-        </p>
-        <a class="btn btn-ghost" href="about.html" data-reveal="up" data-delay="0.15">Why we built it <span class="arr">→</span></a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= WHAT IT DOES ================= -->
-  <section id="whatwedo" class="section-pad" style="overflow:hidden;">
-    <div class="container split">
-      <div data-reveal="left">
-        <span class="eyebrow">What it does</span>
-        <h2 class="display-md" style="margin:24px 0 18px;">
-          One camera feed in.<br />Live occupancy out.
-        </h2>
-        <p class="lede">
-          Sightline takes any standard camera stream, finds the vehicles in
-          it, and checks each one against a map of your spaces. The result is
-          a live picture of your whole lot.
-        </p>
-        <ul class="checklist">
-          <li data-reveal="up"><span class="tick">✓</span><span><strong>Works with the cameras you have.</strong> If a camera can stream video, Sightline can read it.</span></li>
-          <li data-reveal="up" data-delay="0.08"><span class="tick">✓</span><span><strong>Counts each space, not just the lot.</strong> Every space has its own outline and its own live state.</span></li>
-          <li data-reveal="up" data-delay="0.16"><span class="tick">✓</span><span><strong>Ignores passing traffic.</strong> A space changes state only after several frames agree, so cars driving by don't flip it.</span></li>
-        </ul>
-      </div>
-      <div class="hero-cam" data-reveal="right">
-        <div class="cam-frame">
-          <img src="assets/img/overlay.jpg" alt="A lot with taken and open spaces outlined in red and green" style="filter:saturate(0.9);" />
-        </div>
-        <p class="frame-caption">The same lot as Sightline sees it: 68 spaces taken, 32 open.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= HOW IT WORKS (pinned) ================= -->
-  <section class="hiw" id="hiw">
-    <div class="hiw-pin">
-      <div class="container">
-        <div class="hiw-head">
-          <span class="eyebrow">How it works</span>
-          <h2 class="display-md">Four steps, start to finish.</h2>
-        </div>
-        <div class="hiw-grid">
-          <div class="hiw-steps">
-            <div class="hiw-step active" data-step="0">
-              <h3><span class="step-no">1.</span>Connect a camera</h3>
-              <p>Point Sightline at your camera's stream. It handles drops and reconnects on its own.</p>
-            </div>
-            <div class="hiw-step" data-step="1">
-              <h3><span class="step-no">2.</span>Map your spaces</h3>
-              <p>Draw each space once, or let Sightline propose the whole layout from a photo of the empty lot.</p>
-            </div>
-            <div class="hiw-step" data-step="2">
-              <h3><span class="step-no">3.</span>Detection runs</h3>
-              <p>Each frame, every vehicle is found and matched to the space it sits in. Angled cars and tight rows are fine.</p>
-            </div>
-            <div class="hiw-step" data-step="3">
-              <h3><span class="step-no">4.</span>Watch it live</h3>
-              <p>The dashboard updates the moment a space changes, with the annotated video right next to the counts.</p>
-            </div>
+    <!-- ============ 1b. the evidence moment (the one dark section) ============ -->
+    <section class="evidence" data-theme="dark" id="evidence" aria-label="Live replay of the real lot">
+      <div class="wrap" data-r>
+        <figure class="monitor" aria-label="A real detection pass replayed on Lot A">
+          <div class="monitor-bar">
+            <span class="live">Replay</span>
+            <span>Lot A · 100 spaces · 1 camera</span>
+            <span>yolov8-obb · 5 fps</span>
           </div>
-          <div class="hiw-cam">
-            <div class="cam-frame">
-              <img class="shot first" src="assets/img/preview.jpg" alt="The raw camera frame" />
-              <div class="shot" aria-label="The mapped space outlines drawn over the frame">
-                <img src="assets/img/preview.jpg" alt="" />
-                <svg id="hiw-map-svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
-              </div>
-              <img class="shot" src="assets/img/overlay.jpg" alt="Vehicles matched to spaces" />
-              <img class="shot" src="assets/img/dashboard.jpg" alt="The live dashboard" />
-              <div class="hiw-progress"><div class="bar" id="hiw-bar"></div></div>
-            </div>
+          <div class="monitor-stage">
+            <img src="assets/img/preview.jpg" alt="Aerial camera view of Lot A, a 100-space parking lot analyzed by Sightline" />
+            <svg id="replay-svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+            <div id="replay-scan" class="monitor-scan"></div>
+          </div>
+          <div class="monitor-rail">
+            <div class="cell"><div class="v taken" id="count-taken">0</div><div class="k">Taken</div></div>
+            <div class="cell"><div class="v open" id="count-open">0</div><div class="k">Open</div></div>
+            <div class="cell"><div class="v"><span id="count-pct">0</span><span class="dim">%</span></div><div class="k">Occupancy</div></div>
+            <div class="cell"><div class="v">&lt;1<span class="dim">s</span></div><div class="k">To console</div></div>
+          </div>
+        </figure>
+        <figcaption class="frame-caption">A genuine pass on Lot A — real frame, real polygons, real counts. Nothing staged.</figcaption>
+      </div>
+    </section>
+
+    <!-- ============ 2. instrument-truth stat strip ============ -->
+    <section class="section tight" aria-label="Key numbers">
+      <div class="wrap">
+        <div class="stat-strip" data-r>
+          <div class="stat-cell"><div class="v">100</div><div class="k">Spaces per camera view</div></div>
+          <div class="stat-cell"><div class="v">5<span class="u"> fps</span></div><div class="k">Frames analyzed</div></div>
+          <div class="stat-cell"><div class="v">&lt;1<span class="u"> s</span></div><div class="k">Change to console</div></div>
+          <div class="stat-cell"><div class="v">0</div><div class="k">Sensors installed</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3. how it works: same frame, three states ============ -->
+    <section class="section" aria-labelledby="hiw-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>How it works</span>
+          <h2 class="t-title" id="hiw-h" data-r style="--d:.06s">One camera frame, three states.</h2>
+          <p class="lede" data-r style="--d:.12s">The same real frame from Lot A at each stage of the pipeline — no diagrams standing in for the product.</p>
+        </div>
+        <div class="grid-3">
+          <figure class="card hiw-panel" data-r>
+            <div class="card-bar"><span class="label-mono">01 · The frame</span></div>
+            <img src="assets/img/preview.jpg" alt="The raw camera frame from Lot A" loading="lazy" />
+            <div class="card-body"><h3>The camera sees</h3><p>Any RTSP camera works. Sightline reads the stream your lot already records.</p></div>
+          </figure>
+          <figure class="card hiw-panel" data-r style="--d:.07s">
+            <div class="card-bar"><span class="label-mono">02 · Per-space state</span></div>
+            <img src="assets/img/overlay.jpg" alt="The same frame with every space outlined and classified" loading="lazy" />
+            <div class="card-body"><h3>Every stall resolved</h3><p>Oriented detection matches each vehicle to the exact space it occupies — 68 taken, 32 open on this pass.</p></div>
+          </figure>
+          <figure class="card hiw-panel" data-r style="--d:.14s">
+            <div class="card-bar"><span class="label-mono">03 · The console</span></div>
+            <img src="assets/img/dashboard.jpg" alt="The Sightline operator console showing Lot A live" loading="lazy" />
+            <div class="card-body"><h3>Operators see truth</h3><p>Live state, history, and alerts reach the console in under a second.</p></div>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 4. the lot as case study ============ -->
+    <section class="section on-tint" aria-labelledby="lot-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>The Lot</span>
+          <h2 class="t-title" id="lot-h" data-r style="--d:.06s">One lot, measured completely.</h2>
+        </div>
+        <div class="card lot-card" data-r>
+          <img src="assets/img/overlay.jpg" alt="Lot A with per-space detection outlines" loading="lazy" />
+          <div class="lot-facts">
+            <h3>Lot A — the proving ground</h3>
+            <div class="row"><span class="k">Spaces</span><span class="v">100</span></div>
+            <div class="row"><span class="k">Cameras</span><span class="v">1</span></div>
+            <div class="row"><span class="k">This pass</span><span class="v">68 taken · 32 open</span></div>
+            <div class="row"><span class="k">Analysis rate</span><span class="v">5 fps</span></div>
+            <div class="row"><span class="k">Change to console</span><span class="v">&lt;1 s</span></div>
+            <a class="btn btn-line btn-sm" href="the-lot.html" style="margin-top: var(--s-1); justify-self: start; width: auto;">Visit the lot <span class="arr">→</span></a>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ================= FEATURES PREVIEW ================= -->
-  <section id="capabilities" class="section-pad" style="overflow:hidden; position:relative;">
-    <div class="ghost-num" style="bottom:-6%; right:-2%;">03</div>
-    <div class="container" style="position:relative; z-index:1;">
-      <div style="display:flex; flex-wrap:wrap; gap:30px; align-items:flex-end; justify-content:space-between;">
+    <!-- ============ 5. technology teaser ============ -->
+    <section class="section" aria-labelledby="tech-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>Technology</span>
+          <h2 class="t-title" id="tech-h" data-r style="--d:.06s">Sensing, inference, decision.</h2>
+          <p class="lede" data-r style="--d:.12s">Seven stages between a camera frame and an operator's screen — every one of them on hardware you control.</p>
+        </div>
+        <div class="flow" data-r style="--d:.1s" role="list" aria-label="Pipeline stages">
+          <span class="st" role="listitem">ingest</span><span class="ar">→</span>
+          <span class="st" role="listitem">decode</span><span class="ar">→</span>
+          <span class="st hot" role="listitem">detect</span><span class="ar">→</span>
+          <span class="st" role="listitem">match</span><span class="ar">→</span>
+          <span class="st" role="listitem">smooth</span><span class="ar">→</span>
+          <span class="st" role="listitem">record</span><span class="ar">→</span>
+          <span class="st" role="listitem">publish</span>
+        </div>
+        <div style="margin-top: var(--s-4); --d:.14s" data-r>
+          <a class="btn btn-line" href="technology.html">How the pipeline works <span class="arr">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 6. data policy / trust ============ -->
+    <section class="section on-tint" aria-labelledby="trust-h">
+      <div class="wrap grid-2 top">
         <div>
-          <span class="eyebrow">Features</span>
-          <h2 class="display-md" style="margin-top:22px; max-width:16ch;">What's inside.</h2>
+          <span class="label" data-r>Data policy</span>
+          <h2 class="t-title" id="trust-h" data-r style="--d:.06s">Occupancy, not surveillance.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            Cities and operators have to answer for every camera. Sightline
+            is built to make that answer easy.
+          </p>
         </div>
-        <a class="btn btn-ghost" href="features.html" data-reveal="up">All features <span class="arr">→</span></a>
-      </div>
-      <div class="feat-grid">
-        <div class="card" data-reveal="up">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="3" y="7" width="13" height="10" rx="2" transform="rotate(-8 9 12)"/><path d="M17 9l4-2v10l-4-2"/></svg></div>
-          <h3>Angled detection</h3>
-          <p>Detection boxes rotate to match each car, so angled spots and tight rows still read correctly.</p>
-        </div>
-        <div class="card" data-reveal="up" data-delay="0.07">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 6l6-2 6 3 4-1v12l-6 2-6-3-4 1z"/><path d="M10 4v13M16 7v13"/></svg></div>
-          <h3>Space-by-space matching</h3>
-          <p>Each space is an exact outline on the pavement. A car counts only when it actually sits inside one.</p>
-        </div>
-        <div class="card" data-reveal="up" data-delay="0.14">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M3 17l4-6 4 3 5-8 5 6"/><path d="M3 21h18"/></svg></div>
-          <h3>Steady readings</h3>
-          <p>A space flips only after several frames agree. Shadows and passing cars don't cause false changes.</p>
-        </div>
-        <div class="card" data-reveal="up">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
-          <h3>Instant updates</h3>
-          <p>Changes reach the dashboard the moment they happen, next to the live annotated video.</p>
-        </div>
-        <div class="card" data-reveal="up" data-delay="0.07">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="3" y="12" width="4" height="8"/><rect x="10" y="7" width="4" height="13"/><rect x="17" y="3" width="4" height="17"/></svg></div>
-          <h3>Hourly history</h3>
-          <p>Busy hours are measured by how long spaces actually stay filled, so the history reflects reality.</p>
-        </div>
-        <div class="card" data-reveal="up" data-delay="0.14">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.5"/></svg></div>
-          <h3>Quick setup</h3>
-          <p>Draw your spaces once, or let Sightline find them on its own from an empty lot or live traffic.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= STATS ================= -->
-  <section class="stat-band">
-    <div class="container-wide stat-grid">
-      <div class="stat">
-        <div class="num"><span data-count="100">0</span></div>
-        <div class="lbl">Spaces per camera view</div>
-      </div>
-      <div class="stat">
-        <div class="num"><span data-count="5">0</span></div>
-        <div class="lbl">Frames analyzed per second</div>
-      </div>
-      <div class="stat">
-        <div class="num">&lt;<span data-count="1">0</span><span class="unit">s</span></div>
-        <div class="lbl">From change to dashboard</div>
-      </div>
-      <div class="stat">
-        <div class="num"><span data-count="0">0</span></div>
-        <div class="lbl">Sensors to install</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= DEMO CTA ================= -->
-  <section class="cta-band section-pad">
-    <div class="grad-edge"></div>
-    <div class="container" style="position:relative; z-index:2; text-align:center;">
-      <span class="eyebrow">Request a demo</span>
-      <h2 class="display-lg" style="margin:26px auto 20px; max-width:17ch;">
-        See <span class="u-grad">your own lot</span> live.
-      </h2>
-      <p class="lede" style="margin:0 auto 40px;" data-reveal="up">
-        Bring a camera feed and thirty minutes. We'll map your spaces on the
-        call and show you live detection on your own footage.
-      </p>
-      <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;" data-reveal="up" data-delay="0.1">
-        <a class="btn btn-primary" href="demo.html">Book a walkthrough <span class="arr">→</span></a>
-        <a class="btn btn-ghost" href="contact.html">Talk to us</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= NEWSLETTER ================= -->
-  <section id="newsletter" class="newsletter section-pad" style="background:var(--ink-2); border-top:1px solid var(--hair);">
-    <div class="container newsletter-inner">
-      <div data-reveal="left">
-        <span class="eyebrow">Newsletter</span>
-        <h2 class="display-md" style="margin-top:20px;">Get product updates.</h2>
-        <p class="lede" style="margin-top:16px;">
-          Short notes on new features and what we're learning about detection.
-          A few emails a year, nothing else.
-        </p>
-      </div>
-      <div data-reveal="right">
-        <form data-form novalidate>
-          <div class="newsletter-form">
-            <input type="email" placeholder="you@company.com" aria-label="Email address" required />
-            <button class="btn btn-primary" type="submit">Subscribe</button>
+        <div>
+          <ul class="trust-list">
+            <li data-r><span class="mk">01</span><span><strong>No plate reading.</strong> Sightline detects whether a space is occupied — it has no ANPR and never identifies a vehicle or a person.</span></li>
+            <li data-r style="--d:.05s"><span class="mk">02</span><span><strong>Footage stays in your building.</strong> Every frame is processed on your hardware. What leaves is state — taken or open — not video.</span></li>
+            <li data-r style="--d:.1s"><span class="mk">03</span><span><strong>State, not video, is retained.</strong> History is a log of occupancy changes, useful for planning and audits, useless for tracking people.</span></li>
+          </ul>
+          <div style="margin-top: var(--s-3); --d:.15s" data-r>
+            <a class="btn btn-line btn-sm" href="data-policy.html" style="width:auto;">Read the data policy <span class="arr">→</span></a>
           </div>
-          <p class="newsletter-note">No spam. Unsubscribe anytime. See our <a href="privacy.html" style="text-decoration:underline;">privacy policy</a>.</p>
-        </form>
-        <div class="form-success"><span>✓</span> You're subscribed. Watch your inbox.</div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ================= FOOTER ================= -->
-  <footer>
-    <div class="container">
-      <div class="footer-grid">
+    <!-- ============ 7a. CTA ============ -->
+    <section class="section" aria-labelledby="cta-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>Next step</span>
+          <h2 class="t-title" id="cta-h" data-r style="--d:.06s">See your own lot, live.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            Bring a camera feed and thirty minutes. We'll map your spaces on
+            the call and show you live detection on your own footage.
+          </p>
+        </div>
+        <div class="hero-ctas" data-r style="--d:.18s">
+          <a class="btn btn-accent" href="demo.html">Book a demo <span class="arr">→</span></a>
+          <a class="btn btn-line" href="the-lot.html">Visit the live lot</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ 7b. dark footer ============ -->
+  <footer class="foot" data-theme="dark">
+    <div class="wrap">
+      <div class="foot-grid">
         <div>
           <a class="nav-logo" href="index.html">
-            <svg class="mark" viewBox="0 0 32 32" fill="none">
-              <circle cx="16" cy="16" r="12" stroke="#ff4d2e" stroke-width="2.5"/>
-              <circle cx="16" cy="16" r="3.5" fill="#2ee58a"/>
+            <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+              <g fill="currentColor" opacity=".32">
+                <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+              </g>
+              <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
             </svg>
             Sightline
           </a>
-          <p class="footer-tag">Live parking occupancy from the cameras you already own, running on your own hardware.</p>
+          <p class="foot-tag">Per-space parking occupancy from the cameras you already own, on your own hardware.</p>
+          <p class="foot-status">status: proving Sightline on one real 100-space lot. more soon.</p>
+          <form data-form novalidate aria-label="Newsletter">
+            <div class="news-mini">
+              <input type="email" placeholder="you@company.com" aria-label="Email address" required />
+              <button class="btn btn-quiet btn-sm" type="submit" style="width:auto;">Subscribe</button>
+            </div>
+          </form>
+          <div class="form-success" style="margin-top:10px;"><span class="mk">ok</span> You're subscribed. Watch your inbox.</div>
         </div>
         <div>
           <h4>Product</h4>
           <ul>
-            <li><a href="features.html">Features</a></li>
+            <li><a href="product.html">Product</a></li>
+            <li><a href="technology.html">Technology</a></li>
+            <li><a href="the-lot.html">The Lot</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
             <li><a href="compare.html">Compare</a></li>
-            <li><a href="demo.html">Request a demo</a></li>
-            <li><a href="index.html#hiw">How it works</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Solutions</h4>
+          <ul>
+            <li><a href="solutions.html#operators">Operators &amp; garages</a></li>
+            <li><a href="solutions.html#campuses">Campuses &amp; venues</a></li>
+            <li><a href="solutions.html#curb">Municipal curb</a></li>
+            <li><a href="demo.html">Book a demo</a></li>
           </ul>
         </div>
         <div>
           <h4>Company</h4>
           <ul>
-            <li><a href="about.html">About us</a></li>
-            <li><a href="about.html#goal">Our goal</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="insights.html">Writing</a></li>
             <li><a href="contact.html">Contact</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Legal</h4>
-          <ul>
-            <li><a href="privacy.html">Privacy policy</a></li>
-            <li><a href="terms.html">Terms of service</a></li>
+            <li><a href="data-policy.html">Data policy</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
           </ul>
         </div>
       </div>
-      <div class="footer-wordmark" aria-hidden="true">Sightline</div>
-      <div class="footer-legal">
-        <span>© 2026 Sightline · Monish Munagala. All rights reserved.</span>
+      <div class="foot-legal">
+        <span>© 2026 Sightline · Monish Munagala · Charlotte, NC</span>
         <div class="links">
+          <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+            <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+          </button>
+          <a href="data-policy.html">Data policy</a>
           <a href="privacy.html">Privacy</a>
           <a href="terms.html">Terms</a>
-          <a href="contact.html">Contact</a>
         </div>
       </div>
     </div>
   </footer>
 
-  <script src="assets/vendor/gsap.min.js"></script>
-  <script src="assets/vendor/ScrollTrigger.min.js"></script>
-  <script src="assets/js/main.js?v=2"></script>
-  <script src="assets/js/hero.js?v=2"></script>
-  <script>
-    (function () {
-      if (typeof gsap === "undefined") return;
-      var reduce =
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
-        /[?&]noanim/.test(location.search);
-      if (reduce) {
-        document.querySelectorAll(".hero h1 .line > span").forEach(function (s) {
-          s.style.transform = "none";
-        });
-        document.querySelectorAll(".hiw-step").forEach(function (s) {
-          s.classList.add("active");
-        });
-        var last = document.querySelectorAll(".hiw-cam .shot");
-        if (last.length) last[last.length - 1].style.opacity = 1;
-        var bar = document.getElementById("hiw-bar");
-        if (bar) bar.style.width = "100%";
-        return;
-      }
-
-      /* ---- hero entrance ---- */
-      var intro = gsap.timeline({
-        defaults: { ease: "power4.out" },
-        onComplete: function () {
-          // the reveal mask has done its job; drop it so serif descenders
-          // can never be clipped afterwards
-          gsap.set(".hero h1 .line", { overflow: "visible" });
-        },
-      });
-      intro
-        .from(".nav", { y: -70, opacity: 0, duration: 0.9 }, 0.1)
-        .to(".hero h1 .line > span", { y: 0, duration: 1.1, stagger: 0.12 }, 0.3)
-        .from("#hero-lede", { opacity: 0, y: 26, duration: 0.8 }, 0.7)
-        .from("#hero-ctas", { opacity: 0, y: 26, duration: 0.8 }, 0.85)
-        .from("#hero-telemetry", { opacity: 0, y: 20, duration: 0.8 }, 0.95)
-        .from("#hero-cam", { opacity: 0, scale: 0.94, y: 40, duration: 1.2, ease: "power3.out" }, 0.5);
-
-      /* hero cam parallax on scroll */
-      gsap.to("#hero-cam", {
-        y: -60,
-        ease: "none",
-        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.6 },
-      });
-
-      /* ---- how it works: pinned step sequence ---- */
-      var steps = gsap.utils.toArray(".hiw-step");
-      var shots = gsap.utils.toArray(".hiw-cam .shot");
-
-      function setStep(idx) {
-        steps.forEach(function (s, i) { s.classList.toggle("active", i === idx); });
-        shots.forEach(function (sh, i) {
-          gsap.to(sh, { opacity: i === idx ? 1 : 0, duration: 0.45, ease: "power2.out" });
-        });
-      }
-
-      ScrollTrigger.matchMedia({
-        "(min-width: 1001px)": function () {
-          var st = { current: -1 };
-          ScrollTrigger.create({
-            trigger: ".hiw-pin",
-            start: "top top",
-            end: "+=2600",
-            pin: true,
-            scrub: true,
-            onUpdate: function (self) {
-              var idx = Math.min(3, Math.floor(self.progress * 4));
-              gsap.set("#hiw-bar", { width: self.progress * 100 + "%" });
-              if (idx !== st.current) {
-                st.current = idx;
-                setStep(idx);
-              }
-            },
-          });
-        },
-        "(max-width: 1000px)": function () {
-          // simple sequential reveal on small screens, no pinning
-          steps.forEach(function (s) { s.classList.add("active"); });
-          gsap.set(shots[3], { opacity: 1 });
-          gsap.set("#hiw-bar", { width: "100%" });
-        },
-      });
-    })();
-  </script>
+  <script src="assets/js/env.js"></script>
+  <script src="assets/js/main.js?v=7"></script>
+  <script src="assets/js/replay.js?v=2"></script>
 </body>
 </html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sightline | Writing</title>
+  <meta name="description" content="Notes from building a parking instrument — essays on parking data, detection, and the economics of seeing, written the way Sightline is built: specific, calm, honest." />
+  <!-- Mode must apply before first paint: stored choice, else OS preference -->
+  <script>(function(){try{var t=localStorage.getItem("sl-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.setAttribute("data-theme","dark")}catch(e){}})();</script>
+  <!-- Social cards. Image paths are root-relative on purpose (no production domain yet): swap og:image/twitter:image to absolute https://<domain>/assets/img/preview.jpg URLs at launch — OG scrapers ignore relative paths. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Sightline" />
+  <meta property="og:title" content="Sightline — Writing" />
+  <meta property="og:description" content="Notes from building a parking instrument — essays on parking data, detection, and the economics of seeing." />
+  <meta property="og:image" content="assets/img/preview.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sightline — Writing" />
+  <meta name="twitter:description" content="Notes from building a parking instrument — essays on parking data, detection, and the economics of seeing." />
+  <meta name="twitter:image" content="assets/img/preview.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,500;0,700;1,500&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css?v=6" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FBFCFB'/%3E%3Cg fill='%23151B17' fill-opacity='.35'%3E%3Crect x='5' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1.8'/%3E%3C/g%3E%3Crect x='13' y='13' width='6' height='6' rx='1.8' fill='%2300E676'/%3E%3C/svg%3E" />
+  <!-- Structured data: item URLs are root-relative until the production domain exists — absolutize at launch. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "/index.html" },
+      { "@type": "ListItem", "position": 2, "name": "Writing", "item": "/insights.html" }
+    ]
+  }
+  </script>
+  <style>
+    /* ---------- page: writing index ---------- */
+    .mast { padding-bottom: var(--s-6); }
+    .mast .label-mono { margin-bottom: var(--s-3); }
+    .mast h1 { max-width: 14ch; }
+    .mast-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s-4);
+      margin-top: var(--s-4);
+    }
+    .mast-row .lede { max-width: 50ch; }
+    .mast-row .count {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      font-variant-numeric: tabular-nums;
+      color: var(--text-3);
+      white-space: nowrap;
+    }
+    .mast-row .count .n { color: var(--accent-text); }
+
+    /* entries: hairline ledger rows, not cards */
+    .wr { border-top: 1px solid var(--border); }
+    a.wr-row {
+      display: grid;
+      grid-template-columns: 64px 1fr 180px;
+      gap: var(--s-2) var(--s-4);
+      align-items: baseline;
+      padding: var(--s-5) 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .wr-row .ix {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      color: var(--accent-text);
+    }
+    .wr-row h2 {
+      font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+      line-height: 1.15;
+      max-width: 26ch;
+      transition: color 0.2s;
+    }
+    a.wr-row:hover h2 { color: var(--accent-text); }
+    .wr-row .stand {
+      margin-top: 10px;
+      color: var(--text-3);
+      font-size: var(--fs-small);
+      max-width: 62ch;
+      text-wrap: pretty;
+    }
+    .wr-row .meta {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      font-variant-numeric: tabular-nums;
+      color: var(--text-3);
+      text-align: right;
+      white-space: nowrap;
+      line-height: 2;
+    }
+    @media (max-width: 800px) {
+      a.wr-row { grid-template-columns: 44px 1fr; }
+      .wr-row .meta { grid-column: 2; text-align: left; line-height: 1.7; }
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s-4);
+    }
+    .cta-row .lede { max-width: 46ch; }
+    .cta-row .btns { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    /* newsletter (footer) */
+    .news-mini { display: flex; gap: 8px; margin-top: var(--s-2); }
+    .news-mini input {
+      flex: 1; min-width: 0;
+      padding: 10px 12px;
+      border-radius: var(--r-1);
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      color: var(--text-1);
+      outline: 0;
+      font-size: 0.9rem;
+    }
+    .news-mini input:focus { border-color: var(--accent-text); }
+    [data-theme="dark"] .news-mini input { background: var(--fill); }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="nav-logo" href="index.html" aria-label="Sightline home">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <g fill="currentColor" opacity=".32">
+            <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+          </g>
+          <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+        </svg>
+        Sightline
+      </a>
+      <nav aria-label="Primary">
+        <ul class="nav-links">
+          <li><a href="product.html">Product</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="the-lot.html">The Lot</a></li>
+          <li><a href="data-policy.html">Data policy</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-side">
+        <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+          <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+        </button>
+        <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+        <a class="btn btn-accent btn-sm" href="demo.html">Book a demo <span class="arr">→</span></a>
+        <button class="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sheet" aria-label="Mobile">
+    <a href="index.html">Home</a>
+    <a href="product.html">Product</a>
+    <a href="technology.html">Technology</a>
+    <a href="the-lot.html">The Lot</a>
+    <a href="data-policy.html">Data policy</a>
+    <a href="contact.html">Contact</a>
+    <a href="solutions.html">Solutions</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="compare.html">Compare</a>
+    <a href="insights.html">Writing</a>
+    <a href="login.html">Log in</a>
+    <a href="demo.html">Book a demo</a>
+  </nav>
+
+  <main id="main">
+
+    <!-- ============ masthead ============ -->
+    <section class="mast hero-pad" aria-labelledby="mast-h">
+      <div class="wrap">
+        <span class="label-mono" data-r>Writing · from the build</span>
+        <h1 class="t-hero" id="mast-h" data-r style="--d:.06s">Notes from the lot.</h1>
+        <div class="mast-row">
+          <p class="lede" data-r style="--d:.12s">
+            Notes from building a parking instrument — essays on parking
+            data, detection, and the economics of seeing, written the way
+            the product is built: specific, calm, and honest about what we
+            know and what we don't.
+          </p>
+          <span class="count" data-r style="--d:.18s"><span class="n">02</span> entries · updated 2026-08-28</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ the index ============ -->
+    <section class="section tight" aria-label="All essays" style="padding-top: 0;">
+      <div class="wrap">
+        <div class="wr">
+
+          <!-- Entry template: duplicate one <a class="wr-row"> block per new
+               essay — index, title, standfirst, meta. Nothing else changes. -->
+          <a class="wr-row" href="insight-camera-economics.html" data-r>
+            <span class="ix">/01</span>
+            <div>
+              <h2>The economics of counting parking with cameras you already own</h2>
+              <p class="stand">
+                Per-space sensors mean one device in every space, plus the
+                gateways, mounting, and maintenance that follow the count
+                around for the life of the system. The cameras already bolted
+                to your building change that arithmetic entirely.
+              </p>
+            </div>
+            <span class="meta">2026-08-28<br />6 min read</span>
+          </a>
+
+          <a class="wr-row" href="insight-time-weighted-occupancy.html" data-r style="--d:.06s">
+            <span class="ix">/02</span>
+            <div>
+              <h2>Why occupancy history should be measured in seconds, not events</h2>
+              <p class="stand">
+                A car that parks at nine and leaves at five is one event — and
+                eight full hours. Counting events undercounts exactly the cars
+                that matter most, which is why Sightline measures history in
+                seconds, split at every hour boundary.
+              </p>
+            </div>
+            <span class="meta">2026-08-28<br />6 min read</span>
+          </a>
+
+        </div>
+        <p class="frame-caption" data-r>
+          Two essays to start. More when there is something true to say —
+          never on a content calendar.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="section on-tint" aria-labelledby="cta-h">
+      <div class="wrap">
+        <div class="section-head" style="margin-bottom: var(--s-4);">
+          <span class="label" data-r>Beyond the page</span>
+          <h2 class="t-title" id="cta-h" data-r style="--d:.06s">The argument is better in person.</h2>
+        </div>
+        <div class="cta-row">
+          <p class="lede" data-r style="--d:.12s">
+            Everything in these essays runs live on Lot A — a real
+            100-space lot, one camera, five frames a second. Watch the
+            replay, then bring your own feed to a demo call.
+          </p>
+          <div class="btns" data-r style="--d:.18s">
+            <a class="btn btn-accent" href="the-lot.html">See the live lot <span class="arr">→</span></a>
+            <a class="btn btn-line" href="demo.html">Book a demo</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ dark footer ============ -->
+  <footer class="foot" data-theme="dark">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="nav-logo" href="index.html">
+            <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+              <g fill="currentColor" opacity=".32">
+                <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+              </g>
+              <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+            </svg>
+            Sightline
+          </a>
+          <p class="foot-tag">Per-space parking occupancy from the cameras you already own, on your own hardware.</p>
+          <p class="foot-status">status: proving Sightline on one real 100-space lot. more soon.</p>
+          <form data-form novalidate aria-label="Newsletter">
+            <div class="news-mini">
+              <input type="email" placeholder="you@company.com" aria-label="Email address" required />
+              <button class="btn btn-quiet btn-sm" type="submit" style="width:auto;">Subscribe</button>
+            </div>
+          </form>
+          <div class="form-success" style="margin-top:10px;"><span class="mk">ok</span> You're subscribed. Watch your inbox.</div>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="product.html">Product</a></li>
+            <li><a href="technology.html">Technology</a></li>
+            <li><a href="the-lot.html">The Lot</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="compare.html">Compare</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Solutions</h4>
+          <ul>
+            <li><a href="solutions.html#operators">Operators &amp; garages</a></li>
+            <li><a href="solutions.html#campuses">Campuses &amp; venues</a></li>
+            <li><a href="solutions.html#curb">Municipal curb</a></li>
+            <li><a href="demo.html">Book a demo</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About</a></li>
+            <li><a href="insights.html">Writing</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="data-policy.html">Data policy</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-legal">
+        <span>© 2026 Sightline · Monish Munagala · Charlotte, NC</span>
+        <div class="links">
+          <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+            <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+          </button>
+          <a href="data-policy.html">Data policy</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/env.js"></script>
+  <script src="assets/js/main.js?v=7"></script>
+</body>
+</html>

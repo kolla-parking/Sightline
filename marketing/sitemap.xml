@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Locs are root-relative on purpose (no production domain yet):
+     prefix every <loc> with https://<domain> when the site launches.
+     platform.html / live-demo.html / features.html are redirect stubs
+     and are intentionally not listed. login.html is a real page but is
+     noindexed, so it is not listed either. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>/index.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/product.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/technology.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/the-lot.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/data-policy.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/solutions.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/pricing.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/compare.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/insights.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/insight-camera-economics.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/insight-time-weighted-occupancy.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/about.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/demo.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/contact.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/privacy.html</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>/terms.html</loc><lastmod>2026-08-29</lastmod></url>
+</urlset>

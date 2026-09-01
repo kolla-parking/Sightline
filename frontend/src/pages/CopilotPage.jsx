@@ -6,15 +6,15 @@
 import { useStore, useTwinTime } from "../store/useStore.js";
 import { siteById } from "../sim/sites.js";
 import { COPILOT_SUGGESTIONS } from "../sim/copilot.js";
-import { CopilotThread, CopilotInput, useAskCopilot } from "../components/CopilotPanel.jsx";
+import { CopilotThread, CopilotInput, CopilotDigest, useAskCopilot } from "../components/CopilotPanel.jsx";
 import { Pill, Dot } from "../components/ui.jsx";
 import { fmtDateTime } from "../lib/format.js";
 
 /* ---------- suggestion grouping (static — computed once at module load) ---------- */
 
 const GROUP_DEFS = [
-  { label: "Monitor", test: (q) => /how full|occupancy|available|revenue/i.test(q) },
-  { label: "Investigate", test: (q) => /overstay|flag|why|find|plate/i.test(q) },
+  { label: "Monitor", test: (q) => /changed|how full|occupancy|available|revenue|busiest/i.test(q) },
+  { label: "Investigate", test: (q) => /overstay|flag|why|find|plate|history|confidence/i.test(q) },
   { label: "Decide", test: (q) => /fill|forecast|when|compare|report/i.test(q) },
 ];
 
@@ -28,9 +28,9 @@ const HERO_EXAMPLES = GROUPS.map((g) => g.items[0]).filter(Boolean).slice(0, 3);
 
 const CAPABILITIES = [
   "Answers questions over live and historical twin state",
-  "Explains why alerts fired, with the exact trigger conditions",
-  "Compares sites and forecasts when lots will fill",
-  "Drafts operations reports and shift briefs",
+  "Explains flags with evidence: trigger, session, confidence, plate history",
+  "Traces a plate's sessions across every site over the last 48h",
+  "Compares sites, surfaces what changed, forecasts when lots will fill",
 ];
 
 /* ---------- pieces ---------- */
@@ -65,7 +65,7 @@ function EmptyHero({ ask }) {
         <Dot tone="accent" pulse />
       </div>
       <div>
-        <div style={{ fontSize: "var(--fs-4)", fontWeight: 600 }}>Ask the twin anything</div>
+        <div className="display">Ask the twin anything</div>
         <div
           style={{
             marginTop: 6,
@@ -79,6 +79,7 @@ function EmptyHero({ ask }) {
           from the same twin state the map renders, live or in replay.
         </div>
       </div>
+      <CopilotDigest />
       <div className="row" style={{ flexWrap: "wrap", justifyContent: "center", gap: 8, marginTop: 2 }}>
         {HERO_EXAMPLES.map((q) => (
           <button key={q} className="btn" onClick={() => ask(q)}>
@@ -151,7 +152,7 @@ export default function CopilotPage() {
           }}
         >
           <header className="row" style={{ gap: 10, paddingBottom: 14, borderBottom: "1px solid var(--line)" }}>
-            <h1 style={{ fontSize: "var(--fs-4)" }}>Copilot</h1>
+            <h1 className="page-title">Copilot</h1>
             <Pill>deterministic · on-twin data</Pill>
             <div className="spacer" />
             <button
@@ -223,9 +224,10 @@ export default function CopilotPage() {
             {GROUPS.filter((g) => g.items.length).map((g) => (
               <div key={g.label} style={{ display: "grid", gap: 4 }}>
                 <div
+                  className="mono"
                   style={{
                     fontSize: "var(--fs-0)",
-                    fontWeight: 600,
+                    fontWeight: 500,
                     color: "var(--ink-faint)",
                     textTransform: "uppercase",
                     letterSpacing: "0.07em",

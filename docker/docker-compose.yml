@@ -10,6 +10,22 @@ services:
       IOU_THRESHOLD: "0.40"
       CONFIDENCE_THRESHOLD: "0.45"
       SMOOTHING_WINDOW: "5"
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:8090}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
+      ADMIN_NOTIFY_EMAIL: ${ADMIN_NOTIFY_EMAIL:-}
+      ADMIN_SESSION_TTL: ${ADMIN_SESSION_TTL:-43200}
+      MEMBER_SESSION_TTL: ${MEMBER_SESSION_TTL:-604800}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+      SMTP_FROM: ${SMTP_FROM:-Sightline <no-reply@sightline.local>}
+      DEMO_RATE_LIMIT: ${DEMO_RATE_LIMIT:-5}
+      DEMO_RATE_WINDOW: ${DEMO_RATE_WINDOW:-3600}
+      TRUST_PROXY: ${TRUST_PROXY:-true}
     volumes:
       - ../models:/models
     depends_on:

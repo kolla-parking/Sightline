@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sightline | Solutions</title>
+  <meta name="description" content="Where per-space truth changes the job: parking operators and garages, campuses and venues, and municipal curb management — grounded in what Sightline really does." />
+  <!-- Mode must apply before first paint: stored choice, else OS preference -->
+  <script>(function(){try{var t=localStorage.getItem("sl-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.setAttribute("data-theme","dark")}catch(e){}})();</script>
+  <!-- Social cards. Image paths are root-relative on purpose (no production domain yet): swap og:image/twitter:image to absolute https://<domain>/assets/img/preview.jpg URLs at launch — OG scrapers ignore relative paths. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Sightline" />
+  <meta property="og:title" content="Sightline — Solutions" />
+  <meta property="og:description" content="Where per-space truth changes the job: operators and garages, campuses and venues, and municipal curb management." />
+  <meta property="og:image" content="assets/img/preview.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sightline — Solutions" />
+  <meta name="twitter:description" content="Where per-space truth changes the job: operators and garages, campuses and venues, and municipal curb management." />
+  <meta name="twitter:image" content="assets/img/preview.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,500;0,700;1,500&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css?v=6" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FBFCFB'/%3E%3Cg fill='%23151B17' fill-opacity='.35'%3E%3Crect x='5' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1.8'/%3E%3C/g%3E%3Crect x='13' y='13' width='6' height='6' rx='1.8' fill='%2300E676'/%3E%3C/svg%3E" />
+  <!-- Structured data: item URLs are root-relative until the production domain exists — absolutize at launch. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "/index.html" },
+          { "@type": "ListItem", "position": 2, "name": "Solutions", "item": "/solutions.html" }
+        ]
+      },
+      {
+        "@type": "ItemList",
+        "name": "Sightline solutions",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Parking operators and garages", "item": "/solutions.html#operators" },
+          { "@type": "ListItem", "position": 2, "name": "Campuses and venues", "item": "/solutions.html#campuses" },
+          { "@type": "ListItem", "position": 3, "name": "Municipal curb management", "item": "/solutions.html#municipal" }
+        ]
+      }
+    ]
+  }
+  </script>
+  <style>
+    /* ---------- page: solutions ---------- */
+    .hero { padding-bottom: var(--s-5); }
+    .hero .label-mono { margin-bottom: var(--s-3); }
+    .hero h1 { max-width: 14ch; }
+    .hero-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s-4);
+      margin-top: var(--s-3);
+    }
+    .hero-row .lede { max-width: 48ch; }
+    .jump { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    /* vertical bands: narrative left, artifact right */
+    .vert {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: var(--s-6);
+      align-items: start;
+    }
+    .vert h3 { font-size: 1.1875rem; margin-bottom: var(--s-1); }
+    .vert h3 + p { margin-bottom: var(--s-4); color: var(--text-2); max-width: 56ch; }
+    .vert > div > h3:last-of-type + p { margin-bottom: 0; }
+    @media (max-width: 1000px) {
+      .vert { grid-template-columns: 1fr; gap: var(--s-5); }
+    }
+
+    /* lot artifact card (operators) */
+    .lot-artifact img { aspect-ratio: 16/10; object-fit: cover; width: 100%; }
+    .lot-artifact .card-body p { font-size: var(--fs-small); color: var(--text-3); }
+    .lot-artifact .card-bar .num { color: var(--text-2); }
+
+    /* console artifact card (campuses) */
+    .console-artifact img { aspect-ratio: 16/9; object-fit: cover; width: 100%; }
+    .console-artifact .card-body p { font-size: var(--fs-small); color: var(--text-3); }
+    .console-artifact .card-bar .num { color: var(--text-2); }
+
+    /* retained-record artifact card (municipal) — pattern from data-policy.html */
+    .rec-card .card-body { padding: var(--s-3) var(--s-4); }
+    .rec-row {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: var(--s-2);
+      align-items: baseline;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .rec-row:last-child { border-bottom: 0; }
+    .rec-row .f {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      font-weight: 500;
+      color: var(--accent-text);
+    }
+    .rec-row .d { font-size: var(--fs-small); color: var(--text-2); }
+    .rec-row .d .mono { color: var(--text-1); }
+    .rec-foot {
+      padding: 12px var(--s-4);
+      border-top: 1px solid var(--border);
+      background: var(--bg-2);
+      border-radius: 0 0 var(--r-2) var(--r-2);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      color: var(--text-3);
+    }
+
+    /* proof band */
+    .proof-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s-4);
+      margin-bottom: var(--s-5);
+    }
+    .proof-row .lede { max-width: 52ch; }
+
+    /* newsletter (footer) */
+    .news-mini { display: flex; gap: 8px; margin-top: var(--s-2); }
+    .news-mini input {
+      flex: 1; min-width: 0;
+      padding: 10px 12px;
+      border-radius: var(--r-1);
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      color: var(--text-1);
+      outline: 0;
+      font-size: 0.9rem;
+    }
+    .news-mini input:focus { border-color: var(--accent-text); }
+    [data-theme="dark"] .news-mini input { background: var(--fill); }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="nav-logo" href="index.html" aria-label="Sightline home">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <g fill="currentColor" opacity=".32">
+            <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+          </g>
+          <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+        </svg>
+        Sightline
+      </a>
+      <nav aria-label="Primary">
+        <ul class="nav-links">
+          <li><a href="product.html">Product</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="the-lot.html">The Lot</a></li>
+          <li><a href="data-policy.html">Data policy</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-side">
+        <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+          <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+        </button>
+        <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+        <a class="btn btn-accent btn-sm" href="demo.html">Book a demo <span class="arr">→</span></a>
+        <button class="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sheet" aria-label="Mobile">
+    <a href="index.html">Home</a>
+    <a href="product.html">Product</a>
+    <a href="technology.html">Technology</a>
+    <a href="the-lot.html">The Lot</a>
+    <a href="data-policy.html">Data policy</a>
+    <a href="contact.html">Contact</a>
+    <a href="solutions.html">Solutions</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="compare.html">Compare</a>
+    <a href="insights.html">Writing</a>
+    <a href="login.html">Log in</a>
+    <a href="demo.html">Book a demo</a>
+  </nav>
+
+  <main id="main">
+
+    <!-- ============ hero ============ -->
+    <section class="hero hero-pad" aria-labelledby="hero-h">
+      <div class="wrap">
+        <span class="label-mono" data-r>Solutions · three verticals</span>
+        <h1 class="t-hero" id="hero-h" data-r style="--d:.06s">Three operations. One blind spot.</h1>
+        <div class="hero-row">
+          <p class="lede" data-r style="--d:.12s">
+            A garage operator, a campus, and a city curb program all run on
+            the same missing number: which spaces are taken, right now.
+            Sightline answers it with the cameras each of them already owns.
+          </p>
+          <div class="jump" data-r style="--d:.18s">
+            <a class="btn btn-line btn-sm" href="#operators">Operators &amp; garages</a>
+            <a class="btn btn-line btn-sm" href="#campuses">Campuses &amp; venues</a>
+            <a class="btn btn-line btn-sm" href="#municipal">Municipal curb</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 01 · operators ============ -->
+    <section class="section" id="operators" aria-labelledby="op-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>01 · Parking operators &amp; garages</span>
+          <h2 class="t-title" id="op-h" data-r style="--d:.06s">You can count the gate. You can't see the deck.</h2>
+        </div>
+        <div class="vert">
+          <div data-r style="--d:.1s">
+            <h3>The job to be done</h3>
+            <p>
+              Revenue systems tell you how many cars came in. They don't tell
+              you where anyone is. Loop counters drift and give totals, not
+              locations; the difference between nearly full and full is
+              someone walking a level with a clicker. And the peak hours you
+              price and staff against are remembered, not measured.
+            </p>
+            <h3>What per-space truth changes</h3>
+            <p>
+              Sightline turns the CCTV already mounted in your facility into
+              a live, per-space map. The booth sees exactly which stalls are
+              open on which row the moment they change — Lot A resolves all
+              100 of its spaces from a single camera, analyzed at 5 fps, with
+              changes on screen in under a second. And because history is
+              measured in time occupied rather than detections fired, the
+              peak-hour picture behind your rates is the real one.
+            </p>
+          </div>
+          <figure class="card lot-artifact" data-r style="--d:.16s">
+            <div class="card-bar">
+              <span class="label-mono">Lot A · this pass</span>
+              <span class="label-mono num">68 taken · 32 open</span>
+            </div>
+            <img src="assets/img/overlay.jpg" alt="Lot A with every parking space outlined and classified as taken or open" loading="lazy" />
+            <div class="card-body">
+              <p>The booth's view: every stall outlined on the pavement, each with its own live state. A real detection pass — nothing staged.</p>
+            </div>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 02 · campuses ============ -->
+    <section class="section on-tint" id="campuses" aria-labelledby="cam-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>02 · Campuses &amp; venues</span>
+          <h2 class="t-title" id="cam-h" data-r style="--d:.06s">Demand arrives all at once. Your lots don't.</h2>
+        </div>
+        <div class="vert">
+          <div data-r style="--d:.1s">
+            <h3>The job to be done</h3>
+            <p>
+              Class change, shift change, doors at seven — everyone arrives
+              in the same ten minutes. The close lot overflows while the far
+              one sits half empty, drivers circle, and staff direct traffic
+              by radio and habit. The question a campus answers hundreds of
+              times a day — is there parking — is answered with a guess.
+            </p>
+            <h3>What per-space truth changes</h3>
+            <p>
+              The cameras on buildings and poles already overlook most of
+              your lots. Sightline gives each watched lot a live count and a
+              per-space map, and several cameras report into one console, so
+              the whole property reads as a single picture. On an event night
+              you watch lots fill in real time and redirect before the
+              circling starts. Across a semester, the hourly curves show
+              which lots actually fill, and when — so permits, signage, and
+              shuttle routes can follow the data instead of the complaints.
+            </p>
+          </div>
+          <figure class="card console-artifact" data-r style="--d:.16s">
+            <div class="card-bar">
+              <span class="label-mono">The console · Lot A</span>
+              <span class="label-mono num">&lt;1 s to screen</span>
+            </div>
+            <img src="assets/img/dashboard.jpg" alt="The Sightline operator console showing Lot A's live count, per-space map, and occupancy history" loading="lazy" />
+            <div class="card-body">
+              <p>The view a campus watches: live count, per-space map, and measured hourly history. This is the console as it runs on Lot A — every additional watched lot reports into the same view.</p>
+            </div>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 03 · municipal curb ============ -->
+    <section class="section" id="municipal" aria-labelledby="mun-h">
+      <div class="wrap" id="curb">
+        <div class="section-head">
+          <span class="label" data-r>03 · Municipal curb management</span>
+          <h2 class="t-title" id="mun-h" data-r style="--d:.06s">The most contested asphalt in the city is the least measured.</h2>
+        </div>
+        <div class="vert">
+          <div data-r style="--d:.1s">
+            <h3>The job to be done</h3>
+            <p>
+              The curb is split among loading zones, accessible spaces,
+              metered stays, and no-stopping — and what actually happens
+              there is known from occasional clipboard studies and complaint
+              calls. A study covers a few blocks for a few days, costs real
+              money, and goes stale the day the policy it informed takes
+              effect.
+            </p>
+            <h3>What per-space truth changes</h3>
+            <p>
+              A traffic or security camera that already sees a block face is
+              a continuous curb study waiting to be read. Sightline maps each
+              curb space as its own polygon — parallel, angled, or loading,
+              it is geometry either way — and records every occupancy change
+              with a timestamp. Occupancy by hour, by space, continuously,
+              becomes the evidence base for the next policy decision. And it
+              runs on hardware the city controls: the footage never leaves
+              the network, because what leaves the machine is state, not
+              video. The <a href="data-policy.html">data policy</a> is
+              written to be handed to a review board.
+            </p>
+          </div>
+          <div class="card rec-card" data-r style="--d:.16s">
+            <div class="card-bar">
+              <span class="label-mono">The retained record</span>
+              <span class="label-mono">per curb space</span>
+            </div>
+            <div class="card-body">
+              <div class="rec-row">
+                <span class="f">space</span>
+                <p class="d">Which curb space — an ID tied to a polygon drawn to the pavement. Parallel, angled, or loading: geometry either way.</p>
+              </div>
+              <div class="rec-row">
+                <span class="f">state</span>
+                <p class="d"><span class="mono">occupied</span> or <span class="mono">free</span>. One bit. No plate, no person in the record.</p>
+              </div>
+              <div class="rec-row">
+                <span class="f">since</span>
+                <p class="d">The timestamp of the last change — so the curb reads as time occupied, by hour, by space, continuously.</p>
+              </div>
+            </div>
+            <div class="rec-foot">video retained: none · plates read: none</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 04 · proof ============ -->
+    <section class="section on-tint" aria-labelledby="proof-h">
+      <div class="wrap">
+        <div class="proof-row">
+          <div>
+            <span class="label" data-r>A note on proof</span>
+            <h2 class="t-title" id="proof-h" data-r style="--d:.06s; margin-top: var(--s-2); max-width: 18ch;">What you won't find on this page.</h2>
+          </div>
+          <p class="lede" data-r style="--d:.12s">
+            Named customers we don't have. Percentages we made up. A case
+            study wrapped around a stock photo. <strong>Sightline is early,
+            and the proof we offer is live</strong> — these are the only
+            numbers on this page, and every one is real.
+          </p>
+        </div>
+        <div class="stat-strip" data-r style="--d:.16s">
+          <div class="stat-cell"><div class="v">100</div><div class="k">Spaces on Lot A</div></div>
+          <div class="stat-cell"><div class="v">1</div><div class="k">Camera watching them</div></div>
+          <div class="stat-cell"><div class="v">5<span class="u"> fps</span></div><div class="k">Frames analyzed</div></div>
+          <div class="stat-cell"><div class="v">&lt;1<span class="u"> s</span></div><div class="k">Change to console</div></div>
+        </div>
+        <p class="frame-caption" data-r style="--d:.2s">bring your own footage to a demo, and the case study is yours.</p>
+      </div>
+    </section>
+
+    <!-- ============ 05 · CTA ============ -->
+    <section class="section" aria-labelledby="cta-h">
+      <div class="wrap">
+        <span class="label" data-r>Next step</span>
+        <h2 class="t-title" id="cta-h" data-r style="--d:.06s; max-width: 16ch; margin-top: var(--s-2);">Your operation, live on screen.</h2>
+        <div class="hero-row">
+          <p class="lede" data-r style="--d:.12s">
+            Bring a camera feed and thirty minutes. We map your spaces on the
+            call and you watch your own lot, garage, or block face go live.
+          </p>
+          <div class="jump" data-r style="--d:.18s">
+            <a class="btn btn-accent" href="demo.html">Book a demo <span class="arr">→</span></a>
+            <a class="btn btn-line" href="the-lot.html">See the live lot</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ dark footer ============ -->
+  <footer class="foot" data-theme="dark">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="nav-logo" href="index.html">
+            <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+              <g fill="currentColor" opacity=".32">
+                <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+              </g>
+              <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+            </svg>
+            Sightline
+          </a>
+          <p class="foot-tag">Per-space parking occupancy from the cameras you already own, on your own hardware.</p>
+          <p class="foot-status">status: proving Sightline on one real 100-space lot. more soon.</p>
+          <form data-form novalidate aria-label="Newsletter">
+            <div class="news-mini">
+              <input type="email" placeholder="you@company.com" aria-label="Email address" required />
+              <button class="btn btn-quiet btn-sm" type="submit" style="width:auto;">Subscribe</button>
+            </div>
+          </form>
+          <div class="form-success" style="margin-top:10px;"><span class="mk">ok</span> You're subscribed. Watch your inbox.</div>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="product.html">Product</a></li>
+            <li><a href="technology.html">Technology</a></li>
+            <li><a href="the-lot.html">The Lot</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="compare.html">Compare</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Solutions</h4>
+          <ul>
+            <li><a href="solutions.html#operators">Operators &amp; garages</a></li>
+            <li><a href="solutions.html#campuses">Campuses &amp; venues</a></li>
+            <li><a href="solutions.html#curb">Municipal curb</a></li>
+            <li><a href="demo.html">Book a demo</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About</a></li>
+            <li><a href="insights.html">Writing</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="data-policy.html">Data policy</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-legal">
+        <span>© 2026 Sightline · Monish Munagala · Charlotte, NC</span>
+        <div class="links">
+          <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+            <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+          </button>
+          <a href="data-policy.html">Data policy</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/env.js"></script>
+  <script src="assets/js/main.js?v=7"></script>
+</body>
+</html>

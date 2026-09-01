@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sightline | Why occupancy history should be measured in seconds, not events</title>
+  <meta name="description" content="Event-counted parking history undercounts exactly the cars that matter most. Sightline splits every occupancy interval at the hour boundary and sums the seconds — here is why that is the honest way to measure a lot." />
+  <!-- Mode must apply before first paint: stored choice, else OS preference -->
+  <script>(function(){try{var t=localStorage.getItem("sl-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.setAttribute("data-theme","dark")}catch(e){}})();</script>
+  <!-- Social cards. Image paths are root-relative on purpose (no production domain yet): swap og:image/twitter:image to absolute https://<domain>/assets/img/dashboard.jpg URLs at launch — OG scrapers ignore relative paths. -->
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Sightline" />
+  <meta property="og:title" content="Why occupancy history should be measured in seconds, not events" />
+  <meta property="og:description" content="Event-counted parking history undercounts exactly the cars that matter most. Sightline splits every occupancy interval at the hour boundary and sums the seconds." />
+  <meta property="og:image" content="assets/img/dashboard.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Why occupancy history should be measured in seconds, not events" />
+  <meta name="twitter:description" content="Event-counted parking history undercounts exactly the cars that matter most. Sightline splits every occupancy interval at the hour boundary and sums the seconds." />
+  <meta name="twitter:image" content="assets/img/dashboard.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,500;0,700;1,500&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css?v=6" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FBFCFB'/%3E%3Cg fill='%23151B17' fill-opacity='.35'%3E%3Crect x='5' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1.8'/%3E%3C/g%3E%3Crect x='13' y='13' width='6' height='6' rx='1.8' fill='%2300E676'/%3E%3C/svg%3E" />
+  <!-- Structured data: item URLs are root-relative until the production domain exists — absolutize at launch. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "headline": "Why occupancy history should be measured in seconds, not events",
+        "description": "Event-counted parking history undercounts exactly the cars that matter most. Sightline splits every occupancy interval at the hour boundary and sums the seconds — the honest way to measure a lot.",
+        "author": { "@type": "Person", "name": "Monish Munagala" },
+        "publisher": { "@type": "Organization", "name": "Sightline" },
+        "datePublished": "2026-08-28",
+        "image": "assets/img/dashboard.jpg",
+        "mainEntityOfPage": "/insight-time-weighted-occupancy.html"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "/index.html" },
+          { "@type": "ListItem", "position": 2, "name": "Writing", "item": "/insights.html" },
+          { "@type": "ListItem", "position": 3, "name": "Why occupancy history should be measured in seconds, not events", "item": "/insight-time-weighted-occupancy.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+  <style>
+    /* ---------- page: essay ---------- */
+    .essay-head { padding: calc(var(--nav-h) + var(--s-6)) 0 0; }
+    .essay-head .crumb { color: var(--text-3); transition: color 0.2s; }
+    .essay-head .crumb:hover { color: var(--text-1); }
+    .essay-head h1 {
+      font-size: clamp(2rem, 4.2vw, 3.25rem);
+      max-width: 24ch;
+      margin-top: var(--s-3);
+    }
+    .essay-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px var(--s-4);
+      margin-top: var(--s-4);
+      padding: 14px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      font-variant-numeric: tabular-nums;
+      color: var(--text-3);
+    }
+    .essay-meta .by { color: var(--text-2); }
+
+    /* reading column */
+    .essay {
+      max-width: 68ch;
+      margin: var(--s-6) auto 0;
+      line-height: 1.75;
+    }
+    .essay p { color: var(--text-2); margin-bottom: 1.6em; text-wrap: pretty; }
+    .essay h2 {
+      /* sub-28px heading: Public Sans 600 per the ramp — Schibsted display
+         is reserved for >=28px per BRAND.md */
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 1.5rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+      margin: 2.4em 0 0.9em;
+      padding-top: 1.3em;
+      border-top: 1px solid var(--border);
+    }
+    .essay h2 .sx {
+      display: block;
+      margin-bottom: 8px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--accent-text);
+    }
+
+    /* quiet pull quote */
+    .pull {
+      margin: 2.2em 0;
+      padding: 6px 0 6px var(--s-3);
+      border-left: 2px solid var(--border-3);
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(1.25rem, 2.1vw, 1.5rem);
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+      color: var(--text-1);
+      text-wrap: balance;
+    }
+
+    /* figure re-set as a hairline ledger, mono numbers */
+    .fig { margin: 2.4em 0; }
+    .fig .fighead {
+      padding: 0 var(--s-2) 10px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-label);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+    .fig-row {
+      display: grid;
+      grid-template-columns: minmax(110px, 160px) 1fr auto;
+      gap: var(--s-2) var(--s-3);
+      align-items: center;
+      padding: 12px var(--s-2);
+      border-top: 1px solid var(--border);
+    }
+    .fig-row .k {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      font-variant-numeric: tabular-nums;
+      color: var(--text-2);
+    }
+    .fig-row .bar { height: 8px; border-radius: 4px; background: var(--fill); overflow: hidden; }
+    .fig-row .bar i { display: block; height: 100%; background: var(--border-3); }
+    .fig-row .n {
+      font-family: var(--font-mono);
+      font-weight: 500;
+      font-size: 1.05rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-1);
+      white-space: nowrap;
+      text-align: right;
+    }
+    .fig-row .n .u { color: var(--text-3); font-size: 0.75em; }
+    .fig-row.faint .k, .fig-row.faint .n { color: var(--text-3); }
+    .fig-row.total .k { color: var(--text-1); font-weight: 500; }
+    .fig .figcap {
+      padding: 10px var(--s-2) 0;
+      border-top: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      color: var(--text-3);
+    }
+    @media (max-width: 640px) {
+      .fig-row { grid-template-columns: 1fr auto; }
+      .fig-row .bar { grid-column: 1 / -1; }
+    }
+
+    /* read next: a single hairline row */
+    .next-wrap { max-width: 68ch; margin: var(--s-6) auto 0; }
+    .next-wrap .label { margin-bottom: var(--s-2); }
+    a.next-row {
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      gap: var(--s-3);
+      align-items: baseline;
+      padding: var(--s-3) 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .next-row .ix { font-family: var(--font-mono); font-size: var(--fs-mono); color: var(--accent-text); }
+    .next-row .t {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 1.2rem;
+      line-height: 1.25;
+      color: var(--text-1);
+      transition: color 0.2s;
+    }
+    .next-row .arr { font-family: var(--font-mono); color: var(--text-3); transition: translate 0.25s var(--ease); }
+    a.next-row:hover .t { color: var(--accent-text); }
+    a.next-row:hover .arr { translate: 3px 0; }
+    @media (max-width: 640px) { a.next-row { grid-template-columns: 44px 1fr auto; } }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s-4);
+    }
+    .cta-row .lede { max-width: 46ch; }
+    .cta-row .btns { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    /* newsletter (footer) */
+    .news-mini { display: flex; gap: 8px; margin-top: var(--s-2); }
+    .news-mini input {
+      flex: 1; min-width: 0;
+      padding: 10px 12px;
+      border-radius: var(--r-1);
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      color: var(--text-1);
+      outline: 0;
+      font-size: 0.9rem;
+    }
+    .news-mini input:focus { border-color: var(--accent-text); }
+    [data-theme="dark"] .news-mini input { background: var(--fill); }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="nav-logo" href="index.html" aria-label="Sightline home">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <g fill="currentColor" opacity=".32">
+            <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+          </g>
+          <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+        </svg>
+        Sightline
+      </a>
+      <nav aria-label="Primary">
+        <ul class="nav-links">
+          <li><a href="product.html">Product</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="the-lot.html">The Lot</a></li>
+          <li><a href="data-policy.html">Data policy</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-side">
+        <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+          <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+        </button>
+        <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+        <a class="btn btn-accent btn-sm" href="demo.html">Book a demo <span class="arr">→</span></a>
+        <button class="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sheet" aria-label="Mobile">
+    <a href="index.html">Home</a>
+    <a href="product.html">Product</a>
+    <a href="technology.html">Technology</a>
+    <a href="the-lot.html">The Lot</a>
+    <a href="data-policy.html">Data policy</a>
+    <a href="contact.html">Contact</a>
+    <a href="solutions.html">Solutions</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="compare.html">Compare</a>
+    <a href="insights.html">Writing</a>
+    <a href="login.html">Log in</a>
+    <a href="demo.html">Book a demo</a>
+  </nav>
+
+  <main id="main">
+
+    <article>
+
+      <!-- ============ essay head ============ -->
+      <header class="essay-head">
+        <div class="wrap-narrow">
+          <span class="label-mono" data-r><a class="crumb" href="insights.html">Writing</a> · analytics</span>
+          <h1 data-r style="--d:.06s">Why occupancy history should be measured in seconds, not events</h1>
+          <div class="essay-meta" data-r style="--d:.12s">
+            <span class="by">Monish Munagala</span>
+            <span>2026-08-28</span>
+            <span>6 min read</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ============ essay body ============ -->
+      <div class="wrap">
+        <div class="essay">
+          <p>
+            At nine in the morning, a commuter pulls into your lot, parks, and
+            walks away. At five in the evening she comes back and leaves. In
+            most parking analytics, that car is one event — a single tick in
+            the morning column of a bar chart. Meanwhile, a space near the
+            entrance turns over eight times in the same day: eight events,
+            eight ticks, eight times the apparent activity. Yet it is the
+            commuter who held a piece of your asset for eight solid hours.
+          </p>
+          <p>
+            Count events, and the car that used your lot the most becomes
+            nearly invisible. That inversion sits quietly under a lot of
+            parking dashboards, and it is worth pulling into the light.
+          </p>
+
+          <h2><span class="sx">/01</span>What event counting actually measures</h2>
+          <p>
+            An event-counted history answers the question <em>how often did
+            things change?</em> — which is a measure of churn, not of
+            fullness. A lot that fills at 8 a.m. and stays full until 6 p.m.
+            produces almost no events all day; on a chart of state changes it
+            looks dead precisely while it is straining at capacity. A
+            half-empty lot with restless short-stay traffic produces events
+            constantly and looks busy while seats sit open.
+          </p>
+          <p>
+            But the questions an operator actually asks are questions about
+            time. <em>How full were we at 2 p.m.? Which hour is our real
+            peak? Do we have room to sell more monthly permits?</em> None of
+            these are answered by counting changes. They are answered by
+            knowing, for every second of the day, how many spaces were
+            occupied.
+          </p>
+
+          <blockquote class="pull">
+            "How full were we at 2 p.m.?" is a question about time.
+            Answering it with a count of events is answering a different
+            question.
+          </blockquote>
+
+          <h2><span class="sx">/02</span>The honest unit is the space-second</h2>
+          <p>
+            A parking lot's capacity is not really a number of spaces — it is
+            spaces multiplied by time. A 100-space lot offers 360,000
+            space-seconds every hour. Occupancy for that hour is simply the
+            occupied seconds divided by the total: fill 68 spaces for the
+            whole hour and you used 244,800 of them, 68 percent, whether one
+            car sat all hour or twelve took turns. The unit absorbs churn and
+            dwell alike, which is exactly what a truthful average must do.
+          </p>
+          <p>
+            Picture two lots side by side. In the first, a hundred commuters
+            arrive before nine and stay past five: two events per space per
+            day, and a lot that runs effectively full for eight hours. In the
+            second, short-stay visitors come and go all day, and the lot
+            never climbs past half full. Counted in events, the second lot
+            looks several times busier than the first. Counted in
+            space-seconds, the ranking flips — and it is the second ranking
+            that matches what the owner's revenue, the attendants'
+            experience, and the drivers circling for a spot all already know.
+          </p>
+
+          <h2><span class="sx">/03</span>How Sightline computes it</h2>
+          <p>
+            Sightline watches every space <a href="technology.html">as its own
+            polygon</a>, so each space's day is a clean series of intervals:
+            occupied from 8:40 to 11:15, open until 11:32, occupied again
+            until 2:06. To build hourly history, the system splits each
+            interval wherever it crosses an hour boundary and sums the seconds
+            that land in each bucket. The 8:40-to-11:15 car contributes 1,200
+            seconds to the eight o'clock hour, 3,600 to nine, 3,600 to ten,
+            and 900 to eleven. Nothing is rounded to the nearest event, and
+            nothing is lost when a car outlasts the chart's resolution.
+          </p>
+
+          <figure class="fig" data-r>
+            <div role="img" aria-label="One parked car from 8:40 to 11:15: event counting records a single tick, while interval splitting credits the 8 o'clock hour with 1,200 seconds, 9 and 10 with 3,600 each, and 11 with 900 — 9,300 seconds in total">
+              <div class="fighead">One car · 08:40 – 11:15 · one space</div>
+              <div class="fig-row faint">
+                <span class="k">as events</span>
+                <span class="bar" aria-hidden="true"><i style="width:1%"></i></span>
+                <span class="n">1 <span class="u">tick · 08:40</span></span>
+              </div>
+              <div class="fig-row">
+                <span class="k">08:00 hour</span>
+                <span class="bar" aria-hidden="true"><i style="width:33%"></i></span>
+                <span class="n">1,200 <span class="u">s</span></span>
+              </div>
+              <div class="fig-row">
+                <span class="k">09:00 hour</span>
+                <span class="bar" aria-hidden="true"><i style="width:100%"></i></span>
+                <span class="n">3,600 <span class="u">s</span></span>
+              </div>
+              <div class="fig-row">
+                <span class="k">10:00 hour</span>
+                <span class="bar" aria-hidden="true"><i style="width:100%"></i></span>
+                <span class="n">3,600 <span class="u">s</span></span>
+              </div>
+              <div class="fig-row">
+                <span class="k">11:00 hour</span>
+                <span class="bar" aria-hidden="true"><i style="width:25%"></i></span>
+                <span class="n">900 <span class="u">s</span></span>
+              </div>
+              <div class="fig-row total">
+                <span class="k">total</span>
+                <span class="bar" aria-hidden="true"><i style="width:0%"></i></span>
+                <span class="n">9,300 <span class="u">s</span></span>
+              </div>
+            </div>
+            <figcaption class="figcap">Event counting records a single tick at 08:40; interval splitting credits each hour with exactly the seconds it held the car.</figcaption>
+          </figure>
+
+          <p>
+            The boundary split is the detail that keeps hourly bars honest.
+            Without it, a stay that straddles an hour line has to be filed
+            somewhere whole — usually under the hour where it started or the
+            hour where it ended — and whichever hour "wins" gets credit for
+            time it never contained. A ninety-minute stay across noon is not
+            a lunchtime event; it is thirty minutes of the eleven o'clock
+            hour and sixty of the twelve. Splitting at the boundary gives
+            each hour exactly its own seconds, no more and no less, so the
+            bars still sum correctly when you roll them up into days.
+          </p>
+          <p>
+            This is not a simplified description — it is genuinely how the
+            product works. Occupancy history in the console is the sum of
+            per-space state intervals, split at hour boundaries, expressed as
+            a share of the hour's total space-seconds. When the chart says the
+            ten o'clock hour ran at 68 percent, it means 68 percent of the
+            available space-time was actually consumed, not that 68 changes
+            happened to be observed.
+          </p>
+
+          <h2><span class="sx">/04</span>Good intervals need good edges</h2>
+          <p>
+            A time-weighted average is only as honest as the intervals
+            beneath it, which puts real pressure on detection. Sightline
+            analyzes the camera feed continuously, five frames every second,
+            and a space changes state only after several consecutive frames
+            agree — so a car driving past, or a shadow crossing the pavement,
+            never opens a phantom interval. Systems that sample on an
+            interval face a harder problem: between one snapshot and the
+            next, the seconds are unrecorded and can only be assumed. Reading
+            the lot continuously means each interval's edges are accurate to
+            well under a second, and the hourly sums inherit that accuracy.
+          </p>
+
+          <h2><span class="sx">/05</span>What changes when you measure time</h2>
+          <p>
+            The first thing operators notice in honest hourly history is that
+            their peak-churn hour and their peak-occupancy hour are usually
+            not the same hour. Turnover peaks when short visits stack up;
+            fullness peaks when long stays overlap. Staffing, enforcement
+            windows, and permit decisions each key off a different one of
+            those, and an event-counted chart quietly hands you the wrong
+            peak for two of the three. Time-weighted history separates them
+            cleanly — and because it comes with the same
+            <a href="pricing.html">flat software pricing</a> as the live
+            counts, it is not an analytics upsell; it is just how the history
+            is computed.
+          </p>
+          <p>
+            Measured in events, a parking lot is a story about its most
+            restless cars. Measured in seconds, it is a story about the asset
+            itself — every space, every hour, credited with exactly the time
+            it held. If you want to see the difference on a real feed, the
+            fastest way is a <a href="demo.html">thirty-minute demo</a> with
+            your own camera pointed at your own lot.
+          </p>
+        </div>
+
+        <!-- ============ read next ============ -->
+        <div class="next-wrap" data-r>
+          <span class="label">Read next</span>
+          <a class="next-row" href="insight-camera-economics.html">
+            <span class="ix">/01</span>
+            <span class="t">The economics of counting parking with cameras you already own</span>
+            <span class="arr">→</span>
+          </a>
+        </div>
+      </div>
+
+    </article>
+
+    <!-- ============ CTA ============ -->
+    <section class="section on-tint" style="margin-top: var(--s-7);" aria-labelledby="cta-h">
+      <div class="wrap">
+        <div class="section-head" style="margin-bottom: var(--s-4);">
+          <span class="label" data-r>Next step</span>
+          <h2 class="t-title" id="cta-h" data-r style="--d:.06s">See your lot in honest hours.</h2>
+        </div>
+        <div class="cta-row">
+          <p class="lede" data-r style="--d:.12s">
+            Bring a camera feed and thirty minutes. We'll map your spaces on
+            the call, and the history starts counting seconds from that
+            moment.
+          </p>
+          <div class="btns" data-r style="--d:.18s">
+            <a class="btn btn-accent" href="demo.html">Book a demo <span class="arr">→</span></a>
+            <a class="btn btn-line" href="the-lot.html">See the live lot</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ dark footer ============ -->
+  <footer class="foot" data-theme="dark">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="nav-logo" href="index.html">
+            <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+              <g fill="currentColor" opacity=".32">
+                <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+              </g>
+              <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+            </svg>
+            Sightline
+          </a>
+          <p class="foot-tag">Per-space parking occupancy from the cameras you already own, on your own hardware.</p>
+          <p class="foot-status">status: proving Sightline on one real 100-space lot. more soon.</p>
+          <form data-form novalidate aria-label="Newsletter">
+            <div class="news-mini">
+              <input type="email" placeholder="you@company.com" aria-label="Email address" required />
+              <button class="btn btn-quiet btn-sm" type="submit" style="width:auto;">Subscribe</button>
+            </div>
+          </form>
+          <div class="form-success" style="margin-top:10px;"><span class="mk">ok</span> You're subscribed. Watch your inbox.</div>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="product.html">Product</a></li>
+            <li><a href="technology.html">Technology</a></li>
+            <li><a href="the-lot.html">The Lot</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="compare.html">Compare</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Solutions</h4>
+          <ul>
+            <li><a href="solutions.html#operators">Operators &amp; garages</a></li>
+            <li><a href="solutions.html#campuses">Campuses &amp; venues</a></li>
+            <li><a href="solutions.html#curb">Municipal curb</a></li>
+            <li><a href="demo.html">Book a demo</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About</a></li>
+            <li><a href="insights.html">Writing</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="data-policy.html">Data policy</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-legal">
+        <span>© 2026 Sightline · Monish Munagala · Charlotte, NC</span>
+        <div class="links">
+          <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+            <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+          </button>
+          <a href="data-policy.html">Data policy</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/env.js"></script>
+  <script src="assets/js/main.js?v=7"></script>
+</body>
+</html>

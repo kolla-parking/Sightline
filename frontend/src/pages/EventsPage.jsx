@@ -4,7 +4,7 @@
 // Right: predicted issues + camera health. Drawers (event detail with
 // session timeline, camera live view) render at page level from store.drawer.
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore, useTwinTime, scopedSites } from "../store/useStore.js";
 import {
@@ -17,8 +17,9 @@ import {
   MIN,
 } from "../sim/engine.js";
 import { siteById } from "../sim/sites.js";
-import { Pill, Dot, EmptyState, Segmented, Drawer, SEV_TONE } from "../components/ui.jsx";
+import { Pill, Dot, EmptyState, Segmented, Drawer, Kbd, PlateButton, SEV_TONE } from "../components/ui.jsx";
 import { fmtClock, fmtAgo, fmtDuration, fmtDateTime, fmtPct } from "../lib/format.js";
+import { alertVerb, alertNoun } from "../lib/alarms.js";
 import { mjpegUrl } from "../lib/api.js";
 
 /* ================= constants ================= */
@@ -218,7 +219,7 @@ function EventDrawer({ event, ts, onClose, onCreateCase, onViewTwin }) {
               >
                 Session
               </div>
-              <DetailRow label="Plate" value={s.plate} num />
+              <DetailRow label="Plate" value={<PlateButton plate={s.plate} />} num />
               <DetailRow label="Vehicle" value={s.vehicleClass} />
               <DetailRow label="Confidence" value={fmtPct(s.confidence * 100)} num />
               <DetailRow label="Arrived" value={fmtClock(s.start)} num />
@@ -245,7 +246,7 @@ function EventDrawer({ event, ts, onClose, onCreateCase, onViewTwin }) {
             <DetailRow label="Site" value={site?.name || event.siteId} />
             {event.cameraName && <DetailRow label="Camera" value={event.cameraName} />}
             {event.spaceLabel && <DetailRow label="Space" value={event.spaceLabel} num />}
-            {event.plate && <DetailRow label="Plate" value={event.plate} num />}
+            {event.plate && <DetailRow label="Plate" value={<PlateButton plate={event.plate} />} num />}
             {event.durationMs != null && (
               <DetailRow label="Duration" value={fmtDuration(event.durationMs)} num />
             )}
@@ -281,20 +282,19 @@ function CameraDrawer({ drawer, ts, backendUp, realSummary, onClose }) {
               hint="The MJPEG stream could not be loaded from the backend."
             />
           ) : (
-            <img
-              src={mjpegUrl("cam1")}
-              alt="cam1 live stream"
-              onError={() => setStreamError(true)}
-              style={{
-                width: "100%",
-                maxWidth: "100%",
-                display: "block",
-                borderRadius: "var(--r-3)",
-                border: "1px solid var(--line)",
-                background: "var(--bg-sunken)",
-                minHeight: 120,
-              }}
-            />
+            <div className="evidence">
+              <img
+                src={mjpegUrl("cam1")}
+                alt="cam1 live stream"
+                onError={() => setStreamError(true)}
+                style={{ minHeight: 120 }}
+              />
+              <div className="evidence-meta">
+                <span>CAM1</span>
+                <span className="spacer" />
+                <span>{site?.name || "Sample Lot 1"}</span>
+              </div>
+            </div>
           )}
           <div className="row" style={{ gap: 8 }}>
             <Dot tone={realOnline ? "ok" : "danger"} pulse={realOnline} />
@@ -328,7 +328,9 @@ function CameraDrawer({ drawer, ts, backendUp, realSummary, onClose }) {
 export default function EventsPage() {
   const ts = useTwinTime();
   const scope = useStore((s) => s.scope);
-  const sites = useStore(scopedSites);
+  // scopedSites returns a fresh array for site scopes — as a zustand selector
+  // that is an unstable snapshot (infinite re-render); derive it instead.
+  const sites = useMemo(() => scopedSites({ scope }), [scope]);
   const realSummary = useStore((s) => s.realSummary);
   const backendUp = useStore((s) => s.backendUp);
   const ackAlerts = useStore((s) => s.ackAlerts);
@@ -347,6 +349,16 @@ export default function EventsPage() {
   const [hoverAlert, setHoverAlert] = useState(null);
   const [hoverPred, setHoverPred] = useState(null);
   const [hoverCam, setHoverCam] = useState(null);
+
+  /* ---- alert triage keyboard: j/k focus, a ack, Enter open ---- */
+  const [focusIdx, setFocusIdx] = useState(-1);
+  const focusIdxRef = useRef(-1);
+  const focusRowRef = useRef(null);
+  const groupsRef = useRef([]);
+  const setFocus = (i) => {
+    focusIdxRef.current = i;
+    setFocusIdx(i);
+  };
 
   const singleSite = sites.length === 1 ? sites[0] : null;
   const siteKey = sites.map((s) => s.id).join("|");
@@ -368,6 +380,31 @@ export default function EventsPage() {
   );
   const dangerCount = visibleAlerts.filter((a) => a.sev === "danger").length;
   const warnCount = visibleAlerts.filter((a) => a.sev === "warn").length;
+
+  /* ---- alarm doctrine: roll up repeats (site × kind), rank by tier ---- */
+  const SEV_RANK = { danger: 0, warn: 1, info: 2 };
+  const alertGroups = useMemo(() => {
+    const map = new Map();
+    for (const a of visibleAlerts) {
+      const key = `${a.siteId}:${a.kind}`;
+      const g = map.get(key);
+      if (!g) {
+        map.set(key, { key, alerts: [a], top: a });
+      } else {
+        g.alerts.push(a);
+        const better =
+          (SEV_RANK[a.sev] ?? 3) < (SEV_RANK[g.top.sev] ?? 3) ||
+          ((SEV_RANK[a.sev] ?? 3) === (SEV_RANK[g.top.sev] ?? 3) && a.since > g.top.since);
+        if (better) g.top = a;
+      }
+    }
+    return [...map.values()].sort(
+      (x, y) =>
+        (SEV_RANK[x.top.sev] ?? 3) - (SEV_RANK[y.top.sev] ?? 3) ||
+        y.top.since - x.top.since,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visibleAlerts]);
 
   /* ---- event stream: last 6h, bucketed by minute ---- */
   const evTo = Math.floor(ts / MIN) * MIN;
@@ -429,11 +466,6 @@ export default function EventsPage() {
 
   /* ---- actions ---- */
 
-  const handleAck = (a) => {
-    ackAlert(a.id);
-    addToast("Alert acknowledged");
-  };
-
   const handleAlertCase = (a) => {
     createCase({
       plate: a.plate,
@@ -466,6 +498,80 @@ export default function EventsPage() {
     navigate("/twin");
   };
 
+  // Enter on a focused alert opens the related entity: vehicle drawer for a
+  // plate, twin locate for a space, camera drawer for a camera, site twin
+  // otherwise. Ref-mirrored so the window listener stays dependency-free.
+  const openEntity = (a) => {
+    const store = useStore.getState();
+    if (a.plate) {
+      store.selectPlate?.(a.plate);
+    } else if (a.spaceId) {
+      setScope(a.siteId);
+      store.selectSpace(a.spaceId);
+      navigate("/twin");
+    } else if (a.cameraId) {
+      // Resolve `real` from the site model — camera_offline alerts fire for
+      // the REAL camera too, and hardcoding false would render its drawer in
+      // simulated mode with fabricated sim health.
+      const real = !!siteById[a.siteId]?.cameras.find((c) => c.id === a.cameraId)?.real;
+      openDrawer({ type: "camera", cameraId: a.cameraId, siteId: a.siteId, name: a.cameraName, real });
+    } else if (a.siteId) {
+      setScope(a.siteId);
+      navigate("/twin");
+    }
+  };
+  const openEntityRef = useRef(openEntity);
+  openEntityRef.current = openEntity;
+
+  useEffect(() => {
+    groupsRef.current = alertGroups;
+    if (focusIdxRef.current >= alertGroups.length) setFocus(alertGroups.length - 1);
+  }, [alertGroups]);
+
+  useEffect(() => {
+    focusRowRef.current?.scrollIntoView({ block: "nearest" });
+  }, [focusIdx]);
+
+  useEffect(() => {
+    const gTs = { current: 0 };
+    const onKey = (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const tag = document.activeElement?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      const store = useStore.getState();
+      // keep hands off while an overlay is up
+      if (store.paletteOpen || store.drawer || store.selectedPlate) return;
+      if (e.key === "g") {
+        // the shell's g-chord (g a → Analytics, …) starts here — remember it
+        gTs.current = Date.now();
+        return;
+      }
+      const groups = groupsRef.current;
+      if (e.key === "j" || e.key === "k") {
+        if (!groups.length) return;
+        e.preventDefault();
+        const i = focusIdxRef.current;
+        setFocus(e.key === "j" ? Math.min(i + 1, groups.length - 1) : Math.max(i - 1, 0));
+        return;
+      }
+      if (e.key === "a") {
+        if (Date.now() - gTs.current < 900) return; // don't fight g-a
+        const g = groups[focusIdxRef.current];
+        if (!g) return;
+        g.alerts.forEach((x) => store.ackAlert(x.id));
+        store.addToast(g.alerts.length > 1 ? `${g.alerts.length} alerts acknowledged` : "Alert acknowledged");
+        return;
+      }
+      if (e.key === "Enter") {
+        if (tag === "BUTTON") return; // a focused button keeps its Enter
+        const g = groups[focusIdxRef.current];
+        if (g) openEntityRef.current(g.top);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const shownEvents = filteredEvents.slice(0, EVENT_RENDER_CAP);
   const showSiteCol = !singleSite;
 
@@ -488,43 +594,74 @@ export default function EventsPage() {
             {dangerCount > 0 && <Pill tone="danger">{dangerCount} critical</Pill>}
             {warnCount > 0 && <Pill tone="warn">{warnCount} warning</Pill>}
             <div className="spacer" />
+            <span
+              className="row"
+              aria-hidden="true"
+              style={{ gap: 4, fontSize: "var(--fs-0)", color: "var(--ink-faint)", whiteSpace: "nowrap" }}
+            >
+              <Kbd>j</Kbd>
+              <Kbd>k</Kbd> move <Kbd>a</Kbd> ack <Kbd>↵</Kbd> open
+            </span>
             <span className="num" style={{ fontSize: "var(--fs-0)", color: "var(--ink-muted)" }}>
               {visibleAlerts.length}
             </span>
           </header>
           <div className="panel-body flush">
-            {visibleAlerts.length === 0 ? (
+            {alertGroups.length === 0 ? (
               <EmptyState title="All clear" hint="No active alerts across scoped sites." />
             ) : (
-              <ul className="scroll" style={{ maxHeight: 320 }}>
-                {visibleAlerts.map((a) => {
-                  const hovered = hoverAlert === a.id;
+              <ul className="scroll" style={{ maxHeight: 340 }}>
+                {alertGroups.map((g, gi) => {
+                  const a = g.top;
+                  const n = g.alerts.length;
+                  const hovered = hoverAlert === g.key;
+                  const focused = gi === focusIdx;
+                  const critical = a.sev === "danger";
                   return (
                     <li
-                      key={a.id}
-                      onMouseEnter={() => setHoverAlert(a.id)}
+                      key={g.key}
+                      ref={focused ? focusRowRef : undefined}
+                      onMouseEnter={() => setHoverAlert(g.key)}
                       onMouseLeave={() => setHoverAlert(null)}
-                      onFocus={() => setHoverAlert(a.id)}
+                      onFocus={() => setHoverAlert(g.key)}
                       onBlur={() => setHoverAlert(null)}
                       style={{
                         display: "flex",
                         alignItems: "center",
                         gap: 10,
-                        padding: "8px 14px",
-                        borderBottom: "1px solid var(--line)",
-                        background: hovered ? "var(--surface-2)" : "transparent",
+                        padding: critical ? "11px 14px" : "9px 14px",
+                        borderBottom: "1px solid var(--border)",
+                        background: hovered || focused ? "var(--bg-2)" : "transparent",
+                        boxShadow: focused ? "inset 2px 0 0 var(--focus)" : "none",
                         transition: "background var(--t-fast)",
                       }}
                     >
-                      <Dot tone={SEV_TONE[a.sev]} />
+                      <Pill tone={SEV_TONE[a.sev]}>{critical ? "CRIT" : a.sev === "warn" ? "WARN" : "INFO"}</Pill>
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div className="row" style={{ gap: 8 }}>
-                          <span style={{ fontSize: "var(--fs-1)", fontWeight: 600 }}>
-                            {kindLabel(a.kind)}
+                          <span
+                            style={{
+                              fontSize: critical ? "var(--fs-2)" : "var(--fs-1)",
+                              fontWeight: 600,
+                            }}
+                          >
+                            {alertVerb(a.kind)}
                           </span>
                           <span style={{ fontSize: "var(--fs-0)", color: "var(--ink-muted)" }}>
-                            {siteById[a.siteId]?.name}
+                            {alertNoun(a.kind)} · {siteById[a.siteId]?.name}
                           </span>
+                          {a.plate && (
+                            <PlateButton plate={a.plate} style={{ fontSize: "var(--fs-0)" }} />
+                          )}
+                          {n > 1 && (
+                            <span
+                              className="num"
+                              title={`${n} active alerts of this kind at this site`}
+                              style={{ fontSize: "var(--fs-0)", color: "var(--ink-mid)", fontWeight: 600 }}
+                            >
+                              ×{n}
+                            </span>
+                          )}
                         </div>
                         <div
                           className="truncate"
@@ -542,20 +679,27 @@ export default function EventsPage() {
                           flexShrink: 0,
                         }}
                       >
-                        {fmtAgo(a.since, ts)}
+                        {n > 1 ? `latest ${fmtAgo(g.alerts.reduce((m, x) => Math.max(m, x.since), 0), ts)}` : fmtAgo(a.since, ts)}
                       </span>
                       <div
                         className="row"
                         style={{
                           gap: 6,
                           flexShrink: 0,
-                          opacity: hovered ? 1 : 0,
-                          pointerEvents: hovered ? "auto" : "none",
+                          opacity: hovered || focused ? 1 : 0,
+                          pointerEvents: hovered || focused ? "auto" : "none",
                           transition: "opacity var(--t-fast)",
                         }}
                       >
-                        <button className="btn sm" onClick={() => handleAck(a)}>
-                          Ack
+                        <button
+                          className="btn sm"
+                          title={n > 1 ? `Acknowledge all ${n}` : "Acknowledge"}
+                          onClick={() => {
+                            g.alerts.forEach((x) => ackAlert(x.id));
+                            addToast(n > 1 ? `${n} alerts acknowledged` : "Alert acknowledged");
+                          }}
+                        >
+                          Ack{n > 1 ? ` ×${n}` : ""}
                         </button>
                         <button className="btn sm" onClick={() => handleAlertCase(a)}>
                           Case
@@ -572,7 +716,7 @@ export default function EventsPage() {
         {/* ---- Event stream ---- */}
         <section className="panel">
           <header className="panel-head">
-            <span className="panel-title">Event stream</span>
+            <span className="panel-title">Activity log</span>
             <Pill>last 6h</Pill>
             <div className="spacer" />
             <span className="num" style={{ fontSize: "var(--fs-0)", color: "var(--ink-muted)" }}>
@@ -646,11 +790,15 @@ export default function EventsPage() {
                         >
                           <td className="num">{fmtClock(e.ts)}</td>
                           <td>
-                            <Pill tone={SEV_TONE[meta.sev]}>{meta.label}</Pill>
+                            {/* firehose stays quiet — never alert-chip styling */}
+                            <span className="row" style={{ gap: 6 }}>
+                              <span className="dot" style={meta.sev === "danger" ? { background: "var(--danger)" } : undefined} />
+                              <span style={{ color: "var(--ink-mid)" }}>{meta.label}</span>
+                            </span>
                           </td>
                           {showSiteCol && <td>{siteById[e.siteId]?.name}</td>}
                           <td className="num">{e.spaceLabel || e.cameraName || "—"}</td>
-                          <td className="num">{e.plate || "—"}</td>
+                          <td className="num">{e.plate ? <PlateButton plate={e.plate} /> : "—"}</td>
                           <td>{e.zone || "—"}</td>
                         </tr>
                       );

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sightline | Seven stages from camera to console</title>
+  <meta name="description" content="How Sightline works: RTSP ingest, decode at 5 fps, YOLOv8-OBB oriented detection, polygon matching, temporal smoothing, a timestamped record, and WebSocket publish — under a second, on your own hardware." />
+  <!-- Mode must apply before first paint: stored choice, else OS preference -->
+  <script>(function(){try{var t=localStorage.getItem("sl-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.setAttribute("data-theme","dark")}catch(e){}})();</script>
+  <!-- Social cards. Image paths are root-relative on purpose (no production domain yet): swap og:image/twitter:image to absolute https://<domain>/assets/img/preview.jpg URLs at launch — OG scrapers ignore relative paths. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Sightline" />
+  <meta property="og:title" content="Sightline — Seven stages from camera to console" />
+  <meta property="og:description" content="RTSP ingest, decode, YOLOv8-OBB detection, polygon matching, temporal smoothing, record, publish — under a second, all on hardware you control." />
+  <meta property="og:image" content="assets/img/overlay.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sightline — Seven stages from camera to console" />
+  <meta name="twitter:description" content="RTSP ingest, decode, YOLOv8-OBB detection, polygon matching, temporal smoothing, record, publish — under a second, all on hardware you control." />
+  <meta name="twitter:image" content="assets/img/overlay.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,500;0,700;1,500&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css?v=6" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FBFCFB'/%3E%3Cg fill='%23151B17' fill-opacity='.35'%3E%3Crect x='5' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1.8'/%3E%3C/g%3E%3Crect x='13' y='13' width='6' height='6' rx='1.8' fill='%2300E676'/%3E%3C/svg%3E" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TechArticle",
+        "headline": "How Sightline works, frame to console",
+        "description": "A stage-by-stage walk through the Sightline pipeline: RTSP ingestion with auto-reconnect, decode at 5 fps, YOLOv8 oriented-bounding-box detection, per-space polygon matching, temporal smoothing, a timestamped event record, and WebSocket live state — all on the operator's own hardware.",
+        "author": { "@type": "Organization", "name": "Sightline" },
+        "inLanguage": "en"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "index.html" },
+          { "@type": "ListItem", "position": 2, "name": "Technology" }
+        ]
+      }
+    ]
+  }
+  </script>
+  <style>
+    /* ---------- page: technology ---------- */
+    .hero { padding-bottom: var(--s-6); }
+    .hero .label-mono { margin-bottom: var(--s-3); }
+    .hero h1 { max-width: 16ch; }
+    .hero-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s-4);
+      margin-top: var(--s-4);
+    }
+    .hero-row .lede { max-width: 50ch; }
+    .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    /* pipeline flow diagram (mono chips) */
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      color: var(--text-2);
+    }
+    .flow .st {
+      padding: 10px 16px;
+      border: 1px solid var(--border-2);
+      border-radius: var(--r-1);
+      background: var(--surface);
+      box-shadow: var(--shadow-card);
+      white-space: nowrap;
+    }
+    .flow .st.hot { border-color: var(--accent-text); color: var(--accent-text); }
+    .flow .ar { color: var(--text-3); }
+
+    /* stage ledger: ix / name / prose / trailing mono spec */
+    .stage-ledger { margin-top: var(--s-5); }
+    .stage-ledger .l-row { grid-template-columns: 64px 1fr 1.9fr auto; }
+    .stage-ledger .spec {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      color: var(--text-3);
+      white-space: nowrap;
+      justify-self: end;
+    }
+    @media (max-width: 1000px) {
+      .stage-ledger .l-row { grid-template-columns: 44px 1fr; }
+      .stage-ledger .l-row p { grid-column: 2; }
+      .stage-ledger .spec { grid-column: 2; justify-self: start; }
+    }
+
+    /* calibration figure */
+    .shot { overflow: hidden; }
+    .shot .card-bar .label-mono { color: var(--text-3); margin: 0; }
+    .shot img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+    .shot .card-body p { font-size: var(--fs-small); color: var(--text-3); }
+
+    /* on-prem boundary lists */
+    .pv h3 { font-size: 1.125rem; margin-bottom: var(--s-2); }
+    .pv ul { list-style: none; display: grid; gap: 10px; border-top: 1px solid var(--border); padding-top: var(--s-2); }
+    .pv li { position: relative; padding-left: 22px; color: var(--text-2); font-size: var(--fs-small); }
+    .pv li::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0.55em;
+      width: 9px; height: 9px;
+      border-radius: 3px;
+      background: var(--accent-text);
+    }
+    .pv.out li::before { background: var(--border-3); }
+    .pv .note { margin-top: var(--s-2); font-family: var(--font-mono); font-size: var(--fs-mono); color: var(--text-3); }
+
+    /* not-list: what Sightline does not do */
+    .not-rows { border-top: 1px solid var(--border); margin-top: var(--s-4); }
+    .not-rows > div {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: var(--s-3);
+      align-items: baseline;
+      padding: var(--s-3) 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .not-rows .mk { font-family: var(--font-mono); font-size: var(--fs-mono); color: var(--text-3); }
+    .not-rows h3 { font-size: 1.125rem; margin-bottom: 4px; }
+    .not-rows p { color: var(--text-3); font-size: var(--fs-small); max-width: 62ch; }
+    @media (max-width: 800px) { .not-rows > div { grid-template-columns: 44px 1fr; } }
+
+    /* stack rows */
+    .stack-rows { border-top: 1px solid var(--border); }
+    .stack-rows > div {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--s-1) var(--s-3);
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: var(--fs-small);
+    }
+    .stack-rows span { color: var(--text-3); }
+    .stack-rows b { font-family: var(--font-mono); font-size: var(--fs-mono); font-weight: 400; color: var(--text-1); }
+
+    /* footer newsletter (shared page pattern) */
+    .news-mini { display: flex; gap: 8px; margin-top: var(--s-2); }
+    .news-mini input {
+      flex: 1; min-width: 0;
+      padding: 10px 12px;
+      border-radius: var(--r-1);
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      color: var(--text-1);
+      outline: 0;
+      font-size: 0.9rem;
+    }
+    .news-mini input:focus { border-color: var(--accent-text); }
+    [data-theme="dark"] .news-mini input { background: var(--fill); }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="nav-logo" href="index.html" aria-label="Sightline home">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <g fill="currentColor" opacity=".32">
+            <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+          </g>
+          <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+        </svg>
+        Sightline
+      </a>
+      <nav aria-label="Primary">
+        <ul class="nav-links">
+          <li><a href="product.html">Product</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="the-lot.html">The Lot</a></li>
+          <li><a href="data-policy.html">Data policy</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-side">
+        <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+          <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+        </button>
+        <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+        <a class="btn btn-accent btn-sm" href="demo.html">Book a demo <span class="arr">→</span></a>
+        <button class="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sheet" aria-label="Mobile">
+    <a href="index.html">Home</a>
+    <a href="product.html">Product</a>
+    <a href="technology.html">Technology</a>
+    <a href="the-lot.html">The Lot</a>
+    <a href="data-policy.html">Data policy</a>
+    <a href="contact.html">Contact</a>
+    <a href="solutions.html">Solutions</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="compare.html">Compare</a>
+    <a href="insights.html">Writing</a>
+    <a href="login.html">Log in</a>
+    <a href="demo.html">Book a demo</a>
+  </nav>
+
+  <main id="main">
+
+    <!-- ============ 1. hero (light) ============ -->
+    <section class="hero hero-pad" aria-labelledby="hero-h">
+      <div class="wrap">
+        <span class="label-mono" data-r>Technology · frame to console</span>
+        <h1 class="t-hero" id="hero-h" data-r style="--d:.06s">Seven stages between the pavement and the screen.</h1>
+        <div class="hero-row">
+          <p class="lede" data-r style="--d:.12s">
+            Every frame makes the same journey: out of a camera the lot
+            already has, through a detector, against a calibrated map, into
+            a vote, onto a screen — in under a second, on hardware you
+            control. This page walks the whole pipeline, in the order a
+            frame travels.
+          </p>
+          <div class="hero-ctas" data-r style="--d:.18s">
+            <a class="btn btn-accent" href="the-lot.html">See the live lot <span class="arr">→</span></a>
+            <a class="btn btn-line" href="demo.html">Book a demo</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 2. the pipeline ============ -->
+    <section class="section on-tint" id="pipeline" aria-labelledby="pipe-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>The pipeline</span>
+          <h2 class="t-title" id="pipe-h" data-r style="--d:.06s">Seven stages, one direction.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            No stage is exotic on its own. The discipline is the order:
+            nothing reaches the console that hasn't been detected, matched
+            against the map, and confirmed across frames.
+          </p>
+        </div>
+        <div class="flow" data-r style="--d:.1s" role="list" aria-label="Pipeline stages">
+          <span class="st" role="listitem">ingest</span><span class="ar">→</span>
+          <span class="st" role="listitem">decode</span><span class="ar">→</span>
+          <span class="st hot" role="listitem">detect</span><span class="ar">→</span>
+          <span class="st" role="listitem">match</span><span class="ar">→</span>
+          <span class="st" role="listitem">smooth</span><span class="ar">→</span>
+          <span class="st" role="listitem">record</span><span class="ar">→</span>
+          <span class="st" role="listitem">publish</span>
+        </div>
+
+        <div class="ledger stage-ledger">
+          <div class="l-row" data-r>
+            <span class="ix">/01</span>
+            <h3>Ingest</h3>
+            <p>Sightline connects to any camera that speaks RTSP — the protocol nearly every IP camera already speaks. No agent on the camera, no firmware to touch. Streams drop in the real world; when one does, the camera manager backs off and reconnects on its own.</p>
+            <span class="spec">rtsp · auto-reconnect</span>
+          </div>
+          <div class="l-row" data-r style="--d:.04s">
+            <span class="ix">/02</span>
+            <h3>Decode</h3>
+            <p>Frames come off the stream at five per second — a rate chosen on purpose. Parking happens at parking speed: five looks a second misses nothing that matters, and the pipeline stays light enough for ordinary hardware.</p>
+            <span class="spec">5 fps</span>
+          </div>
+          <div class="l-row" data-r style="--d:.08s">
+            <span class="ix">/03</span>
+            <h3>Detect</h3>
+            <p>Each frame runs through a YOLOv8 oriented-bounding-box model. Upright rectangles spill into the next stall the moment parking is angled; oriented boxes rotate with the vehicle, so each car resolves to the space it actually sits in.</p>
+            <span class="spec">yolov8-obb</span>
+          </div>
+          <div class="l-row" data-r style="--d:.12s">
+            <span class="ix">/04</span>
+            <h3>Match</h3>
+            <p>Every space is a named polygon drawn once during calibration. Each detection is clipped against each outline and the overlap measured — intersection over union, not a center-point guess. A car counts only when it genuinely sits inside the space.</p>
+            <span class="spec">polygon · iou</span>
+          </div>
+          <div class="l-row" data-r style="--d:.16s">
+            <span class="ix">/05</span>
+            <h3>Smooth</h3>
+            <p>Raw per-frame results jitter: shadows shift, a van blocks the view, cars cruise the aisle. Each space holds a vote across its recent frames, with separate thresholds for becoming occupied and becoming free. What leaves this stage is a decision, not a flicker.</p>
+            <span class="spec">frame votes</span>
+          </div>
+          <div class="l-row" data-r style="--d:.2s">
+            <span class="ix">/06</span>
+            <h3>Record</h3>
+            <p>Every confirmed change is written to Postgres as a timestamped event, and analytics are computed from those intervals time-weighted: a space filled for three hours counts for three hours, however many detections fired along the way.</p>
+            <span class="spec">postgres · time-weighted</span>
+          </div>
+          <div class="l-row" data-r style="--d:.24s">
+            <span class="ix">/07</span>
+            <h3>Publish</h3>
+            <p>Confirmed state pushes to the console over WebSocket — no polling, no page refresh. The space grid, the totals, and the annotated view move together. From a car pulling in to the screen changing: under a second.</p>
+            <span class="spec">websocket · &lt;1 s</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3. calibration ============ -->
+    <section class="section" id="calibration" aria-labelledby="cal-h">
+      <div class="wrap grid-2 top">
+        <div>
+          <span class="label" data-r>Calibration</span>
+          <h2 class="t-title" id="cal-h" data-r style="--d:.06s">Drawn once, to the paint.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            Per-space truth starts with a map. During setup, each stall is
+            traced as a polygon over the camera's own view — to the painted
+            lines, not to a grid — and given a name. From then on, every
+            detection is measured against those outlines, so the system
+            reports "space A-14 is taken," not "something is somewhere."
+          </p>
+          <p class="lede" data-r style="--d:.18s; margin-top: var(--s-3); font-size: var(--fs-body);">
+            The map is done once and survives until the paint changes. On
+            Lot A, all 100 polygons sit under a single camera view.
+          </p>
+        </div>
+        <figure class="card shot" data-r style="--d:.1s">
+          <div class="card-bar"><span class="label-mono">Lot A · calibrated map</span><span class="label-mono">100 polygons · 1 view</span></div>
+          <img src="assets/img/overlay.jpg" alt="Lot A with each parking stall traced as its own named polygon, matched against live detections" loading="lazy" />
+          <figcaption class="card-body"><p>The calibrated map at work: every stall an exact outline, every detection measured against it.</p></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ============ 4. on-prem / edge ============ -->
+    <section class="section on-tint" id="edge" aria-labelledby="edge-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>Where it runs</span>
+          <h2 class="t-title" id="edge-h" data-r style="--d:.06s">The footage never leaves the building.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            On-premises isn't a deployment option here — it's the
+            architecture. Ingest, decode, detection, matching, and history
+            all run on hardware you control, inside your network. There is
+            no cloud leg in the pipeline for video to travel.
+          </p>
+        </div>
+        <div class="grid-2 top">
+          <div class="pv" data-r style="--d:.14s">
+            <h3>Stays on your hardware</h3>
+            <ul>
+              <li>The camera stream and every decoded frame</li>
+              <li>The detection model and its weights</li>
+              <li>The calibrated space map</li>
+              <li>The Postgres event history</li>
+            </ul>
+          </div>
+          <div class="pv out" data-r style="--d:.2s">
+            <h3>Reaches a browser</h3>
+            <ul>
+              <li>Space states and counts</li>
+              <li>Timestamps of confirmed changes</li>
+              <li>Analytics computed from them</li>
+            </ul>
+            <p class="note">state, not video — over a websocket, to the console you open.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 5. what Sightline does not do ============ -->
+    <section class="section" id="limits" aria-labelledby="not-h">
+      <div class="wrap-narrow">
+        <span class="label" data-r>The boundary</span>
+        <h2 class="t-title" id="not-h" data-r style="--d:.06s; margin-top: var(--s-2);">What Sightline does not do.</h2>
+        <p class="lede" data-r style="--d:.12s; margin-top: var(--s-2);">
+          A camera system earns trust by what it refuses to be. Sightline
+          answers one question — is this space taken or open — and is built
+          so it cannot answer others.
+        </p>
+        <div class="not-rows">
+          <div data-r style="--d:.16s">
+            <span class="mk">no</span>
+            <div>
+              <h3>No plate reading</h3>
+              <p>There is no ANPR in the system. Sightline has no component that reads, stores, or matches license plates — it cannot tell you whose car is in a space, only that the space is taken.</p>
+            </div>
+          </div>
+          <div data-r style="--d:.2s">
+            <span class="mk">no</span>
+            <div>
+              <h3>No person identification</h3>
+              <p>The model detects vehicles in stalls. It does not identify, track, or profile people — a pedestrian crossing the lot is not a detection, and there is nothing downstream to identify them with.</p>
+            </div>
+          </div>
+          <div data-r style="--d:.24s">
+            <span class="mk">no</span>
+            <div>
+              <h3>No video retention</h3>
+              <p>What history keeps is a log of occupancy changes — useful for planning and audits, useless for tracking anyone. The footage itself stays on your hardware and is not what Sightline stores.</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: var(--s-4); --d:.28s" data-r>
+          <a class="btn btn-line" href="data-policy.html">Read the data policy <span class="arr">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 6. the stack ============ -->
+    <section class="section on-tint tight" aria-labelledby="stk-h">
+      <div class="wrap grid-2 top">
+        <div>
+          <span class="label" data-r>The stack</span>
+          <h2 class="t-section" id="stk-h" data-r style="--d:.06s; margin-top: var(--s-2);">Boring on purpose.</h2>
+          <p class="lede" data-r style="--d:.12s; margin-top: var(--s-2); font-size: var(--fs-body);">
+            Every layer is established, inspectable technology your own
+            team can reason about — no exotic runtime, no proprietary
+            black box. The entire Lot A pipeline, camera to console, runs
+            on a single ordinary machine.
+          </p>
+        </div>
+        <div class="stack-rows" data-r style="--d:.1s">
+          <div><span>Streaming</span><b>rtsp over tcp</b></div>
+          <div><span>Vision</span><b>opencv · yolov8-obb</b></div>
+          <div><span>Backend</span><b>python · fastapi</b></div>
+          <div><span>Storage</span><b>postgresql</b></div>
+          <div><span>Console</span><b>websocket · browser</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 7. CTA ============ -->
+    <section class="section" aria-labelledby="cta-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="label" data-r>Next step</span>
+          <h2 class="t-title" id="cta-h" data-r style="--d:.06s">Watch every stage run on real footage.</h2>
+          <p class="lede" data-r style="--d:.12s">
+            Lot A runs this exact pipeline in front of you. Then bring a
+            camera feed and thirty minutes, and we'll map your spaces on
+            the call.
+          </p>
+        </div>
+        <div class="hero-ctas" data-r style="--d:.18s">
+          <a class="btn btn-accent" href="the-lot.html">See the live lot <span class="arr">→</span></a>
+          <a class="btn btn-line" href="demo.html">Book a demo</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ dark footer ============ -->
+  <footer class="foot" data-theme="dark">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="nav-logo" href="index.html">
+            <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+              <g fill="currentColor" opacity=".32">
+                <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+              </g>
+              <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+            </svg>
+            Sightline
+          </a>
+          <p class="foot-tag">Per-space parking occupancy from the cameras you already own, on your own hardware.</p>
+          <p class="foot-status">status: proving Sightline on one real 100-space lot. more soon.</p>
+          <form data-form novalidate aria-label="Newsletter">
+            <div class="news-mini">
+              <input type="email" placeholder="you@company.com" aria-label="Email address" required />
+              <button class="btn btn-quiet btn-sm" type="submit" style="width:auto;">Subscribe</button>
+            </div>
+          </form>
+          <div class="form-success" style="margin-top:10px;"><span class="mk">ok</span> You're subscribed. Watch your inbox.</div>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="product.html">Product</a></li>
+            <li><a href="technology.html">Technology</a></li>
+            <li><a href="the-lot.html">The Lot</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="compare.html">Compare</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Solutions</h4>
+          <ul>
+            <li><a href="solutions.html#operators">Operators &amp; garages</a></li>
+            <li><a href="solutions.html#campuses">Campuses &amp; venues</a></li>
+            <li><a href="solutions.html#curb">Municipal curb</a></li>
+            <li><a href="demo.html">Book a demo</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About</a></li>
+            <li><a href="insights.html">Writing</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="data-policy.html">Data policy</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-legal">
+        <span>© 2026 Sightline · Monish Munagala · Charlotte, NC</span>
+        <div class="links">
+          <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+            <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+          </button>
+          <a href="data-policy.html">Data policy</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/env.js"></script>
+  <script src="assets/js/main.js?v=7"></script>
+</body>
+</html>

@@ -83,9 +83,10 @@ function DetailRow({ label, children, mono = false }) {
 function SectionLabel({ children }) {
   return (
     <div
+      className="mono"
       style={{
         fontSize: "var(--fs-0)",
-        fontWeight: 600,
+        fontWeight: 500,
         color: "var(--ink-muted)",
         textTransform: "uppercase",
         letterSpacing: "0.06em",
@@ -148,7 +149,7 @@ function CaseDrawer({ caseId, onClose }) {
         </div>
       }
     >
-      <div style={{ display: "grid", gap: 18 }}>
+      <div style={{ display: "grid", gap: "var(--sp-4)" }}>
         {/* ---- status + transitions ---- */}
         <div style={{ display: "grid", gap: 10 }}>
           <div className="row">
@@ -378,7 +379,7 @@ export default function EnforcementPage() {
       {/* ---- header ---- */}
       <div className="row">
         <div>
-          <h1 style={{ fontSize: "var(--fs-4)" }}>Enforcement</h1>
+          <h1 className="page-title">Enforcement</h1>
           <div style={{ fontSize: "var(--fs-0)", color: "var(--ink-muted)" }}>
             Violation cases — review, ticket, dismiss, close
           </div>

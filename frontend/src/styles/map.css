@@ -1,11 +1,11 @@
-/* MapLibre chrome adjustments for the dark control room */
+/* MapLibre chrome — token-driven so it follows the active theme */
 
 .maplibregl-map {
   font: inherit;
 }
 
 .maplibregl-ctrl-attrib {
-  background: oklch(0.13 0.008 255 / 0.8) !important;
+  background: color-mix(in srgb, var(--bg) 80%, transparent) !important;
   color: var(--ink-faint);
   font-size: 9px;
   border-radius: 4px 0 0 0;
@@ -16,10 +16,10 @@
 }
 
 .maplibregl-ctrl-group {
-  background: var(--surface-2) !important;
-  border: 1px solid var(--line-strong);
+  background: var(--surface) !important;
+  border: 1px solid var(--border-2);
   border-radius: var(--r-2) !important;
-  box-shadow: none !important;
+  box-shadow: var(--shadow-1) !important;
 }
 
 .maplibregl-ctrl-group button {
@@ -29,14 +29,15 @@
 }
 
 .maplibregl-ctrl-group button + button {
-  border-top: 1px solid var(--line) !important;
+  border-top: 1px solid var(--border) !important;
 }
 
 .maplibregl-ctrl-icon {
-  filter: invert(0.8);
+  filter: var(--map-icon-filter);
 }
 
-/* site marker (portfolio view) */
+/* site marker (portfolio view) — ISA-101: healthy sites are QUIET
+   (neutral ring); only warn/danger states earn color */
 .site-marker {
   display: flex;
   flex-direction: column;
@@ -53,11 +54,13 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--ink);
-  background: oklch(0.15 0.008 255 / 0.88);
-  border: 2.5px solid var(--ok);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 2px solid var(--border-3);
+  box-shadow: var(--shadow-1);
   transition: transform var(--t-fast) var(--ease-out);
 }
 
@@ -68,23 +71,26 @@
 .site-marker.warn .ring { border-color: var(--warn); }
 .site-marker.danger .ring { border-color: var(--danger); }
 
+/* label: dark text on a small light chip so it survives busy layers */
 .site-marker .tag {
+  font-family: var(--font-data);
   font-size: 10px;
-  font-weight: 600;
-  color: var(--ink-mid);
-  background: oklch(0.13 0.008 255 / 0.85);
+  font-weight: 500;
+  color: var(--stall-label-ink);
+  background: var(--stall-label-bg);
+  border: 1px solid var(--border);
   padding: 1px 7px;
-  border-radius: 999px;
+  border-radius: var(--r-1);
   white-space: nowrap;
 }
 
-/* camera marker (site view) */
+/* camera marker (site view) — quiet when online, red when offline */
 .cam-marker {
   width: 14px;
   height: 14px;
   border-radius: 4px;
-  background: oklch(0.15 0.008 255 / 0.9);
-  border: 1.5px solid var(--ok);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1.5px solid var(--border-3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,6 +103,6 @@
   height: 4px;
   border-radius: 999px;
   background: currentColor;
-  color: var(--ok);
+  color: var(--ink-muted);
 }
 .cam-marker.offline::after { color: var(--danger); }

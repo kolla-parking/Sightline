@@ -197,7 +197,7 @@ export default function SettingsPage() {
     <div style={{ padding: 16 }}>
       <div style={{ maxWidth: 760, margin: "0 auto", display: "grid", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: "var(--fs-4)" }}>Settings</h1>
+          <h1 className="page-title">Settings</h1>
           <div style={{ fontSize: "var(--fs-1)", color: "var(--ink-muted)", marginTop: 2 }}>
             Operator preferences — stored locally in this browser.
           </div>
@@ -260,7 +260,33 @@ export default function SettingsPage() {
           </div>
         </Section>
 
-        {/* ---------------- 2 · Display ---------------- */}
+        {/* ---------------- 2 · Appearance ---------------- */}
+        <Section title="Appearance">
+          <div className="panel-body">
+            <SettingRow
+              label="Theme"
+              help="Light is the primary experience; Dark is engineered for overnight monitoring. System follows your OS preference. Applies instantly and persists on this browser."
+              last
+              control={
+                <Segmented
+                  options={[
+                    { value: "system", label: "System" },
+                    { value: "light", label: "Light" },
+                    { value: "dark", label: "Dark" },
+                  ]}
+                  value={
+                    settings.theme === "light" || settings.theme === "dark"
+                      ? settings.theme
+                      : "system"
+                  }
+                  onChange={(v) => save("theme", v)}
+                />
+              }
+            />
+          </div>
+        </Section>
+
+        {/* ---------------- 3 · Display ---------------- */}
         <Section title="Display">
           <div className="panel-body">
             <SettingRow
@@ -306,7 +332,7 @@ export default function SettingsPage() {
           </div>
         </Section>
 
-        {/* ---------------- 3 · Data sources ---------------- */}
+        {/* ---------------- 4 · Data sources ---------------- */}
         <Section title="Data sources">
           <div className="panel-body">
             <SettingRow
@@ -353,7 +379,7 @@ export default function SettingsPage() {
             style={{
               borderTop: "1px solid var(--line)",
               maxHeight: 340,
-              borderRadius: "0 0 var(--r-4) var(--r-4)",
+              borderRadius: "0 0 var(--r-3) var(--r-3)",
             }}
           >
             <table className="table">
@@ -422,7 +448,7 @@ export default function SettingsPage() {
           </div>
         </Section>
 
-        {/* ---------------- 4 · Simulation ---------------- */}
+        {/* ---------------- 5 · Simulation ---------------- */}
         <Section title="Simulation">
           <div className="panel-body">
             <p style={{ fontSize: "var(--fs-1)", color: "var(--ink-mid)", lineHeight: 1.55 }}>
@@ -475,11 +501,11 @@ export default function SettingsPage() {
           </div>
         </Section>
 
-        {/* ---------------- 5 · Keyboard shortcuts ---------------- */}
+        {/* ---------------- 6 · Keyboard shortcuts ---------------- */}
         <Section title="Keyboard shortcuts">
           <div
             className="panel-body flush scroll"
-            style={{ borderRadius: "0 0 var(--r-4) var(--r-4)" }}
+            style={{ borderRadius: "0 0 var(--r-3) var(--r-3)" }}
           >
             <table className="table">
               <thead>

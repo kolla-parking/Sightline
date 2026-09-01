@@ -1,51 +1,105 @@
-/* Sightline operator dashboard — design tokens (dark-first, OKLCH) */
+/* Sightline operator console — design tokens ("Daylight" v3).
+ *
+ * Values derive from /BRAND.md (single source of truth). LIGHT is the
+ * primary experience and the default (:root). Dark is a second first-class
+ * theme — rebuilt on elevated green-cast surfaces, never inverted —
+ * activated with <html data-theme="dark">, or by the OS preference when the
+ * operator has not chosen (data-theme absent). Token NAMES are the
+ * console's stable API — consumers reference tokens only, never raw hues.
+ *
+ * Hard rules:
+ *  - #00E676 is never text or an icon on a light ground (1.7:1). Green
+ *    text/links/live strokes on light use --accent-text (#0B7A4B).
+ *  - Text ON an --accent fill is ALWAYS --accent-ink (dark).
+ *  - The twin vocabulary (--stall-*) follows ISA-101: healthy states are
+ *    quiet neutrals; saturation means abnormality only. */
 
 :root {
-  /* ---- surfaces ---- */
-  --bg: oklch(0.155 0.008 255);          /* app ground */
-  --bg-sunken: oklch(0.13 0.008 255);    /* sidebar / rails — the cooler second layer */
-  --surface: oklch(0.185 0.009 255);     /* panels */
-  --surface-2: oklch(0.215 0.01 255);    /* raised: rows hover, inputs */
-  --surface-3: oklch(0.25 0.011 255);    /* active / pressed */
-  --overlay: oklch(0.17 0.009 255 / 0.92);
+  /* ---- surfaces (sage-cast neutrals — never pure #000/#fff pair) ---- */
+  --bg: #fbfcfb;                  /* app ground */
+  --bg-2: #f4f7f5;                /* tinted sections, table headers */
+  --surface: #ffffff;             /* cards, panels, inputs */
+  --fill: #ecf0ed;                /* component rest fill */
+  --fill-hover: #e3e8e5;          /* hover */
+  --fill-press: #dae1dc;          /* pressed / selected */
+  --overlay: color-mix(in srgb, #ffffff 90%, transparent);
+
+  /* legacy surface aliases (stable API) */
+  --bg-sunken: var(--bg-2);
+  --surface-2: var(--fill);
+  --surface-3: var(--fill-hover);
+
+  /* ---- borders ---- */
+  --border: #cfd7d2;              /* card / table hairline */
+  --border-2: #bdc7c1;            /* input / interactive border */
+  --border-3: #a5b1aa;            /* border hover */
+  --line: var(--border);
+  --line-strong: var(--border-2);
 
   /* ---- ink ---- */
-  --ink: oklch(0.94 0.004 255);
-  --ink-mid: oklch(0.76 0.008 255);
-  --ink-muted: oklch(0.62 0.01 255);
-  --ink-faint: oklch(0.46 0.01 255);
+  --text-1: #151b17;              /* primary ink (green-cast near-black) */
+  --text-2: #3d4a44;              /* strong secondary */
+  --text-3: #5a655e;              /* secondary (≥4.5:1 everywhere it sits) */
+  --ink: var(--text-1);
+  --ink-mid: var(--text-2);
+  --ink-muted: var(--text-3);
+  --ink-faint: color-mix(in srgb, var(--text-3) 70%, var(--bg));
 
-  /* ---- hairlines ---- */
-  --line: oklch(1 0 0 / 0.08);
-  --line-strong: oklch(1 0 0 / 0.14);
+  /* ---- brand accent: Signal Green, Samsara discipline ---- */
+  --accent: #00e676;              /* CTA fill / live indicator FILL only */
+  --accent-hover: #00d06b;
+  --accent-press: #00ba60;
+  --accent-ink: #08170f;          /* label ON accent fills — never white */
+  --accent-text: #0b7a4b;         /* green as TEXT/stroke on light (5.4:1) */
+  --accent-dim: color-mix(in srgb, #0b7a4b 9%, transparent);
+  --accent-line: color-mix(in srgb, #0b7a4b 45%, transparent);
+  --focus: #0b7a4b;               /* 2px focus ring */
 
-  /* ---- brand accent (Sightline red-orange) ---- */
-  --accent: oklch(0.66 0.2 32);
-  --accent-hover: oklch(0.7 0.2 32);
-  --accent-ink: oklch(0.985 0.005 32);
-  --accent-dim: oklch(0.66 0.2 32 / 0.14);
-  --accent-line: oklch(0.66 0.2 32 / 0.45);
+  /* ---- semantic status (one meaning each, never decorative) ----
+     text-level tones */
+  --ok: #0b7a4b;
+  --warn: #b54708;
+  --danger: #d92d20;
+  --info: #175cd3;
+  /* chip triad backgrounds (Primer-style: tint bg + deep fg + tint border) */
+  --ok-dim: #dcfbe8;    --ok-chip-fg: #0b6b3a;   --ok-chip-line: #a8efc4;
+  --warn-dim: #fef0c7;  --warn-chip-fg: #93370d; --warn-chip-line: #fedf89;
+  --danger-dim: #fee4e2; --danger-chip-fg: #b42318; --danger-chip-line: #fecdca;
+  --info-dim: #e0eaff;  --info-chip-fg: #1d4ed8; --info-chip-line: #c7d7fe;
 
-  /* ---- semantic states ---- */
-  --ok: oklch(0.78 0.17 158);
-  --ok-dim: oklch(0.78 0.17 158 / 0.13);
-  --warn: oklch(0.82 0.14 85);
-  --warn-dim: oklch(0.82 0.14 85 / 0.13);
-  --danger: oklch(0.64 0.21 27);
-  --danger-dim: oklch(0.64 0.21 27 / 0.15);
-  --info: oklch(0.72 0.11 240);
-  --info-dim: oklch(0.72 0.11 240 / 0.13);
+  /* ---- twin vocabulary (ISA-101: healthy = quiet, color = abnormal) ---- */
+  --stall-line: #bdc7c1;                    /* free: quiet outline */
+  --stall-free-fill: #ffffff;
+  --stall-occ-fill: #dae1dc;                /* occupied: muted neutral fill */
+  --stall-occ-line: #a5b1aa;
+  --stall-attention-fill: #fedf89;          /* amber: needs attention */
+  --stall-attention-line: #b54708;
+  --stall-violation-fill: #fecdca;          /* red: violation / offline */
+  --stall-violation-line: #d92d20;
+  --stall-selected: #175cd3;                /* blue: selected / info */
+  --stall-special-line: color-mix(in srgb, #175cd3 55%, transparent);
+  --stall-unknown-fill: #ecf0ed;
+  --stall-unknown-line: #cfd7d2;
+  --stall-label-bg: #ffffff;                /* dark text on light chips */
+  --stall-label-ink: #151b17;
+  /* legacy aliases */
+  --space-free: var(--stall-free-fill);
+  --space-occupied: var(--stall-occ-fill);
+  --space-violation: var(--stall-violation-fill);
+  --space-special: var(--stall-selected);
+  --space-unknown: var(--stall-unknown-fill);
 
-  /* ---- occupancy vocabulary (fixed across the app) ---- */
-  --space-free: oklch(0.72 0.16 158);
-  --space-occupied: oklch(0.52 0.12 27);
-  --space-violation: oklch(0.66 0.22 27);
-  --space-special: oklch(0.68 0.11 240);   /* EV / ADA / reserved */
-  --space-unknown: oklch(0.42 0.008 255);
+  /* ---- elevation (sage-tinted layered shadows, one top-light) ---- */
+  --shadow-1: 0 1px 2px hsl(152 22% 15% / 0.06), 0 2px 6px hsl(152 22% 15% / 0.05);
+  --shadow-2: 0 1px 2px hsl(152 22% 15% / 0.06), 0 2px 6px hsl(152 22% 15% / 0.05),
+              0 6px 12px hsl(152 22% 15% / 0.07);
+  --shadow-3: 0 1px 2px hsl(152 22% 15% / 0.06), 0 6px 12px hsl(152 22% 15% / 0.07),
+              0 16px 32px hsl(152 22% 15% / 0.1);
 
   /* ---- type ---- */
-  --font-ui: "Inter", "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-data: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, monospace;
+  --font-display: "Schibsted Grotesk", "Public Sans", system-ui, sans-serif; /* ≥28px moments only */
+  --font-ui: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, monospace;
   --fs-0: 0.6875rem;   /* 11 — dense meta, table headers */
   --fs-1: 0.75rem;     /* 12 — secondary, labels */
   --fs-2: 0.8125rem;   /* 13 — body default */
@@ -53,10 +107,19 @@
   --fs-4: 1.0625rem;   /* 17 — page titles */
   --fs-5: 1.25rem;     /* 20 — key numbers */
   --fs-6: 1.5rem;      /* 24 — hero numbers */
+  --fs-7: 1.75rem;     /* 28 — display floor (Schibsted allowed) */
 
-  /* ---- spacing / shape ---- */
+  /* ---- spacing / shape (rounded-commercial, not pill, not sharp) ---- */
   --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
-  --r-1: 4px; --r-2: 6px; --r-3: 8px; --r-4: 10px;
+  /* BRAND.md radius scale is 6/10/16 — console names are the stable API:
+     --r-1 = brand 6px, --r-2/--r-3 = brand 10px, --r-4 = brand 16px. */
+  --r-1: 6px;   /* chips, kbd, inputs, small controls */
+  --r-2: 10px;  /* buttons */
+  --r-3: 10px;  /* panels, cards */
+  --r-4: 16px;  /* media / evidence frames */
+
+  /* ---- map chrome ---- */
+  --map-icon-filter: none;
 
   /* ---- z scale ---- */
   --z-dropdown: 30;
@@ -72,5 +135,146 @@
   --t-fast: 120ms;
   --t-med: 190ms;
 
+  color-scheme: light;
+}
+
+/* ============================================================ dark
+   Rebuilt, never inverted: green-cast surfaces stepping LIGHTER as they
+   elevate (adjacent tiers ≥3–4 L*), hairline + surface-step elevation
+   (shadows only on the modal layer), bright status foregrounds over 15%
+   tints. #00E676 earns full-strength text/stroke use here. Applied via
+   <html data-theme="dark">, and via OS preference when no explicit choice
+   is stored (data-theme absent). */
+
+[data-theme="dark"] {
+  --bg: #0f1412;
+  --bg-2: #141a17;
+  --surface: #171d1a;
+  --fill: #1d2420;
+  --fill-hover: #232b27;
+  --fill-press: #2a332e;
+  --overlay: color-mix(in srgb, #171d1a 88%, transparent);
+
+  --border: #2a332e;
+  --border-2: #3b463f;
+  --border-3: #4c5850;
+
+  --text-1: #e4eae6;
+  --text-2: #c3cec8;
+  --text-3: #9aa69f;
+  --ink-faint: color-mix(in srgb, var(--text-3) 62%, var(--bg));
+
+  --accent: #00e676;
+  --accent-hover: #2bec8a;
+  --accent-press: #00d06b;
+  --accent-ink: #08170f;
+  --accent-text: #00e676;          /* 10.9:1 on the dark base */
+  --accent-dim: color-mix(in srgb, #00e676 13%, transparent);
+  --accent-line: color-mix(in srgb, #00e676 45%, transparent);
+  --focus: #00e676;
+
+  --ok: #4aef9a;
+  --warn: #ffc46b;
+  --danger: #ff8a80;
+  --info: #8ab4ff;
+  --ok-dim: color-mix(in srgb, #4aef9a 15%, transparent);
+  --ok-chip-fg: #4aef9a;   --ok-chip-line: #1f4630;
+  --warn-dim: color-mix(in srgb, #ffc46b 15%, transparent);
+  --warn-chip-fg: #ffc46b; --warn-chip-line: #4d3a1c;
+  --danger-dim: color-mix(in srgb, #ff8a80 15%, transparent);
+  --danger-chip-fg: #ff8a80; --danger-chip-line: #542a26;
+  --info-dim: color-mix(in srgb, #8ab4ff 15%, transparent);
+  --info-chip-fg: #8ab4ff; --info-chip-line: #263c5e;
+
+  --stall-line: #3b463f;
+  --stall-free-fill: #171d1a;
+  --stall-occ-fill: #2a332e;
+  --stall-occ-line: #4c5850;
+  --stall-attention-fill: color-mix(in srgb, #ffc46b 26%, #171d1a);
+  --stall-attention-line: #ffc46b;
+  --stall-violation-fill: color-mix(in srgb, #ff8a80 30%, #171d1a);
+  --stall-violation-line: #ff8a80;
+  --stall-selected: #8ab4ff;
+  --stall-special-line: color-mix(in srgb, #8ab4ff 55%, transparent);
+  --stall-unknown-fill: #1d2420;
+  --stall-unknown-line: #2a332e;
+  --stall-label-bg: #e4eae6;
+  --stall-label-ink: #151b17;
+
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-3: 0 16px 40px oklch(0 0 0 / 0.5);
+
+  --map-icon-filter: invert(0.85);
+
   color-scheme: dark;
+}
+
+/* System preference: dark when the OS asks for it and the operator has not
+   explicitly chosen light. Values duplicated (CSS custom properties cannot
+   be aliased across selectors) — keep in lockstep with the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1412;
+    --bg-2: #141a17;
+    --surface: #171d1a;
+    --fill: #1d2420;
+    --fill-hover: #232b27;
+    --fill-press: #2a332e;
+    --overlay: color-mix(in srgb, #171d1a 88%, transparent);
+
+    --border: #2a332e;
+    --border-2: #3b463f;
+    --border-3: #4c5850;
+
+    --text-1: #e4eae6;
+    --text-2: #c3cec8;
+    --text-3: #9aa69f;
+    --ink-faint: color-mix(in srgb, var(--text-3) 62%, var(--bg));
+
+    --accent: #00e676;
+    --accent-hover: #2bec8a;
+    --accent-press: #00d06b;
+    --accent-ink: #08170f;
+    --accent-text: #00e676;
+    --accent-dim: color-mix(in srgb, #00e676 13%, transparent);
+    --accent-line: color-mix(in srgb, #00e676 45%, transparent);
+    --focus: #00e676;
+
+    --ok: #4aef9a;
+    --warn: #ffc46b;
+    --danger: #ff8a80;
+    --info: #8ab4ff;
+    --ok-dim: color-mix(in srgb, #4aef9a 15%, transparent);
+    --ok-chip-fg: #4aef9a;   --ok-chip-line: #1f4630;
+    --warn-dim: color-mix(in srgb, #ffc46b 15%, transparent);
+    --warn-chip-fg: #ffc46b; --warn-chip-line: #4d3a1c;
+    --danger-dim: color-mix(in srgb, #ff8a80 15%, transparent);
+    --danger-chip-fg: #ff8a80; --danger-chip-line: #542a26;
+    --info-dim: color-mix(in srgb, #8ab4ff 15%, transparent);
+    --info-chip-fg: #8ab4ff; --info-chip-line: #263c5e;
+
+    --stall-line: #3b463f;
+    --stall-free-fill: #171d1a;
+    --stall-occ-fill: #2a332e;
+    --stall-occ-line: #4c5850;
+    --stall-attention-fill: color-mix(in srgb, #ffc46b 26%, #171d1a);
+    --stall-attention-line: #ffc46b;
+    --stall-violation-fill: color-mix(in srgb, #ff8a80 30%, #171d1a);
+    --stall-violation-line: #ff8a80;
+    --stall-selected: #8ab4ff;
+    --stall-special-line: color-mix(in srgb, #8ab4ff 55%, transparent);
+    --stall-unknown-fill: #1d2420;
+    --stall-unknown-line: #2a332e;
+    --stall-label-bg: #e4eae6;
+    --stall-label-ink: #151b17;
+
+    --shadow-1: none;
+    --shadow-2: none;
+    --shadow-3: 0 16px 40px oklch(0 0 0 / 0.5);
+
+    --map-icon-filter: invert(0.85);
+
+    color-scheme: dark;
+  }
 }

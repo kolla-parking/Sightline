@@ -13,16 +13,19 @@ import {
   siteSessions,
   cameraHealth,
   siteRevenueToday,
+  LOW_CONFIDENCE,
   MIN,
   HOUR,
 } from "../sim/engine.js";
 import { fmtDuration, fmtClock, fmtAgo, fmtMoney, fmtPct } from "../lib/format.js";
+import { alertVerb } from "../lib/alarms.js";
 import { mjpegUrl } from "../lib/api.js";
-import { Stat, Pill, Dot, Segmented, Drawer, EmptyState } from "../components/ui.jsx";
+import { Stat, Pill, Dot, Segmented, Drawer, EmptyState, PlateButton } from "../components/ui.jsx";
 import { Bars } from "../components/charts.jsx";
 import { MapView } from "../components/twin/MapView.jsx";
 import { SchematicView } from "../components/twin/SchematicView.jsx";
 import { TimeScrubber } from "../components/twin/TimeScrubber.jsx";
+import { STALL_FILTERS, STALL_FILTER_LABEL } from "../components/twin/stallFilters.js";
 import { fetchSlots } from "../lib/api.js";
 import { useAskCopilot } from "../components/CopilotPanel.jsx";
 
@@ -53,12 +56,13 @@ function LiveCamera() {
     );
   }
   return (
-    <img
-      src={mjpegUrl("cam1")}
-      alt="cam1 live detection stream"
-      onError={() => setErr(true)}
-      style={{ width: "100%", borderRadius: "var(--r-2)", border: "1px solid var(--line)", display: "block" }}
-    />
+    <div className="evidence">
+      <img
+        src={mjpegUrl("cam1")}
+        alt="cam1 live detection stream"
+        onError={() => setErr(true)}
+      />
+    </div>
   );
 }
 
@@ -76,7 +80,7 @@ function AlertsRail({ alerts, onLocate }) {
           <div className="row" style={{ gap: 6 }}>
             <Dot tone={a.sev === "danger" ? "danger" : "warn"} />
             <span style={{ fontSize: "var(--fs-1)", fontWeight: 600 }}>
-              {a.kind.replace(/_/g, " ")}
+              {alertVerb(a.kind)}
             </span>
             <span className="spacer" />
             <span className="num" style={{ fontSize: "var(--fs-0)", color: "var(--ink-faint)" }}>{fmtAgo(a.since)}</span>
@@ -194,10 +198,23 @@ function SpaceDrawer({ scope, ts }) {
 
         {s ? (
           <>
+            {/* session phase: where this session sits in time */}
+            <div style={{ fontSize: "var(--fs-1)", color: "var(--ink-muted)" }}>
+              arrived <span className="num">{fmtAgo(s.start, ts)}</span> · expected out{" "}
+              <span className="num">~{fmtClock(s.end)}</span>
+            </div>
             <div className="row" style={{ gap: 24 }}>
-              <Stat label="Plate" value={<span className="num">{s.plate}</span>} />
+              <Stat label="Plate" value={<PlateButton plate={s.plate} />} />
               <Stat label="Vehicle" value={s.vehicleClass} />
-              <Stat label="Confidence" value={fmtPct(s.confidence * 100)} />
+              <Stat
+                label="Confidence"
+                value={
+                  <span className="row" style={{ gap: 6 }}>
+                    <span className="num">{fmtPct(s.confidence * 100)}</span>
+                    {s.confidence < LOW_CONFIDENCE && <Pill tone="warn">unverified</Pill>}
+                  </span>
+                }
+              />
             </div>
             <div className="row" style={{ gap: 24 }}>
               <Stat label="Arrived" value={fmtClock(s.start)} />
@@ -246,7 +263,7 @@ function SpaceDrawer({ scope, ts }) {
             <div style={{ display: "grid", gap: 5 }}>
               {history.map((h) => (
                 <div key={h.id} className="row" style={{ fontSize: "var(--fs-1)" }}>
-                  <span className="num">{h.plate}</span>
+                  <PlateButton plate={h.plate} />
                   <span style={{ color: "var(--ink-faint)" }}>{h.vehicleClass}</span>
                   <span className="spacer" />
                   <span className="num" style={{ color: "var(--ink-muted)" }}>
@@ -281,14 +298,19 @@ export default function TwinPage() {
   const [view, setView] = useState(settings.mapStyle || "map");
   const [heat, setHeat] = useState(false);
   const [level, setLevel] = useState(null);
+  const [stateFilter, setStateFilter] = useState("all");
   const [realPolys, setRealPolys] = useState(null);
 
   const site = scope === "portfolio" ? null : siteById[scope];
 
+  // Scope switches reset view-local state. Selection is NOT cleared here:
+  // store.setScope already clears it, and Locate flows (vehicle drawer,
+  // alert triage) set scope + selection together — an effect-level clear
+  // would clobber them on mount.
   useEffect(() => {
     setLevel(null);
-    selectSpace(null);
-  }, [scope, selectSpace]);
+    setStateFilter("all");
+  }, [scope]);
 
   // real slot polygons for the schematic (sample-lot only)
   useEffect(() => {
@@ -367,6 +389,7 @@ export default function TwinPage() {
               onSelectSpace={(id) => selectSpace(id)}
               onDrill={(siteId) => setScope(siteId)}
               heat={heat}
+              stateFilter={stateFilter}
             />
           ) : site ? (
             <SchematicView
@@ -376,6 +399,7 @@ export default function TwinPage() {
               onSelect={(id) => selectSpace(id)}
               level={level}
               realPolys={mode === "live" ? realPolys : null}
+              stateFilter={stateFilter}
             />
           ) : (
             <div className="empty" style={{ position: "absolute", inset: 0 }}>
@@ -392,6 +416,8 @@ export default function TwinPage() {
               top: 10,
               left: 10,
               gap: 8,
+              flexWrap: "wrap",
+              maxWidth: "calc(100% - 20px)",
               background: "var(--overlay)",
               border: "1px solid var(--line)",
               borderRadius: "var(--r-3)",
@@ -423,6 +449,19 @@ export default function TwinPage() {
                 value={level == null ? "all" : String(level)}
                 onChange={(v) => setLevel(v === "all" ? null : Number(v))}
               />
+            )}
+            {site && (
+              <Segmented size="sm" options={STALL_FILTERS} value={stateFilter} onChange={setStateFilter} />
+            )}
+            {site && stateFilter !== "all" && (
+              <button
+                className="pill"
+                onClick={() => setStateFilter("all")}
+                title="Clear filter — non-matching stalls are dimmed, never hidden"
+                style={{ cursor: "pointer" }}
+              >
+                {STALL_FILTER_LABEL[stateFilter]} ✕
+              </button>
             )}
           </div>
 
@@ -497,7 +536,8 @@ export default function TwinPage() {
                   data={site.zones.map((z) => {
                     const za = snapshot.zones[z.id];
                     const v = za?.total ? (za.occupied / za.total) * 100 : 0;
-                    return { label: z.name, v, tone: v >= 90 ? "var(--danger)" : v >= 70 ? "var(--warn)" : "var(--ok)" };
+                    // healthy zones stay quiet — color only near capacity
+                    return { label: z.name, v, tone: v >= 90 ? "var(--danger)" : v >= 70 ? "var(--warn)" : "var(--border-3)" };
                   })}
                 />
               </RailPanel>
@@ -537,7 +577,7 @@ export default function TwinPage() {
                       const v = portfolio.per[s.id];
                       return (
                         <button key={s.id} className="row" style={{ fontSize: "var(--fs-1)", textAlign: "left" }} onClick={() => setScope(s.id)}>
-                          <Dot tone={v >= 90 ? "danger" : v >= 70 ? "warn" : "ok"} />
+                          <Dot tone={v >= 90 ? "danger" : v >= 70 ? "warn" : undefined} />
                           <span className="truncate" style={{ color: "var(--ink-mid)" }}>{s.name}</span>
                           <span className="spacer" />
                           <span className="num">{fmtPct(v)}</span>

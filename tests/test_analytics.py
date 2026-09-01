@@ -38,8 +38,9 @@ def db():
 
 def test_history_credits_long_occupied_period_to_every_hour(db):
     """A single occupied event that lasts 5 hours must contribute to all 5 hours."""
-    base = datetime(2026, 6, 17, 10, 0, 0, tzinfo=UTC)
-    # Slot A1: becomes occupied at 10:00, vacated at 15:00 -> 5 hours occupied.
+    # Anchor relative to now so the events stay inside the 12h query window.
+    base = datetime.now(UTC).replace(minute=0, second=0, microsecond=0) - timedelta(hours=7)
+    # Slot A1: becomes occupied at base, vacated 5 hours later.
     _seed(
         db,
         "cam1",
@@ -50,14 +51,14 @@ def test_history_credits_long_occupied_period_to_every_hour(db):
     )
 
     rows = asyncio.run(db.history("cam1", hours=12))
-    # We expect five buckets — 10:00 through 14:00 — each with 3600s occupied
+    # We expect five buckets — base through base+4h — each with 3600s occupied
     # and 3600s total (slot was tracked the whole time).
     occupied_buckets = {
         row["bucket"]: row for row in rows if row["occupied_seconds"] > 0
     }
     assert len(occupied_buckets) == 5
-    for hour in range(10, 15):
-        key = base.replace(hour=hour).isoformat()
+    for offset in range(5):
+        key = (base + timedelta(hours=offset)).isoformat()
         assert key in occupied_buckets, f"missing bucket {key}"
         bucket = occupied_buckets[key]
         assert bucket["occupied_seconds"] == 3600.0
@@ -67,15 +68,16 @@ def test_history_credits_long_occupied_period_to_every_hour(db):
 
 def test_history_mixed_intervals_split_correctly(db):
     """A slot that flips state at :30 produces half-hour chunks per bucket."""
-    base = datetime(2026, 6, 17, 9, 0, 0, tzinfo=UTC)
+    # Anchor relative to now so the events stay inside the 12h query window.
+    base = datetime.now(UTC).replace(minute=0, second=0, microsecond=0) - timedelta(hours=4)
     _seed(
         db,
         "cam1",
         [
-            ("A1", base, True),                         # 09:00 occupied
-            ("A1", base + timedelta(minutes=30), False),# 09:30 vacated
-            ("A1", base + timedelta(hours=1), True),    # 10:00 occupied again
-            ("A1", base + timedelta(hours=1, minutes=30), False),  # 10:30 vacated
+            ("A1", base, True),                         # :00 occupied
+            ("A1", base + timedelta(minutes=30), False),# :30 vacated
+            ("A1", base + timedelta(hours=1), True),    # +1h occupied again
+            ("A1", base + timedelta(hours=1, minutes=30), False),  # +1:30 vacated
         ],
     )
 

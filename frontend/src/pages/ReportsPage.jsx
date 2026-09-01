@@ -337,9 +337,10 @@ function Section({ title, right, children }) {
         style={{ borderBottom: "1px solid var(--line)", paddingBottom: 6, marginBottom: 10 }}
       >
         <h3
+          className="mono"
           style={{
             fontSize: "var(--fs-0)",
-            fontWeight: 600,
+            fontWeight: 500,
             letterSpacing: "0.08em",
             textTransform: "uppercase",
             color: "var(--ink-muted)",
@@ -850,9 +851,10 @@ export default function ReportsPage() {
           }}
         >
           <div
+            className="mono"
             style={{
               fontSize: "var(--fs-0)",
-              fontWeight: 600,
+              fontWeight: 500,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
               color: "var(--ink-muted)",
@@ -873,7 +875,7 @@ export default function ReportsPage() {
       {/* ---- main column ---- */}
       <div style={{ display: "grid", gap: 12, maxWidth: 860, minWidth: 0 }}>
         <div className="row" style={{ gap: 8 }}>
-          <span style={{ fontSize: "var(--fs-4)", fontWeight: 600 }}>Reports</span>
+          <span className="page-title">Reports</span>
           <Pill>{TEMPLATE_TITLE[template]}</Pill>
           {mode === "replay" && <Pill tone="accent">replay</Pill>}
           <div className="spacer" />

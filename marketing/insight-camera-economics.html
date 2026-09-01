@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sightline | The economics of counting parking with cameras you already own</title>
+  <meta name="description" content="Per-space sensors mean one device per space plus gateways, mounting, and a maintenance tail. The cameras already on your building change the arithmetic of parking data entirely." />
+  <!-- Mode must apply before first paint: stored choice, else OS preference -->
+  <script>(function(){try{var t=localStorage.getItem("sl-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.setAttribute("data-theme","dark")}catch(e){}})();</script>
+  <!-- Social cards. Image paths are root-relative on purpose (no production domain yet): swap og:image/twitter:image to absolute https://<domain>/assets/img/overlay.jpg URLs at launch — OG scrapers ignore relative paths. -->
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Sightline" />
+  <meta property="og:title" content="The economics of counting parking with cameras you already own" />
+  <meta property="og:description" content="Per-space sensors mean one device per space plus gateways, mounting, and a maintenance tail. The cameras already on your building change the arithmetic entirely." />
+  <meta property="og:image" content="assets/img/overlay.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="The economics of counting parking with cameras you already own" />
+  <meta name="twitter:description" content="Per-space sensors mean one device per space plus gateways, mounting, and a maintenance tail. The cameras already on your building change the arithmetic entirely." />
+  <meta name="twitter:image" content="assets/img/overlay.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,500;0,700;1,500&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css?v=6" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FBFCFB'/%3E%3Cg fill='%23151B17' fill-opacity='.35'%3E%3Crect x='5' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1.8'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1.8'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1.8'/%3E%3C/g%3E%3Crect x='13' y='13' width='6' height='6' rx='1.8' fill='%2300E676'/%3E%3C/svg%3E" />
+  <!-- Structured data: item URLs are root-relative until the production domain exists — absolutize at launch. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "headline": "The economics of counting parking with cameras you already own",
+        "description": "Per-space sensors mean one device per space plus gateways, mounting, and a maintenance tail. The cameras already on your building change the arithmetic of parking data entirely.",
+        "author": { "@type": "Person", "name": "Monish Munagala" },
+        "publisher": { "@type": "Organization", "name": "Sightline" },
+        "datePublished": "2026-08-28",
+        "image": "assets/img/overlay.jpg",
+        "mainEntityOfPage": "/insight-camera-economics.html"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "/index.html" },
+          { "@type": "ListItem", "position": 2, "name": "Writing", "item": "/insights.html" },
+          { "@type": "ListItem", "position": 3, "name": "The economics of counting parking with cameras you already own", "item": "/insight-camera-economics.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+  <style>
+    /* ---------- page: essay ---------- */
+    .essay-head { padding: calc(var(--nav-h) + var(--s-6)) 0 0; }
+    .essay-head .crumb { color: var(--text-3); transition: color 0.2s; }
+    .essay-head .crumb:hover { color: var(--text-1); }
+    .essay-head h1 {
+      font-size: clamp(2rem, 4.2vw, 3.25rem);
+      max-width: 24ch;
+      margin-top: var(--s-3);
+    }
+    .essay-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px var(--s-4);
+      margin-top: var(--s-4);
+      padding: 14px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      font-variant-numeric: tabular-nums;
+      color: var(--text-3);
+    }
+    .essay-meta .by { color: var(--text-2); }
+
+    /* reading column */
+    .essay {
+      max-width: 68ch;
+      margin: var(--s-6) auto 0;
+      line-height: 1.75;
+    }
+    .essay p { color: var(--text-2); margin-bottom: 1.6em; text-wrap: pretty; }
+    .essay h2 {
+      /* sub-28px heading: Public Sans 600 per the ramp — Schibsted display
+         is reserved for >=28px per BRAND.md */
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 1.5rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+      margin: 2.4em 0 0.9em;
+      padding-top: 1.3em;
+      border-top: 1px solid var(--border);
+    }
+    .essay h2 .sx {
+      display: block;
+      margin-bottom: 8px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--accent-text);
+    }
+
+    /* quiet pull quote */
+    .pull {
+      margin: 2.2em 0;
+      padding: 6px 0 6px var(--s-3);
+      border-left: 2px solid var(--border-3);
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(1.25rem, 2.1vw, 1.5rem);
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+      color: var(--text-1);
+      text-wrap: balance;
+    }
+
+    /* figure re-set as a hairline ledger, mono numbers */
+    .fig { margin: 2.4em 0; }
+    .fig-row {
+      display: grid;
+      grid-template-columns: minmax(150px, 220px) 1fr auto;
+      gap: var(--s-2) var(--s-3);
+      align-items: center;
+      padding: 12px var(--s-2);
+      border-top: 1px solid var(--border);
+    }
+    .fig-row .k { font-size: var(--fs-small); font-weight: 600; color: var(--text-1); line-height: 1.3; }
+    .fig-row .k small {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: var(--fs-label);
+      font-weight: 400;
+      color: var(--text-3);
+      margin-top: 2px;
+      letter-spacing: 0.02em;
+    }
+    .fig-row .bar { height: 8px; border-radius: 4px; background: var(--fill); overflow: hidden; }
+    .fig-row .bar i { display: block; height: 100%; background: var(--border-3); }
+    .fig-row .n {
+      font-family: var(--font-mono);
+      font-weight: 500;
+      font-size: 1.05rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-1);
+      white-space: nowrap;
+      text-align: right;
+    }
+    .fig-row .n .u { color: var(--text-3); font-size: 0.75em; }
+    .fig-row.zero .n { color: var(--accent-text); }
+    .fig .figcap {
+      padding: 10px var(--s-2) 0;
+      border-top: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      color: var(--text-3);
+    }
+    @media (max-width: 640px) {
+      .fig-row { grid-template-columns: 1fr auto; }
+      .fig-row .bar { grid-column: 1 / -1; }
+    }
+
+    /* read next: a single hairline row */
+    .next-wrap { max-width: 68ch; margin: var(--s-6) auto 0; }
+    .next-wrap .label { margin-bottom: var(--s-2); }
+    a.next-row {
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      gap: var(--s-3);
+      align-items: baseline;
+      padding: var(--s-3) 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .next-row .ix { font-family: var(--font-mono); font-size: var(--fs-mono); color: var(--accent-text); }
+    .next-row .t {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 1.2rem;
+      line-height: 1.25;
+      color: var(--text-1);
+      transition: color 0.2s;
+    }
+    .next-row .arr { font-family: var(--font-mono); color: var(--text-3); transition: translate 0.25s var(--ease); }
+    a.next-row:hover .t { color: var(--accent-text); }
+    a.next-row:hover .arr { translate: 3px 0; }
+    @media (max-width: 640px) { a.next-row { grid-template-columns: 44px 1fr auto; } }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s-4);
+    }
+    .cta-row .lede { max-width: 46ch; }
+    .cta-row .btns { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    /* newsletter (footer) */
+    .news-mini { display: flex; gap: 8px; margin-top: var(--s-2); }
+    .news-mini input {
+      flex: 1; min-width: 0;
+      padding: 10px 12px;
+      border-radius: var(--r-1);
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      color: var(--text-1);
+      outline: 0;
+      font-size: 0.9rem;
+    }
+    .news-mini input:focus { border-color: var(--accent-text); }
+    [data-theme="dark"] .news-mini input { background: var(--fill); }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="nav-logo" href="index.html" aria-label="Sightline home">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <g fill="currentColor" opacity=".32">
+            <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+            <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+          </g>
+          <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+        </svg>
+        Sightline
+      </a>
+      <nav aria-label="Primary">
+        <ul class="nav-links">
+          <li><a href="product.html">Product</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="the-lot.html">The Lot</a></li>
+          <li><a href="data-policy.html">Data policy</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-side">
+        <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+          <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+        </button>
+        <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+        <a class="btn btn-accent btn-sm" href="demo.html">Book a demo <span class="arr">→</span></a>
+        <button class="nav-burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sheet" aria-label="Mobile">
+    <a href="index.html">Home</a>
+    <a href="product.html">Product</a>
+    <a href="technology.html">Technology</a>
+    <a href="the-lot.html">The Lot</a>
+    <a href="data-policy.html">Data policy</a>
+    <a href="contact.html">Contact</a>
+    <a href="solutions.html">Solutions</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="compare.html">Compare</a>
+    <a href="insights.html">Writing</a>
+    <a href="login.html">Log in</a>
+    <a href="demo.html">Book a demo</a>
+  </nav>
+
+  <main id="main">
+
+    <article>
+
+      <!-- ============ essay head ============ -->
+      <header class="essay-head">
+        <div class="wrap-narrow">
+          <span class="label-mono" data-r><a class="crumb" href="insights.html">Writing</a> · economics</span>
+          <h1 data-r style="--d:.06s">The economics of counting parking with cameras you already own</h1>
+          <div class="essay-meta" data-r style="--d:.12s">
+            <span class="by">Monish Munagala</span>
+            <span>2026-08-28</span>
+            <span>6 min read</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ============ essay body ============ -->
+      <div class="wrap">
+        <div class="essay">
+          <p>
+            The most expensive part of knowing whether a parking space is taken
+            has never been the knowing. Software that can look at a car and say
+            <em>car</em> stopped being exotic years ago. The expensive part is
+            the physics: getting a sensor to the space. Multiply that by a
+            hundred spaces, in weather, in traffic, in pavement that will one
+            day be repaved, and you have the real budget line — the one that has
+            kept per-space parking data a luxury product for two decades.
+          </p>
+          <p>
+            It's worth walking through that arithmetic slowly, because it
+            explains almost everything about how this industry is priced.
+          </p>
+
+          <h2><span class="sx">/01</span>The arithmetic of hardware</h2>
+          <p>
+            The classic answer to occupancy is a device physically in the space:
+            a sealed puck sitting in or on the pavement, one per space,
+            reporting over a radio network. The engineering is genuinely good —
+            the leading in-ground sensors are millimeters thin, rated for tons
+            of load per wheel, with batteries specified up to ten years. But the
+            unit economics are unforgiving. A 100-space lot needs one hundred
+            sensors, plus the radio gateways that collect them. Each one is
+            fixed to the pavement with adhesive or cored into it. Nothing about
+            that scales gracefully: space 101 costs what space 1 cost.
+          </p>
+          <p>
+            Garage guidance systems soften the count but keep the construction.
+            A camera unit mounted over every drive aisle watches up to six bays
+            apiece — call it seventeen units for a hundred spaces — and the
+            install threads ceiling channel, CAT6, and power runs through the
+            whole structure. Overhead sensor systems compress the count further
+            still, with a single mast-mounted device covering up to a hundred
+            spaces, but the device is still proprietary, still purchased, and
+            still needs a pole, a mount, and a power feed.
+          </p>
+
+          <figure class="fig" data-r>
+            <div role="img" aria-label="Devices installed to watch 100 spaces, by approach: camera software 0, overhead sensors 1 to 2, garage guidance about 17 plus cabling, in-ground sensors 100 or more plus gateways">
+              <div class="fig-row zero">
+                <span class="k">Camera software<small>on cameras you own</small></span>
+                <span class="bar" aria-hidden="true"><i style="width:0%"></i></span>
+                <span class="n">0 <span class="u">devices</span></span>
+              </div>
+              <div class="fig-row">
+                <span class="k">Overhead sensors<small>pole or mast</small></span>
+                <span class="bar" aria-hidden="true"><i style="width:2%"></i></span>
+                <span class="n">1–2 <span class="u">devices</span></span>
+              </div>
+              <div class="fig-row">
+                <span class="k">Garage guidance<small>1 unit per 6 bays</small></span>
+                <span class="bar" aria-hidden="true"><i style="width:17%"></i></span>
+                <span class="n">≈17 <span class="u">+ cabling</span></span>
+              </div>
+              <div class="fig-row">
+                <span class="k">In-ground sensors<small>1 per space</small></span>
+                <span class="bar" aria-hidden="true"><i style="width:100%"></i></span>
+                <span class="n">100+ <span class="u">&amp; gateways</span></span>
+              </div>
+            </div>
+            <figcaption class="figcap">Devices installed to watch 100 spaces, from each vendor's published coverage figures.</figcaption>
+          </figure>
+
+          <p>
+            It is tempting to negotiate on unit price, but the unit price is
+            the least durable number on the quote. The count is what endures.
+            A hundred devices is a hundred purchase decisions, a hundred
+            installation visits, and — years later, on a schedule the vendor
+            sets — a hundred service calls. Whatever the shape of the
+            hardware, every device count drives three budgets at once: the
+            purchase, the installation, and the maintenance. The first is the
+            only one that fits on a quote.
+          </p>
+
+          <h2><span class="sx">/02</span>Installation is a construction project</h2>
+          <p>
+            The second budget arrives in high-visibility vests. Coring pavement
+            means closing rows. Ceiling cabling means lifts in the aisles and
+            conduit through the structure. Mast mounting means trenching power
+            to wherever the pole stands. While all of it happens, the lot is
+            partly a work site — which for a parking business means the asset is
+            busy costing money precisely where it usually earns it.
+          </p>
+          <p>
+            And the third budget never really ends. A ten-year battery is an
+            honest spec and also a promise: at some point, someone kneels at
+            every single space with a tool. Repave the lot and the in-pavement
+            install happens twice. Reconfigure the layout — angle the rows,
+            add EV charging — and devices move with it. The device count you
+            bought on day one follows you around for the life of the system.
+          </p>
+
+          <blockquote class="pull">
+            Every approach except software has a device count attached to it,
+            and the count is what drives cost for the life of the system.
+          </blockquote>
+
+          <h2><span class="sx">/03</span>The sensor you already bought</h2>
+          <p>
+            Here is the part that changes the arithmetic: most lots worth
+            instrumenting are already inside a camera's field of view. Security
+            cameras went up years ago, for entirely different reasons, and
+            nearly every one made in the last decade speaks the same standard
+            streaming protocol, RTSP. One fixed camera can hold a hundred
+            spaces in frame — <a href="the-lot.html">Lot A</a>, the real lot
+            this whole site is built on, is exactly that: one view, one
+            hundred spaces.
+          </p>
+          <p>
+            Sightline's whole economic argument sits in that fact. The sensor
+            network your lot needs is, in most cases, already bolted to your
+            building and already depreciated on someone's books. What was
+            missing was software that reads it per space, continuously, on
+            <a href="technology.html">your own hardware</a> — so the marginal
+            hardware cost of per-space data drops to zero, because the hardware
+            exists. The "installation" is drawing each space's outline on the
+            frame once. When you repave, you redraw polygons in an afternoon
+            instead of re-coring a hundred holes.
+          </p>
+          <p>
+            Honesty requires the caveat: this only works where a camera can
+            see. A curb with no coverage, an isolated corner, a low deck no
+            lens reaches — there, a device in the space is the right answer,
+            and we <a href="compare.html">say so plainly in our comparison</a>.
+            The economics of cameras are the economics of coverage you already
+            have.
+          </p>
+
+          <h2><span class="sx">/04</span>What the software model changes</h2>
+          <p>
+            Once the sensor is software, cost stops scaling with spaces at all.
+            There is no device to multiply by a hundred, so
+            <a href="pricing.html">Sightline's pricing</a> scales with sites
+            instead — a flat monthly rate, whether the camera watches forty
+            spaces or four hundred. Year one contains no construction project,
+            and year eight contains no battery campaign. The failure modes
+            change shape too: a software problem is fixed in an update pushed
+            to your machine, not a truck roll to a device in the pavement.
+          </p>
+          <p>
+            The budgeting conversation changes with it. A hardware system is a
+            capital project — quotes, approvals, closures, a depreciation
+            schedule — and capital projects are exactly the meetings where
+            per-space data has historically gone to die. A software
+            subscription is an operating line that starts this month and can
+            stop next month, which means the decision can be made by the
+            person who actually runs the lot, on the evidence of their own
+            footage.
+          </p>
+          <p>
+            The data gets better at the same time the cost gets simpler.
+            A camera-based system reads the lot continuously — Sightline
+            analyzes five frames every second — rather than sampling it on an
+            interval, and the same feed that produces the counts shows you the
+            lot itself, which no buried sensor can.
+          </p>
+          <p>
+            None of this required inventing new hardware. That is the quiet
+            point of the whole argument: the cheapest sensor is the one already
+            bolted to your building. The economics of parking data stopped
+            being a hardware problem the day your cameras went up — the
+            remaining step is a <a href="demo.html">thirty-minute call</a>
+            where we point software at them and you watch your own lot become
+            numbers.
+          </p>
+        </div>
+
+        <!-- ============ read next ============ -->
+        <div class="next-wrap" data-r>
+          <span class="label">Read next</span>
+          <a class="next-row" href="insight-time-weighted-occupancy.html">
+            <span class="ix">/02</span>
+            <span class="t">Why occupancy history should be measured in seconds, not events</span>
+            <span class="arr">→</span>
+          </a>
+        </div>
+      </div>
+
+    </article>
+
+    <!-- ============ CTA ============ -->
+    <section class="section on-tint" style="margin-top: var(--s-7);" aria-labelledby="cta-h">
+      <div class="wrap">
+        <div class="section-head" style="margin-bottom: var(--s-4);">
+          <span class="label" data-r>Next step</span>
+          <h2 class="t-title" id="cta-h" data-r style="--d:.06s">Run the numbers on your cameras.</h2>
+        </div>
+        <div class="cta-row">
+          <p class="lede" data-r style="--d:.12s">
+            Bring a camera feed and thirty minutes. We'll map your spaces live
+            on the call, and the hardware line item stays at zero.
+          </p>
+          <div class="btns" data-r style="--d:.18s">
+            <a class="btn btn-accent" href="demo.html">Book a demo <span class="arr">→</span></a>
+            <a class="btn btn-line" href="the-lot.html">See the live lot</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ dark footer ============ -->
+  <footer class="foot" data-theme="dark">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="nav-logo" href="index.html">
+            <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+              <g fill="currentColor" opacity=".32">
+                <rect x="3" y="3" width="7" height="7" rx="2.2"/><rect x="12.5" y="3" width="7" height="7" rx="2.2"/><rect x="22" y="3" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="12.5" width="7" height="7" rx="2.2"/><rect x="22" y="12.5" width="7" height="7" rx="2.2"/>
+                <rect x="3" y="22" width="7" height="7" rx="2.2"/><rect x="12.5" y="22" width="7" height="7" rx="2.2"/><rect x="22" y="22" width="7" height="7" rx="2.2"/>
+              </g>
+              <rect x="12.5" y="12.5" width="7" height="7" rx="2.2" fill="var(--accent)"/>
+            </svg>
+            Sightline
+          </a>
+          <p class="foot-tag">Per-space parking occupancy from the cameras you already own, on your own hardware.</p>
+          <p class="foot-status">status: proving Sightline on one real 100-space lot. more soon.</p>
+          <form data-form novalidate aria-label="Newsletter">
+            <div class="news-mini">
+              <input type="email" placeholder="you@company.com" aria-label="Email address" required />
+              <button class="btn btn-quiet btn-sm" type="submit" style="width:auto;">Subscribe</button>
+            </div>
+          </form>
+          <div class="form-success" style="margin-top:10px;"><span class="mk">ok</span> You're subscribed. Watch your inbox.</div>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="product.html">Product</a></li>
+            <li><a href="technology.html">Technology</a></li>
+            <li><a href="the-lot.html">The Lot</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="compare.html">Compare</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Solutions</h4>
+          <ul>
+            <li><a href="solutions.html#operators">Operators &amp; garages</a></li>
+            <li><a href="solutions.html#campuses">Campuses &amp; venues</a></li>
+            <li><a href="solutions.html#curb">Municipal curb</a></li>
+            <li><a href="demo.html">Book a demo</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About</a></li>
+            <li><a href="insights.html">Writing</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="data-policy.html">Data policy</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-legal">
+        <span>© 2026 Sightline · Monish Munagala · Charlotte, NC</span>
+        <div class="links">
+          <button class="mode-toggle" type="button" data-mode-toggle aria-label="Switch between light and dark mode">
+            <span class="cell cell-light"></span><span class="cell cell-dark"></span>
+          </button>
+          <a href="data-policy.html">Data policy</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/env.js"></script>
+  <script src="assets/js/main.js?v=7"></script>
+</body>
+</html>

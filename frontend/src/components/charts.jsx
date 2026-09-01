@@ -40,7 +40,7 @@ export function TimeChart({
   yMax = 100,
   yMin = 0,
   now = null,
-  tone = "var(--accent)",
+  tone = "var(--accent-text)",
   unit = "%",
   threshold = null,
 }) {
@@ -164,7 +164,8 @@ export function Bars({ data, max = 100, unit = "%" }) {
                 width: `${Math.min(100, (d.v / max) * 100)}%`,
                 height: "100%",
                 borderRadius: 3,
-                background: d.tone || "var(--accent)",
+                /* quiet by default — callers color only abnormal bars */
+                background: d.tone || "var(--border-3)",
                 transition: "width var(--t-med) var(--ease-out)",
               }}
             />

@@ -1,0 +1,7 @@
+# Sightline marketing site
+User-agent: *
+Allow: /
+Disallow: /admin-portal/
+
+# Absolutize at launch: https://<domain>/sitemap.xml
+Sitemap: /sitemap.xml
