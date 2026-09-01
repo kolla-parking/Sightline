@@ -22,3 +22,4 @@ sample-data/pklot/*
 !sample-data/pklot/slots.json
 !sample-data/pklot/manifest.json
 .DS_Store
+dump.rdb
