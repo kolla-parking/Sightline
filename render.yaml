@@ -72,6 +72,12 @@ services:
       rm -rf marketing/console && cp -r frontend/dist marketing/console &&
       printf 'window.SIGHTLINE_API="%s";\n' "$API_URL" > marketing/assets/js/env.js
     routes:
+      # Render serves /admin-portal (no slash) as the directory index without
+      # redirecting, which used to break the page's relative asset URLs.
+      # Assets are root-absolute now; this keeps the URL canonical anyway.
+      - type: redirect
+        source: /admin-portal
+        destination: /admin-portal/
       - type: rewrite
         source: /login
         destination: /console/index.html
