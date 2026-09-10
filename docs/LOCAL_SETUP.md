@@ -49,11 +49,15 @@ PY
 cp .env.example .env
 ```
 
-The backend can run in memory mode for local testing:
+The backend can run in memory mode for camera-only testing:
 
 ```text
 DATABASE_URL=memory
 ```
+
+Memory mode disables sign-in: the console login, the admin portal, and the
+demo/contact forms all return `503` until the backend has Postgres and
+Redis. See [Sign-in locally](#sign-in-locally-console--admin-portal) below.
 
 ## Start The Local Demo
 
@@ -106,6 +110,49 @@ Open:
 ```text
 http://localhost:5173
 ```
+
+## Sign-In Locally (Console + Admin Portal)
+
+Console login (`/login`) and the admin portal are backed by Postgres (member
+and org rows) and Redis (session tokens). With `DATABASE_URL=memory` the
+backend answers every sign-in with `503`, and the console shows
+"Sign-in is unavailable".
+
+On macOS with Homebrew:
+
+```bash
+brew install postgresql@14 redis
+brew services start postgresql@14
+brew services start redis
+createdb sightline_dev
+```
+
+Then start the backend against them instead of memory mode. Migrations run
+at startup and seed the demo client account.
+
+```bash
+source .venv/bin/activate
+
+DATABASE_URL=postgresql://$USER@localhost:5432/sightline_dev \
+REDIS_URL=redis://localhost:6379/0 \
+ADMIN_EMAIL=admin@sightline.test \
+ADMIN_PASSWORD=choose-a-local-password \
+.venv/bin/uvicorn backend.api.main:app --host 0.0.0.0 --port 8000
+```
+
+Serve the marketing site with the dev server (not `python -m http.server`):
+it redirects `/login` and `/console/*` to the Vite dev server the same way
+the production static site rewrites them.
+
+```bash
+python scripts/dev_marketing.py
+```
+
+| Surface | URL | Credentials |
+|---|---|---|
+| Marketing | http://localhost:8090 | — |
+| Console sign-in | http://localhost:5173/login (or "Log in" on the marketing site) | `demo@sightline.test` / `sightline-demo-8246` (seeded by `006_demo_client.sql`) |
+| Admin portal | http://localhost:8090/admin-portal/ | `ADMIN_EMAIL` / `ADMIN_PASSWORD` from the backend command |
 
 ## Add The Sample Camera
 

@@ -9,13 +9,17 @@ Plex Mono data, dual themes (ember default / signal) switched via
 ## Run it
 
 ```bash
-cd marketing
-python -m http.server 8090
+# from the repository root
+python scripts/dev_marketing.py
 # open http://localhost:8090
 ```
 
 A local server is required (the detection replay fetches
-`assets/data/slots.json`).
+`assets/data/slots.json`). Use `scripts/dev_marketing.py` rather than a bare
+`python -m http.server`: in production `/login` and `/console/*` are
+rewritten to the operator console (see `render.yaml`), and the dev server
+reproduces that by redirecting them to the Vite dev server on `:5173`.
+Without it the header "Log in" button 404s locally.
 
 ## Pages
 

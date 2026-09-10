@@ -2,16 +2,36 @@
 // exists, verifies credentials against the real backend, then hands off
 // to the app via the store's auth slice.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useStore } from "../store/useStore.js";
-import { apiLogin } from "../lib/api.js";
+import { apiLogin, apiMe } from "../lib/api.js";
 import { Mark } from "../components/ui.jsx";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const authStatus = useStore((s) => s.authStatus);
+  const authToken = useStore((s) => s.authToken);
   const setAuth = useStore((s) => s.setAuth);
+  const clearAuth = useStore((s) => s.clearAuth);
+
+  // /login is outside RequireAuth, so nothing else verifies a stored token
+  // here. Without this, an already signed-in operator who clicks "Log in"
+  // on the marketing site is shown the form again. Verify quietly; the
+  // `authed` redirect below takes over once /auth/member/me confirms.
+  useEffect(() => {
+    if (authStatus !== "checking" || !authToken) return;
+    let alive = true;
+    apiMe(authToken).then((res) => {
+      if (!alive) return;
+      if (res.ok) setAuth({ token: authToken, user: res.data?.member || null });
+      else if (res.status === 401 || res.status === 403) clearAuth();
+      // status 0 / 5xx: leave "checking" — the form stays usable.
+    });
+    return () => {
+      alive = false;
+    };
+  }, [authStatus, authToken, setAuth, clearAuth]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -59,6 +79,16 @@ export default function LoginPage() {
     } else if (res.status === 403) {
       setError(
         "Your organization's access was revoked by Sightline. Contact your administrator if this is unexpected.",
+      );
+    } else if (res.status >= 500) {
+      // 503 here is almost always a deployment problem (backend running
+      // with DATABASE_URL=memory, or Redis down) — surface the server's
+      // reason instead of blaming the credentials.
+      const detail = typeof res.data?.detail === "string" ? res.data.detail : null;
+      setError(
+        detail
+          ? `Sign-in is unavailable: ${detail}.`
+          : "Sign-in is unavailable — the Sightline server returned an error. Try again shortly.",
       );
     } else {
       setError("Invalid email or password.");
