@@ -53,7 +53,9 @@ services:
           name: sightline-redis
           property: connectionString
       - key: ADMIN_EMAIL
-        value: admin@sightline.test
+        value: sightline.parking@gmail.com
+      # Generated on first apply; since replaced in the dashboard. Blueprint
+      # syncs never regenerate an existing value.
       - key: ADMIN_PASSWORD
         generateValue: true
       # Exact-match origins (local dev); onrender.com origins are covered by
